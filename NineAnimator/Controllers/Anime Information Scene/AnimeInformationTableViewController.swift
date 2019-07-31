@@ -558,7 +558,7 @@ extension AnimeInformationTableViewController {
         if let popoverController = actionSheet.popoverPresentationController {
             popoverController.sourceView = sender
         }
-        
+        // swiftlint:disable trailing_closure
         // Show view on website option
         if presentingAnimeInformation != nil {
             actionSheet.addAction({
@@ -572,6 +572,7 @@ extension AnimeInformationTableViewController {
                 return action
             }())
         }
+        // swiftlint:enable trailing_closure
         
         // Cancel option
         actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel) {

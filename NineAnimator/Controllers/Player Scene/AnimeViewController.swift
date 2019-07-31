@@ -465,6 +465,7 @@ extension AnimeViewController {
 
 // MARK: - Suggesting To Watch episode
 extension AnimeViewController {
+    // swiftlint:disable trailing_closure
     @IBAction private func onQuickJumpButtonTapped(_ sender: UIButton) {
         guard let server = server, let episodes = anime?.episodes[server] else { return }
         
@@ -540,6 +541,7 @@ extension AnimeViewController {
         
         present(quickJumpSheet, animated: true, completion: nil)
     }
+    // swiftlint:enable trailing_closure
     
     private func updateSuggestingEpisode(for cell: AnimePredictedEpisodeTableViewCell) {
         guard let anime = anime, let server = server else { return }
@@ -616,6 +618,7 @@ extension AnimeViewController {
         }
     }
     
+    // swiftlint:disable trailing_closure
     @IBAction private func onMoreOptionsButtonTapped(_ sender: Any) {
         guard let animeLink = animeLink else { return }
         
@@ -686,6 +689,7 @@ extension AnimeViewController {
         
         present(actionSheet, animated: true, completion: nil)
     }
+    // swiftlint:enable trailing_closure
     
     private func showSelectServerDialog() {
         let alertView = UIAlertController(title: "Select Server", message: nil, preferredStyle: .actionSheet)
