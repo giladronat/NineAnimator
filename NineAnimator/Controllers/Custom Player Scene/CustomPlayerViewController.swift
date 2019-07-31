@@ -42,7 +42,10 @@ class CustomPlayerViewController: UIViewController {
     }
     
     private func addPlayerItemObservers(_ playerItem: AVPlayerItem) {
-        //
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(playerItemPlaybackStalled(_:)),
+                                               name: .AVPlayerItemPlaybackStalled,
+                                               object: playerItem)
     }
     
     private func addPlayerObservers(_ player: AVPlayer) {
@@ -76,6 +79,15 @@ class CustomPlayerViewController: UIViewController {
             // not sure what's best here
             // probably pause or track whether user previously hit play/pause
             print("Play tapped while waiting to play")
+        }
+    }
+    
+    // MARK: - Notifications
+    @objc private func playerItemPlaybackStalled(_ notification: Notification) {
+        // Buffering
+        DispatchQueue.main.async { [weak self] in
+            // TODO: Show spinner
+            print("Playback stalled")
         }
     }
 }
