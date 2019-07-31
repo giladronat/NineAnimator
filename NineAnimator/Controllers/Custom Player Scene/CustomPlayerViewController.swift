@@ -46,6 +46,10 @@ class CustomPlayerViewController: UIViewController {
                                                selector: #selector(playerItemPlaybackStalled(_:)),
                                                name: .AVPlayerItemPlaybackStalled,
                                                object: playerItem)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(playerItemDidPlayToEndTime(_:)),
+                                               name: .AVPlayerItemDidPlayToEndTime,
+                                               object: playerItem)
     }
     
     private func addPlayerObservers(_ player: AVPlayer) {
@@ -89,5 +93,10 @@ class CustomPlayerViewController: UIViewController {
             // TODO: Show spinner
             print("Playback stalled")
         }
+    }
+    
+    @objc func playerItemDidPlayToEndTime(_ notification: Notification) {
+        print("Finished playing")
+        pause()
     }
 }
