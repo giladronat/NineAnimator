@@ -297,6 +297,7 @@
 		526A018821BD7DB900A90385 /* AVPlayerItem+ProviderParsers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 526A018721BD7DB900A90385 /* AVPlayerItem+ProviderParsers.swift */; };
 		52CADD6721BD86F40077BEB1 /* UITableView+DeselectRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52CADD6621BD86F40077BEB1 /* UITableView+DeselectRows.swift */; };
 		65A1F44422726A0E00B43F85 /* OpenLoadParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A1F44322726A0E00B43F85 /* OpenLoadParser.swift */; };
+		B069949122F2459B00ADC16C /* CustomPlayer.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B069949022F2459B00ADC16C /* CustomPlayer.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -654,6 +655,7 @@
 		52CADD6621BD86F40077BEB1 /* UITableView+DeselectRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableView+DeselectRows.swift"; sourceTree = "<group>"; };
 		52F6A4F221DABDB00005D78D /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = SOURCE_ROOT; };
 		65A1F44322726A0E00B43F85 /* OpenLoadParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenLoadParser.swift; sourceTree = "<group>"; };
+		B069949022F2459B00ADC16C /* CustomPlayer.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = CustomPlayer.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -982,6 +984,7 @@
 				2C9383DA21FDFBB2008C0D01 /* Search Scene */,
 				2C9383D921FDFBA6008C0D01 /* Featured Scene */,
 				2CAA70D121CFF40900F0D082 /* Player Scene */,
+				B069948E22F2450600ADC16C /* Custom Player Scene */,
 				2C9C44FC21CD2B07004C8F0C /* Settings Scene */,
 				2C12EDD621BDE66E0064D2BD /* Prototype */,
 				2CAA70CF21CFF10B00F0D082 /* RootViewController.swift */,
@@ -1022,6 +1025,7 @@
 				2C9383C921FBE774008C0D01 /* Theme */,
 				2CEB56D521DBE48F0018D804 /* Search Scene */,
 				2CEB56D421DBE45B0018D804 /* Anime Scene */,
+				B069948F22F2453000ADC16C /* Custom Player Scene */,
 				2C4817A121DB118F0092F694 /* Recents Tab Scene */,
 				2C17E08721D7D63100E3FD1F /* Featured Tab Scene */,
 				2C1C716A2218454A00760A69 /* Content Listing Scene */,
@@ -1071,6 +1075,7 @@
 				2C4ABC5721B5881E009B4D47 /* Main.storyboard */,
 				2C4ABC5C21B5881F009B4D47 /* LaunchScreen.storyboard */,
 				2C4ABC8C21B76010009B4D47 /* AnimePlayer.storyboard */,
+				B069949022F2459B00ADC16C /* CustomPlayer.storyboard */,
 				2C12EDE121BDE9230064D2BD /* GoogleCastMediaControl.storyboard */,
 				2C9C44F921CD2405004C8F0C /* Settings.storyboard */,
 				2C8F6E8522062BB90047798B /* OfflineAnimeViewer.storyboard */,
@@ -1536,6 +1541,20 @@
 			path = Object;
 			sourceTree = "<group>";
 		};
+		B069948E22F2450600ADC16C /* Custom Player Scene */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "Custom Player Scene";
+			sourceTree = "<group>";
+		};
+		B069948F22F2453000ADC16C /* Custom Player Scene */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "Custom Player Scene";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1675,6 +1694,7 @@
 				2C4ABC8E21B76010009B4D47 /* AnimePlayer.storyboard in Resources */,
 				2C4ABC5E21B5881F009B4D47 /* LaunchScreen.storyboard in Resources */,
 				2C86C1E8225D6DC800950ABF /* SelflessAuthenticationWebViewController.storyboard in Resources */,
+				B069949122F2459B00ADC16C /* CustomPlayer.storyboard in Resources */,
 				2C86C1E5225D6D8500950ABF /* Setup.storyboard in Resources */,
 				2C71DEC8226E179B004F3AC3 /* ServerSelection.storyboard in Resources */,
 				2C4ABC5B21B5881F009B4D47 /* Assets.xcassets in Resources */,
