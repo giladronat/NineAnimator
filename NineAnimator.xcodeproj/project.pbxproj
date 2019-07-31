@@ -299,6 +299,7 @@
 		65A1F44422726A0E00B43F85 /* OpenLoadParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A1F44322726A0E00B43F85 /* OpenLoadParser.swift */; };
 		B069949122F2459B00ADC16C /* CustomPlayer.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B069949022F2459B00ADC16C /* CustomPlayer.storyboard */; };
 		B069949322F2463200ADC16C /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069949222F2463200ADC16C /* PlayerView.swift */; };
+		B069949522F2478B00ADC16C /* CustomPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069949422F2478B00ADC16C /* CustomPlayerViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -658,6 +659,7 @@
 		65A1F44322726A0E00B43F85 /* OpenLoadParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenLoadParser.swift; sourceTree = "<group>"; };
 		B069949022F2459B00ADC16C /* CustomPlayer.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = CustomPlayer.storyboard; sourceTree = "<group>"; };
 		B069949222F2463200ADC16C /* PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
+		B069949422F2478B00ADC16C /* CustomPlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPlayerViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1546,6 +1548,7 @@
 		B069948E22F2450600ADC16C /* Custom Player Scene */ = {
 			isa = PBXGroup;
 			children = (
+				B069949422F2478B00ADC16C /* CustomPlayerViewController.swift */,
 			);
 			path = "Custom Player Scene";
 			sourceTree = "<group>";
@@ -2049,6 +2052,7 @@
 				2CD1A64E222EE32000121320 /* CollectionsTableViewCell.swift in Sources */,
 				2C8DD30B224B0B9A001D9A16 /* AnimeUltima+Anime.swift in Sources */,
 				2C4ABC5421B5881E009B4D47 /* AppDelegate.swift in Sources */,
+				B069949522F2478B00ADC16C /* CustomPlayerViewController.swift in Sources */,
 				2C8519C422D31FFD00EEF3AC /* AnimeKisa+Anime.swift in Sources */,
 				2CA1DD4121E18FC6009241CB /* MasterAnimeLinkRetriver.swift in Sources */,
 				2C3D7BF92210ADB80045D648 /* AnimeTwist.swift in Sources */,
