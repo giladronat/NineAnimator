@@ -19,6 +19,9 @@ class CustomPlayerViewController: UIViewController {
     
     @IBOutlet private weak var playerView: PlayerView!
     
+    // Control UI
+    @IBOutlet private weak var playButton: UIButton!
+    
     func play(_ media: PlaybackMedia) {
         self.media = media
         preparePlayer()
@@ -48,9 +51,31 @@ class CustomPlayerViewController: UIViewController {
     
     private func play() {
         player.play()
+        
+        // Reflect UI
+        playButton.setTitle("Pause", for: .normal)
     }
     
     private func pause() {
         player.pause()
+        
+        // Reflect UI
+        playButton.setTitle("Play", for: .normal)
+    }
+    
+    // TODO: Make possible UI states explicit -- paused, buffering, etc
+    
+    // MARK: - UI Actions
+    @IBAction private func playTapped(sender: UIButton) {
+        if player.timeControlStatus == .playing {
+            pause()
+        } else if player.timeControlStatus == .paused {
+            play()
+        } else if player.timeControlStatus == .waitingToPlayAtSpecifiedRate {
+            // TODO: Handle this
+            // not sure what's best here
+            // probably pause or track whether user previously hit play/pause
+            print("Play tapped while waiting to play")
+        }
     }
 }
