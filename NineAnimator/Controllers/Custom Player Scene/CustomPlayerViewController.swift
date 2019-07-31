@@ -17,6 +17,8 @@ class CustomPlayerViewController: UIViewController {
     
     private let player = AVPlayer()
     
+    private var playerItemStatusObservation: NSKeyValueObservation?
+    
     @IBOutlet private weak var playerView: PlayerView!
     
     // Control UI
@@ -39,21 +41,6 @@ class CustomPlayerViewController: UIViewController {
         
         // Set up player with item
         player.replaceCurrentItem(with: playerItem)
-    }
-    
-    private func addPlayerItemObservers(_ playerItem: AVPlayerItem) {
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(playerItemPlaybackStalled(_:)),
-                                               name: .AVPlayerItemPlaybackStalled,
-                                               object: playerItem)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(playerItemDidPlayToEndTime(_:)),
-                                               name: .AVPlayerItemDidPlayToEndTime,
-                                               object: playerItem)
-    }
-    
-    private func addPlayerObservers(_ player: AVPlayer) {
-        //
     }
     
     private func play() {
@@ -86,7 +73,54 @@ class CustomPlayerViewController: UIViewController {
         }
     }
     
+    // MARK: - Observing
+    
+    private func addPlayerItemObservers(_ playerItem: AVPlayerItem) {
+        observeStatus(playerItem)
+        
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(playerItemPlaybackStalled(_:)),
+                                               name: .AVPlayerItemPlaybackStalled,
+                                               object: playerItem)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(playerItemDidPlayToEndTime(_:)),
+                                               name: .AVPlayerItemDidPlayToEndTime,
+                                               object: playerItem)
+    }
+    
+    // Call before creating player with playerItem
+    private func observeStatus(_ item: AVPlayerItem) {
+        playerItemStatusObservation = item.observe(\.status, changeHandler: { [weak self] (item, _) in
+            switch item.status {
+            case .readyToPlay:
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    if item.duration.isValid && !item.duration.isIndefinite {
+                        // Update total time label
+                        print("Total time: \(item.duration)")
+                    }
+                }
+            case .failed:
+                print("Failed to load item")
+                if let error = item.error {
+                    print(error)
+                }
+            case .unknown:
+                // Not ready to play
+                // Dim UI?
+                print("State unknown")
+            @unknown default:
+                print("Undocumented status")
+            }
+        })
+    }
+    
+    private func addPlayerObservers(_ player: AVPlayer) {
+        //
+    }
+    
     // MARK: - Notifications
+    
     @objc private func playerItemPlaybackStalled(_ notification: Notification) {
         // Buffering
         DispatchQueue.main.async { [weak self] in
