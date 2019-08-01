@@ -12,7 +12,7 @@ import UIKit
 // Basic AVPlayerLayer view
 // https://developer.apple.com/documentation/avfoundation/avplayerlayer
 
-class PlayerView: UIView {
+class PlayerLayerView: UIView {
     override class var layerClass: AnyClass {
         return AVPlayerLayer.self
     }

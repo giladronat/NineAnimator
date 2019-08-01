@@ -19,7 +19,7 @@ class CustomPlayerViewController: UIViewController {
     
     private var playerItemStatusObservation: NSKeyValueObservation?
     
-    @IBOutlet private weak var playerView: PlayerView!
+    @IBOutlet private weak var playerLayerView: PlayerLayerView!
     
     // Control UI
     @IBOutlet private weak var playButton: UIButton!
@@ -32,7 +32,7 @@ class CustomPlayerViewController: UIViewController {
     
     private func preparePlayer() {
         // Set up view layer
-        playerView.player = player
+        playerLayerView.player = player
         
         if let playerItem = playerItem {
             addPlayerItemObservers(playerItem)
