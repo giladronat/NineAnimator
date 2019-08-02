@@ -44,6 +44,7 @@
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="playButton" destination="Vw9-rr-J3w" id="SXP-5B-PCd"/>
+                        <outlet property="playerLayerView" destination="A2e-hQ-TxY" id="3F7-ae-pDU"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dK0-O7-rhv" userLabel="First Responder" sceneMemberID="firstResponder"/>
