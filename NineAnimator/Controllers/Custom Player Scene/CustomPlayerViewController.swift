@@ -124,6 +124,13 @@ class CustomPlayerViewController: UIViewController {
         }
     }
     
+    // TODO: Find where to call this
+    private func removePlayerItemObservers(_ playerItem: AVPlayerItem) {
+        playerItemStatusObservation?.invalidate()
+        NotificationCenter.default.removeObserver(self, name: .AVPlayerItemPlaybackStalled, object: playerItem)
+        NotificationCenter.default.removeObserver(self, name: .AVPlayerItemDidPlayToEndTime, object: playerItem)
+    }
+    
     private func addPlayerObservers(_ player: AVPlayer) {
         timeObserverToken = player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 1.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC)), queue: DispatchQueue.main) { [weak self] time in
             guard let item = self?.playerItem, let self = self else { return }
