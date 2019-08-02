@@ -103,7 +103,8 @@ class CustomPlayerViewController: UIViewController {
                     guard let self = self else { return }
                     if item.duration.isValid && !item.duration.isIndefinite {
                         // Update total time label
-                        print("Total time: \(item.duration.seconds)")
+                        let totalTimeSeconds = TimeInterval(item.duration.seconds)
+                        self.totalTimeLabel.update(toTime: totalTimeSeconds)
                     }
                 }
             case .failed:
