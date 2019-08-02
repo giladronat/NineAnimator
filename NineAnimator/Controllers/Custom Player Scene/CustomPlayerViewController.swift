@@ -11,9 +11,7 @@ import UIKit
 
 class CustomPlayerViewController: UIViewController {
     private var media: PlaybackMedia?
-    private var playerItem: AVPlayerItem? {
-        return media?.avPlayerItem
-    }
+    private var playerItem: AVPlayerItem?
     
     private let player = AVPlayer()
     
@@ -26,6 +24,11 @@ class CustomPlayerViewController: UIViewController {
     
     func play(_ media: PlaybackMedia) {
         self.media = media
+        play(media.avPlayerItem)
+    }
+    
+    private func play(_ playerItem: AVPlayerItem) {
+        self.playerItem = playerItem
         preparePlayer()
         play()
     }
@@ -132,5 +135,17 @@ class CustomPlayerViewController: UIViewController {
     @objc func playerItemDidPlayToEndTime(_ notification: Notification) {
         print("Finished playing")
         pause()
+    }
+}
+
+// MARK: - Test Preview
+
+extension CustomPlayerViewController {
+    override func viewWillAppear(_ animated: Bool) {   
+        let m3u8TestPlayerItem = AVPlayerItem(url: URL(string: "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8")!)
+        let mp4TestPlayerItem = AVPlayerItem(url: URL(string: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_2mb.mp4")!)
+        play(mp4TestPlayerItem)
+        
+        super.viewWillAppear(animated)
     }
 }
