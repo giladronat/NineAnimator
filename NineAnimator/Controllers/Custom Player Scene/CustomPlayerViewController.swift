@@ -141,6 +141,35 @@ class CustomPlayerViewController: UIViewController {
     }
 }
 
+// MARK: - Date Formatting Helpers
+
+// TODO: Check if I should keep these, if so extract to Utilities
+extension DateFormatter {
+    static let playerTimeDateFormatter: DateFormatter = {
+        let timeFormat = "mm:ss"
+        
+        let formatter = DateFormatter()
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = timeFormat
+        
+        return formatter
+    }()
+}
+
+extension UILabel {
+    func update(toTime: TimeInterval) {
+        var timeFormat: String = "mm:ss"
+        if toTime >= 3600 {
+            timeFormat = "HH:mm:ss"
+        }
+        let date = Date(timeIntervalSince1970: toTime)
+        let formatter = DateFormatter.playerTimeDateFormatter
+        formatter.dateFormat = timeFormat
+        
+        text = formatter.string(from: date)
+    }
+}
+
 // MARK: - Test Preview
 
 extension CustomPlayerViewController {
