@@ -16,12 +16,13 @@ class CustomPlayerViewController: UIViewController {
     private let player = AVPlayer()
     
     private var playerItemStatusObservation: NSKeyValueObservation?
+    private var timeObserverToken: Any?
     
     @IBOutlet private weak var playerLayerView: PlayerLayerView!
     
     // Control UI
     @IBOutlet private weak var playButton: UIButton!
-    @IBOutlet private weak var currentTimeLabel: UILabel!
+    @IBOutlet private weak var currentPlaybackTimeLabel: UILabel!
     @IBOutlet private weak var timeToEndLabel: UILabel!
     @IBOutlet private weak var totalTimeLabel: UILabel!
     
@@ -104,7 +105,7 @@ class CustomPlayerViewController: UIViewController {
                     if item.duration.isValid && !item.duration.isIndefinite {
                         // Update total time label
                         let totalTimeSeconds = TimeInterval(item.duration.seconds)
-                        self.totalTimeLabel.update(toTime: totalTimeSeconds)
+                        self.totalTimeLabel.text = self.format(timeInterval: totalTimeSeconds)
                     }
                 }
             case .failed:
@@ -123,7 +124,26 @@ class CustomPlayerViewController: UIViewController {
     }
     
     private func addPlayerObservers(_ player: AVPlayer) {
-        //
+        timeObserverToken = player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 1.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC)), queue: DispatchQueue.main) { [weak self] time in
+            guard let item = self?.playerItem, let self = self else { return }
+            
+            // Update UI
+            let currentPlaybackSeconds = TimeInterval(time.seconds)
+            let timeToEndSeconds = TimeInterval(item.duration.seconds - time.seconds)
+            let currentPlaybackString = self.format(timeInterval: currentPlaybackSeconds)
+            let timeToEndString = "-\(self.format(timeInterval: timeToEndSeconds))"
+            
+            self.currentPlaybackTimeLabel.text = currentPlaybackString
+            self.timeToEndLabel.text = timeToEndString
+        }
+    }
+    
+    // TODO: Find where to call this
+    private func removePlayerObservers() {
+        if let timeObserverToken = timeObserverToken {
+            player.removeTimeObserver(timeObserverToken)
+            self.timeObserverToken = nil
+        }
     }
     
     // MARK: - Notifications
@@ -157,17 +177,17 @@ extension DateFormatter {
     }()
 }
 
-extension UILabel {
-    func update(toTime: TimeInterval) {
+extension CustomPlayerViewController {
+    private func format(timeInterval: TimeInterval) -> String {
         var timeFormat: String = "mm:ss"
-        if toTime >= 3600 {
+        if timeInterval >= 3600 {
             timeFormat = "HH:mm:ss"
         }
-        let date = Date(timeIntervalSince1970: toTime)
+        let date = Date(timeIntervalSince1970: timeInterval)
         let formatter = DateFormatter.playerTimeDateFormatter
         formatter.dateFormat = timeFormat
         
-        text = formatter.string(from: date)
+        return formatter.string(from: date)
     }
 }
 

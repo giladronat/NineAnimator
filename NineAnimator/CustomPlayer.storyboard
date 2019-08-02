@@ -38,7 +38,7 @@
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="--:--" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1iA-hV-rGE">
-                                <rect key="frame" x="347" y="736" width="47" height="38"/>
+                                <rect key="frame" x="325" y="736" width="69" height="38"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
@@ -64,7 +64,7 @@
                     <tabBarItem key="tabBarItem" title="Player" id="5Jr-2e-O8O"/>
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
-                        <outlet property="currentTimeLabel" destination="nid-b5-m8X" id="L4m-uV-EZJ"/>
+                        <outlet property="currentPlaybackTimeLabel" destination="nid-b5-m8X" id="L4m-uV-EZJ"/>
                         <outlet property="playButton" destination="Vw9-rr-J3w" id="SXP-5B-PCd"/>
                         <outlet property="playerLayerView" destination="A2e-hQ-TxY" id="3F7-ae-pDU"/>
                         <outlet property="timeToEndLabel" destination="1iA-hV-rGE" id="Tit-50-Tuw"/>
