@@ -21,6 +21,9 @@ class CustomPlayerViewController: UIViewController {
     
     // Control UI
     @IBOutlet private weak var playButton: UIButton!
+    @IBOutlet private weak var currentTimeLabel: UILabel!
+    @IBOutlet private weak var timeToEndLabel: UILabel!
+    @IBOutlet private weak var totalTimeLabel: UILabel!
     
     func play(_ media: PlaybackMedia) {
         self.media = media
@@ -93,14 +96,14 @@ class CustomPlayerViewController: UIViewController {
     
     // Call before creating player with playerItem
     private func observeStatus(_ item: AVPlayerItem) {
-        playerItemStatusObservation = item.observe(\.status, changeHandler: { [weak self] (item, _) in
+        playerItemStatusObservation = item.observe(\.status) { [weak self] item, _ in
             switch item.status {
             case .readyToPlay:
                 DispatchQueue.main.async { [weak self] in
                     guard let self = self else { return }
                     if item.duration.isValid && !item.duration.isIndefinite {
                         // Update total time label
-                        print("Total time: \(item.duration)")
+                        print("Total time: \(item.duration.seconds)")
                     }
                 }
             case .failed:
@@ -115,7 +118,7 @@ class CustomPlayerViewController: UIViewController {
             @unknown default:
                 print("Undocumented status")
             }
-        })
+        }
     }
     
     private func addPlayerObservers(_ player: AVPlayer) {
@@ -141,7 +144,7 @@ class CustomPlayerViewController: UIViewController {
 // MARK: - Test Preview
 
 extension CustomPlayerViewController {
-    override func viewWillAppear(_ animated: Bool) {   
+    override func viewWillAppear(_ animated: Bool) {
         let m3u8TestPlayerItem = AVPlayerItem(url: URL(string: "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8")!)
         let mp4TestPlayerItem = AVPlayerItem(url: URL(string: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_2mb.mp4")!)
         play(mp4TestPlayerItem)
