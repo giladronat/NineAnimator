@@ -1,7 +1,54 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13142" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="d3x-0P-5GI">
+    <device id="retina6_1" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12042"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
-    <scenes/>
+    <scenes>
+        <!--Custom Player-->
+        <scene sceneID="Cz8-VD-lJe">
+            <objects>
+                <viewController storyboardIdentifier="CustomPlayerViewController" title="Custom Player" id="d3x-0P-5GI" customClass="CustomPlayerViewController" customModule="NineAnimator" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8ZS-Vq-jm6">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="A2e-hQ-TxY" customClass="PlayerLayerView" customModule="NineAnimator" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="44" width="414" height="769"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vw9-rr-J3w">
+                                <rect key="frame" x="175" y="776" width="64" height="36"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Play"/>
+                                <connections>
+                                    <action selector="playTappedWithSender:" destination="d3x-0P-5GI" eventType="touchUpInside" id="7K9-OU-fQY"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="A2e-hQ-TxY" firstAttribute="top" secondItem="px8-lR-8uH" secondAttribute="top" id="TH5-eQ-pU4"/>
+                            <constraint firstItem="A2e-hQ-TxY" firstAttribute="trailing" secondItem="px8-lR-8uH" secondAttribute="trailing" id="WT0-Lv-GjR"/>
+                            <constraint firstItem="A2e-hQ-TxY" firstAttribute="leading" secondItem="px8-lR-8uH" secondAttribute="leading" id="sAU-fL-73Q"/>
+                            <constraint firstItem="px8-lR-8uH" firstAttribute="bottom" secondItem="A2e-hQ-TxY" secondAttribute="bottom" id="zVF-W9-e3B"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="px8-lR-8uH"/>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Player" id="5Jr-2e-O8O"/>
+                    <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
+                    <connections>
+                        <outlet property="playButton" destination="Vw9-rr-J3w" id="SXP-5B-PCd"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dK0-O7-rhv" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-291.304347826087" y="111.83035714285714"/>
+        </scene>
+    </scenes>
 </document>

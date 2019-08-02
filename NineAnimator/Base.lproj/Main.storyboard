@@ -1160,11 +1160,22 @@
                         <segue destination="QZv-01-MCN" kind="relationship" relationship="viewControllers" id="tJK-3I-Igt"/>
                         <segue destination="rOz-Cr-EMK" kind="relationship" relationship="viewControllers" id="kN5-gp-5nF"/>
                         <segue destination="im7-SA-Rzv" kind="relationship" relationship="viewControllers" id="cus-k2-Irs"/>
+                        <segue destination="7eW-pS-SXe" kind="relationship" relationship="viewControllers" id="jTT-f6-neq"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8Ox-ul-6qL" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="200" y="33"/>
+        </scene>
+        <!--CustomPlayer-->
+        <scene sceneID="Omv-uQ-cAe">
+            <objects>
+                <viewControllerPlaceholder storyboardName="CustomPlayer" id="7eW-pS-SXe" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Item" id="7hV-63-hRw"/>
+                </viewControllerPlaceholder>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Vlp-4I-alk" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="199" y="-390"/>
         </scene>
     </scenes>
     <resources>
