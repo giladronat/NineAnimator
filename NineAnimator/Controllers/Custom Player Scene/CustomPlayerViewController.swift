@@ -9,6 +9,7 @@
 import AVFoundation
 import UIKit
 
+// swiftlint:disable todo
 class CustomPlayerViewController: UIViewController {
     private var media: PlaybackMedia?
     private var playerItem: AVPlayerItem?
