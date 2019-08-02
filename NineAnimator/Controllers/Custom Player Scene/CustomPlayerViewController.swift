@@ -30,6 +30,8 @@ class CustomPlayerViewController: UIViewController {
     @IBOutlet private weak var timeToEndLabel: UILabel!
     @IBOutlet private weak var totalTimeLabel: UILabel!
     
+    @IBOutlet private weak var bufferSpinner: UIActivityIndicatorView!
+    
     func play(_ media: PlaybackMedia) {
         self.media = media
         play(media.avPlayerItem)
@@ -111,6 +113,7 @@ class CustomPlayerViewController: UIViewController {
                     guard let self = self else { return }
                     if item.duration.isValid && !item.duration.isIndefinite {
                         // Update total time label
+                        Log.debug("Ready to play")
                         let totalTimeSeconds = TimeInterval(item.duration.seconds)
                         self.totalTimeLabel.text = self.format(timeInterval: totalTimeSeconds)
                     }
@@ -183,14 +186,20 @@ extension CustomPlayerViewController {
     // Not Buffering:
     // playerItem.isPlaybackLikelyToKeepUp
     // playerItem.isPlaybackBufferFull
-    // playerItem.status == .readyToPlay
     
     // Does playback automatically pause while buffering?
     
     private func observeIsPlaybackLikelyToKeepUp(_ item: AVPlayerItem) -> NSKeyValueObservation {
         return item.observe(\.isPlaybackLikelyToKeepUp) { [weak self] item, _ in
-            let isLikelyString = "Likely to keep up: \(item.isPlaybackLikelyToKeepUp)"
-            Log.debug("%@", isLikelyString)
+            if item.isPlaybackLikelyToKeepUp {
+                // Likely playing, not stuck buffering
+                self?.bufferSpinner.isHidden = true
+                Log.debug("Keeping up")
+            } else {
+                // Stuck buffering
+                self?.bufferSpinner.isHidden = false
+                Log.debug("Not keeping up")
+            }
         }
     }
     
@@ -209,7 +218,7 @@ extension CustomPlayerViewController {
     @objc private func playerItemPlaybackStalled(_ notification: Notification) {
         // Buffering
         DispatchQueue.main.async { [weak self] in
-            // TODO: Show spinner
+            self?.bufferSpinner.isHidden = false
             Log.debug("Playback stalled")
         }
     }

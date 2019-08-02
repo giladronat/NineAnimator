@@ -51,6 +51,10 @@
                                 <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" hidesWhenStopped="YES" animating="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="L0n-Fg-W3U">
+                                <rect key="frame" x="26" y="709" width="20" height="20"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
@@ -64,6 +68,7 @@
                     <tabBarItem key="tabBarItem" title="Player" id="5Jr-2e-O8O"/>
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
+                        <outlet property="bufferSpinner" destination="L0n-Fg-W3U" id="UXh-iH-y0s"/>
                         <outlet property="currentPlaybackTimeLabel" destination="nid-b5-m8X" id="L4m-uV-EZJ"/>
                         <outlet property="playButton" destination="Vw9-rr-J3w" id="SXP-5B-PCd"/>
                         <outlet property="playerLayerView" destination="A2e-hQ-TxY" id="3F7-ae-pDU"/>
