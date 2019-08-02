@@ -22,6 +22,8 @@ class CustomPlayerViewController: UIViewController {
     private var playerItemIsPlaybackBufferEmptyObservation: NSKeyValueObservation?
     private var playerItemIsPlaybackBufferFullObservation: NSKeyValueObservation?
     
+    private var playerTimeControlStatusObservation: NSKeyValueObservation?
+    
     @IBOutlet private weak var playerLayerView: PlayerLayerView!
     
     // Control UI
@@ -157,6 +159,8 @@ class CustomPlayerViewController: UIViewController {
             self.currentPlaybackTimeLabel.text = currentPlaybackString
             self.timeToEndLabel.text = timeToEndString
         }
+        
+        playerTimeControlStatusObservation = observePlayerTimeControlStatus(player)
     }
     
     // TODO: Find where to call this
@@ -165,11 +169,13 @@ class CustomPlayerViewController: UIViewController {
             player.removeTimeObserver(timeObserverToken)
             self.timeObserverToken = nil
         }
+        
+        playerTimeControlStatusObservation = nil
     }
     
     // MARK: - Notifications
     
-    @objc func playerItemDidPlayToEndTime(_ notification: Notification) {
+    @objc private func playerItemDidPlayToEndTime(_ notification: Notification) {
         Log.debug("Finished playing")
         pause()
     }
@@ -212,6 +218,28 @@ extension CustomPlayerViewController {
     private func observeIsPlaybackBufferFull(_ item: AVPlayerItem) -> NSKeyValueObservation {
         return item.observe(\.isPlaybackBufferFull) { [weak self] item, _ in
             Log.debug("Buffer full: %@", item.isPlaybackBufferFull)
+        }
+    }
+    
+    private func observePlayerTimeControlStatus(_ player: AVPlayer) -> NSKeyValueObservation {
+        return player.observe(\AVPlayer.timeControlStatus) { [weak self] player, _ in
+            switch player.timeControlStatus {
+            case .paused:
+                // Could waitingToPlay happen while video appears paused?
+                // I think no need to touch spinner
+                if !(self?.playerItem?.isPlaybackLikelyToKeepUp ?? true) {
+                    Log.debug("Player paused and unlikely to keep up (buffering)")
+                }
+            case .playing:
+                Log.debug("Status: playing (not buffering)")
+                self?.bufferSpinner.isHidden = true
+            case .waitingToPlayAtSpecifiedRate:
+                // Stuck buffering
+                Log.debug("Status: waiting to play at rate (buffering)")
+                self?.bufferSpinner.isHidden = false
+            @unknown default:
+                print("Undocumented time control status: \(player.timeControlStatus)")
+            }
         }
     }
     
