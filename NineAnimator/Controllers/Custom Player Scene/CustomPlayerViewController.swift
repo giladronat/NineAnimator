@@ -18,6 +18,9 @@ class CustomPlayerViewController: UIViewController {
     
     private var playerItemStatusObservation: NSKeyValueObservation?
     private var timeObserverToken: Any?
+    private var playerItemIsPlaybackLikelyToKeepUpObservation: NSKeyValueObservation?
+    private var playerItemIsPlaybackBufferEmptyObservation: NSKeyValueObservation?
+    private var playerItemIsPlaybackBufferFullObservation: NSKeyValueObservation?
     
     @IBOutlet private weak var playerLayerView: PlayerLayerView!
     
@@ -84,7 +87,10 @@ class CustomPlayerViewController: UIViewController {
     // MARK: - Observing
     
     private func addPlayerItemObservers(_ playerItem: AVPlayerItem) {
-        observeStatus(playerItem)
+        playerItemStatusObservation = observeStatus(playerItem)
+        playerItemIsPlaybackLikelyToKeepUpObservation = observeIsPlaybackLikelyToKeepUp(playerItem)
+        playerItemIsPlaybackBufferEmptyObservation = observeIsPlaybackBufferEmpty(playerItem)
+        playerItemIsPlaybackBufferFullObservation = observeIsPlaybackBufferFull(playerItem)
         
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(playerItemPlaybackStalled(_:)),
@@ -97,8 +103,8 @@ class CustomPlayerViewController: UIViewController {
     }
     
     // Call before creating player with playerItem
-    private func observeStatus(_ item: AVPlayerItem) {
-        playerItemStatusObservation = item.observe(\.status) { [weak self] item, _ in
+    private func observeStatus(_ item: AVPlayerItem) -> NSKeyValueObservation {
+        return item.observe(\.status) { [weak self] item, _ in
             switch item.status {
             case .readyToPlay:
                 DispatchQueue.main.async { [weak self] in
@@ -126,7 +132,10 @@ class CustomPlayerViewController: UIViewController {
     
     // TODO: Find where to call this
     private func removePlayerItemObservers(_ playerItem: AVPlayerItem) {
-        playerItemStatusObservation?.invalidate()
+        playerItemStatusObservation = nil
+        playerItemIsPlaybackBufferFullObservation = nil
+        playerItemIsPlaybackBufferEmptyObservation = nil
+        playerItemIsPlaybackLikelyToKeepUpObservation = nil
         NotificationCenter.default.removeObserver(self, name: .AVPlayerItemPlaybackStalled, object: playerItem)
         NotificationCenter.default.removeObserver(self, name: .AVPlayerItemDidPlayToEndTime, object: playerItem)
     }
@@ -136,6 +145,7 @@ class CustomPlayerViewController: UIViewController {
             guard let item = self?.playerItem, let self = self else { return }
             
             // Update UI
+            // TODO: Extract this
             let currentPlaybackSeconds = TimeInterval(time.seconds)
             let timeToEndSeconds = TimeInterval(item.duration.seconds - time.seconds)
             let currentPlaybackString = self.format(timeInterval: currentPlaybackSeconds)
@@ -156,17 +166,52 @@ class CustomPlayerViewController: UIViewController {
     
     // MARK: - Notifications
     
+    @objc func playerItemDidPlayToEndTime(_ notification: Notification) {
+        Log.debug("Finished playing")
+        pause()
+    }
+}
+
+// MARK: - Buffering
+
+extension CustomPlayerViewController {
+    // Buffering:
+    // playerItem.isPlaybackBufferEmpty
+    // player.timeControlStatus == .waitingToPlayAtSpecifiedRate
+    // PlaybackStalled notification
+    
+    // Not Buffering:
+    // playerItem.isPlaybackLikelyToKeepUp
+    // playerItem.isPlaybackBufferFull
+    // playerItem.status == .readyToPlay
+    
+    // Does playback automatically pause while buffering?
+    
+    private func observeIsPlaybackLikelyToKeepUp(_ item: AVPlayerItem) -> NSKeyValueObservation {
+        return item.observe(\.isPlaybackLikelyToKeepUp) { [weak self] item, _ in
+            let isLikelyString = "Likely to keep up: \(item.isPlaybackLikelyToKeepUp)"
+            Log.debug("%@", isLikelyString)
+        }
+    }
+    
+    private func observeIsPlaybackBufferEmpty(_ item: AVPlayerItem) -> NSKeyValueObservation {
+        return item.observe(\.isPlaybackBufferEmpty) { [weak self] item, _ in
+            Log.debug("Buffer empty: %@", item.isPlaybackBufferEmpty)
+        }
+    }
+    
+    private func observeIsPlaybackBufferFull(_ item: AVPlayerItem) -> NSKeyValueObservation {
+        return item.observe(\.isPlaybackBufferFull) { [weak self] item, _ in
+            Log.debug("Buffer full: %@", item.isPlaybackBufferFull)
+        }
+    }
+    
     @objc private func playerItemPlaybackStalled(_ notification: Notification) {
         // Buffering
         DispatchQueue.main.async { [weak self] in
             // TODO: Show spinner
-            print("Playback stalled")
+            Log.debug("Playback stalled")
         }
-    }
-    
-    @objc func playerItemDidPlayToEndTime(_ notification: Notification) {
-        print("Finished playing")
-        pause()
     }
 }
 
