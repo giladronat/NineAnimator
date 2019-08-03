@@ -54,6 +54,8 @@ class CustomPlayerViewController: UIViewController {
         }
         addPlayerObservers(player)
         
+        setUpPlaybackSession()
+        
         // Set up player with item
         // Important to call _after_ adding observers
         player.replaceCurrentItem(with: playerItem)
@@ -251,6 +253,28 @@ extension CustomPlayerViewController {
             self?.bufferSpinner.isHidden = false
             Log.debug("Playback stalled")
         }
+    }
+}
+
+// MARK: - Audio Session
+
+extension CustomPlayerViewController {
+    private func setUpPlaybackSession() {
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            // TODO: Should setCategory be in AppDelegate?
+            try audioSession.setCategory(.playback, mode: .moviePlayback)
+            try audioSession.setActive(true, options: [])
+        } catch { Log.error("Failed to setup audio session - %@", error) }
+    }
+    
+    // TODO: Decide where to call this, especially with PiP
+    private func tearDownPlaybackSession() {
+        let audioSession = AVAudioSession.sharedInstance()
+        
+        do {
+            try audioSession.setActive(false, options: [])
+        } catch { Log.error("Failed to teardown audio session - %@", error) }
     }
 }
 
