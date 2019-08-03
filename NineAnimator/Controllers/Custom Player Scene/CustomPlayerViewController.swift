@@ -245,10 +245,10 @@ extension CustomPlayerViewController {
                 Log.debug("Status: playing (not buffering)")
                 self?.bufferSpinner.isHidden = true
             case .waitingToPlayAtSpecifiedRate:
-                // This apparently gets set after tapping play and before playing
-                Log.debug("Status: waiting to play at rate")
-                if !(self?.playerItem?.isPlaybackLikelyToKeepUp ?? true) {
-                    Log.debug("and unlikely to keep up (buffering)")
+                // Waiting Reason is often "evaluatingBufferingRate" -- not buffering
+                if let reason = player.reasonForWaitingToPlay, reason == .toMinimizeStalls {
+                    // Waiting for the buffer
+                    Log.debug("Waiting to minimize stalls")
                     self?.bufferSpinner.isHidden = false
                 }
                 
