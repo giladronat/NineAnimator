@@ -55,6 +55,7 @@ class CustomPlayerViewController: UIViewController {
         addPlayerObservers(player)
         
         // Set up player with item
+        // Important to call _after_ adding observers
         player.replaceCurrentItem(with: playerItem)
     }
     
@@ -127,8 +128,9 @@ class CustomPlayerViewController: UIViewController {
                 }
             case .unknown:
                 // Not ready to play
-                // Dim UI?
-                print("State unknown")
+                // Preparing
+                Log.debug("Item status unknown")
+                self?.bufferSpinner.isHidden = false
             @unknown default:
                 print("Undocumented status")
             }
