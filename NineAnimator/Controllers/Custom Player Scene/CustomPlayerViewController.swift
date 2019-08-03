@@ -75,6 +75,15 @@ class CustomPlayerViewController: UIViewController {
         playButton.setTitle("Play", for: .normal)
     }
     
+    // TODO: Call somewhere. Maybe viewWillDisappear (PiP?)
+    private func tearDown() {
+        removePlayerObservers()
+        if let item = playerItem {
+            removePlayerItemObservers(item)
+        }
+        tearDownPlaybackSession()
+    }
+    
     // TODO: Make possible UI states explicit -- paused, buffering, etc
     
     // MARK: - UI Actions
@@ -139,7 +148,6 @@ class CustomPlayerViewController: UIViewController {
         }
     }
     
-    // TODO: Find where to call this
     private func removePlayerItemObservers(_ playerItem: AVPlayerItem) {
         playerItemStatusObservation = nil
         playerItemIsPlaybackBufferFullObservation = nil
@@ -167,7 +175,6 @@ class CustomPlayerViewController: UIViewController {
         playerTimeControlStatusObservation = observePlayerTimeControlStatus(player)
     }
     
-    // TODO: Find where to call this
     private func removePlayerObservers() {
         if let timeObserverToken = timeObserverToken {
             player.removeTimeObserver(timeObserverToken)
