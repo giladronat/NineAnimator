@@ -268,6 +268,10 @@ extension CustomPlayerViewController {
     }
     
     @objc private func playerItemPlaybackStalled(_ notification: Notification) {
+        // ???: Do notifications get called on the same thread they're registered in?
+        if !Thread.isMainThread {
+            print("Stalled notification received on other thread")
+        }
         // Buffering
         DispatchQueue.main.async { [weak self] in
             self?.bufferSpinner.isHidden = false
