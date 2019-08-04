@@ -169,8 +169,8 @@ class CustomPlayerViewController: UIViewController {
             
             // Update UI
             // TODO: Extract this
-            let currentPlaybackSeconds = TimeInterval(time.seconds)
-            let timeToEndSeconds = TimeInterval(item.duration.seconds - time.seconds)
+            let currentPlaybackSeconds = time.seconds
+            let timeToEndSeconds = item.duration.seconds - time.seconds
             let currentPlaybackString = self.format(timeInterval: currentPlaybackSeconds)
             let timeToEndString = "-\(self.format(timeInterval: timeToEndSeconds))"
             
