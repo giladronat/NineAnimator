@@ -21,6 +21,7 @@ class CustomPlayerViewController: UIViewController {
     private var playerItemIsPlaybackLikelyToKeepUpObservation: NSKeyValueObservation?
     private var playerItemIsPlaybackBufferEmptyObservation: NSKeyValueObservation?
     private var playerItemIsPlaybackBufferFullObservation: NSKeyValueObservation?
+    private var playerItemLoadedTimeRangesObservation: NSKeyValueObservation?
     
     private var playerTimeControlStatusObservation: NSKeyValueObservation?
     
@@ -33,6 +34,8 @@ class CustomPlayerViewController: UIViewController {
     @IBOutlet private weak var totalTimeLabel: UILabel!
     
     @IBOutlet private weak var bufferSpinner: UIActivityIndicatorView!
+    
+    @IBOutlet private weak var playbackBufferProgressView: UIProgressView!
     
     func play(_ media: PlaybackMedia) {
         self.media = media
@@ -107,6 +110,8 @@ class CustomPlayerViewController: UIViewController {
         playerItemIsPlaybackLikelyToKeepUpObservation = observeIsPlaybackLikelyToKeepUp(playerItem)
         playerItemIsPlaybackBufferEmptyObservation = observeIsPlaybackBufferEmpty(playerItem)
         playerItemIsPlaybackBufferFullObservation = observeIsPlaybackBufferFull(playerItem)
+        playerItemLoadedTimeRangesObservation = observeLoadedTimeRanges(playerItem)
+        
         
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(playerItemPlaybackStalled(_:)),
@@ -153,6 +158,7 @@ class CustomPlayerViewController: UIViewController {
         playerItemIsPlaybackBufferFullObservation = nil
         playerItemIsPlaybackBufferEmptyObservation = nil
         playerItemIsPlaybackLikelyToKeepUpObservation = nil
+        playerItemLoadedTimeRangesObservation = nil
         NotificationCenter.default.removeObserver(self, name: .AVPlayerItemPlaybackStalled, object: playerItem)
         NotificationCenter.default.removeObserver(self, name: .AVPlayerItemDidPlayToEndTime, object: playerItem)
     }
@@ -263,6 +269,23 @@ extension CustomPlayerViewController {
         DispatchQueue.main.async { [weak self] in
             self?.bufferSpinner.isHidden = false
             Log.debug("Playback stalled")
+        }
+    }
+    
+    private func observeLoadedTimeRanges(_ item: AVPlayerItem) -> NSKeyValueObservation {
+        return item.observe(\.loadedTimeRanges) { [weak self] item, _ in
+            let loadedTimeRanges = item.loadedTimeRanges
+            if loadedTimeRanges.count > 1 {
+                print("More than one loaded time range: \(loadedTimeRanges)")
+            }
+            
+            guard let loadedTimeRange = loadedTimeRanges.first?.timeRangeValue else {
+                Log.error("Empty loaded time ranges")
+                return
+            }
+            
+            let bufferProgress = Float(loadedTimeRange.end.seconds / item.duration.seconds)
+            self?.playbackBufferProgressView.setProgress(bufferProgress, animated: true)
         }
     }
 }

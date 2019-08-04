@@ -55,6 +55,10 @@
                                 <rect key="frame" x="26" y="709" width="20" height="20"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </activityIndicatorView>
+                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" fixedFrame="YES" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="hdV-bN-Xm9">
+                                <rect key="frame" x="20" y="687" width="374" height="2"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </progressView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
@@ -71,6 +75,7 @@
                         <outlet property="bufferSpinner" destination="L0n-Fg-W3U" id="UXh-iH-y0s"/>
                         <outlet property="currentPlaybackTimeLabel" destination="nid-b5-m8X" id="L4m-uV-EZJ"/>
                         <outlet property="playButton" destination="Vw9-rr-J3w" id="SXP-5B-PCd"/>
+                        <outlet property="playbackBufferProgressView" destination="hdV-bN-Xm9" id="r2K-PI-lKq"/>
                         <outlet property="playerLayerView" destination="A2e-hQ-TxY" id="3F7-ae-pDU"/>
                         <outlet property="timeToEndLabel" destination="1iA-hV-rGE" id="Tit-50-Tuw"/>
                         <outlet property="totalTimeLabel" destination="nIe-as-DF2" id="VWF-a7-Djr"/>
