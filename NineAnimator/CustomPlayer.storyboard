@@ -59,6 +59,10 @@
                                 <rect key="frame" x="20" y="687" width="374" height="2"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </progressView>
+                            <slider opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="UqK-Qv-4pt">
+                                <rect key="frame" x="18" y="628" width="378" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </slider>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
@@ -76,6 +80,7 @@
                         <outlet property="currentPlaybackTimeLabel" destination="nid-b5-m8X" id="L4m-uV-EZJ"/>
                         <outlet property="playButton" destination="Vw9-rr-J3w" id="SXP-5B-PCd"/>
                         <outlet property="playbackBufferProgressView" destination="hdV-bN-Xm9" id="r2K-PI-lKq"/>
+                        <outlet property="playbackProgressSlider" destination="UqK-Qv-4pt" id="1Sf-GX-RjU"/>
                         <outlet property="playerLayerView" destination="A2e-hQ-TxY" id="3F7-ae-pDU"/>
                         <outlet property="timeToEndLabel" destination="1iA-hV-rGE" id="Tit-50-Tuw"/>
                         <outlet property="totalTimeLabel" destination="nIe-as-DF2" id="VWF-a7-Djr"/>

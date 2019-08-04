@@ -35,6 +35,7 @@ class CustomPlayerViewController: UIViewController {
     
     @IBOutlet private weak var bufferSpinner: UIActivityIndicatorView!
     
+    @IBOutlet private weak var playbackProgressSlider: UISlider!
     @IBOutlet private weak var playbackBufferProgressView: UIProgressView!
     
     func play(_ media: PlaybackMedia) {
@@ -112,7 +113,6 @@ class CustomPlayerViewController: UIViewController {
         playerItemIsPlaybackBufferFullObservation = observeIsPlaybackBufferFull(playerItem)
         playerItemLoadedTimeRangesObservation = observeLoadedTimeRanges(playerItem)
         
-        
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(playerItemPlaybackStalled(_:)),
                                                name: .AVPlayerItemPlaybackStalled,
@@ -135,6 +135,7 @@ class CustomPlayerViewController: UIViewController {
                         Log.debug("Ready to play")
                         let totalTimeSeconds = TimeInterval(item.duration.seconds)
                         self.totalTimeLabel.text = self.format(timeInterval: totalTimeSeconds)
+                        self.playbackProgressSlider.maximumValue = Float(totalTimeSeconds)
                     }
                 }
             case .failed:
@@ -176,6 +177,8 @@ class CustomPlayerViewController: UIViewController {
             
             self.currentPlaybackTimeLabel.text = currentPlaybackString
             self.timeToEndLabel.text = timeToEndString
+            
+            self.playbackProgressSlider.setValue(Float(currentPlaybackSeconds), animated: true)
         }
         
         playerTimeControlStatusObservation = observePlayerTimeControlStatus(player)
