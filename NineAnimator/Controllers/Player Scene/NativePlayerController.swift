@@ -50,12 +50,12 @@ class NativePlayerController: NSObject, AVPlayerViewControllerDelegate, NSUserAc
     
     var currentPlaybackTime: CMTime { return player.currentTime() }
     
-    var currentPlaybackPercentage: Float {
+    var currentPlaybackPercentage: Double {
         guard let item = currentItem else { return 0 }
         return currentPlaybackTime.seconds / item.duration.seconds
     }
     
-    var currentPlaybackTMinus: Float {
+    var currentPlaybackTMinus: Double {
         guard let item = currentItem else { return 0 }
         return item.duration.seconds - currentPlaybackTime.seconds
     }
@@ -147,7 +147,7 @@ extension NativePlayerController {
             guard let self = self else { return }
             if item.status == .readyToPlay {
                 //Seek to five seconds before the persisted progress
-                item.seek(to: CMTime(seconds: max(Float(media.progress) * item.duration.seconds - 5, 0))) {
+                item.seek(to: CMTime(seconds: max(media.progress * item.duration.seconds - 5, 0))) {
                     //Remove the observer after progress has been restored
                     _ in self.mediaItemsObervations.removeValue(forKey: item)
                 }
