@@ -38,3 +38,10 @@ extension Optional {
         }
     }
 }
+
+// MARK: Optional<URL>
+extension Optional where Wrapped == URL {
+    func tryUnwrap() throws -> Wrapped {
+        return try tryUnwrap(.urlError)
+    }
+}

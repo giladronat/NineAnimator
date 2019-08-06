@@ -20,10 +20,8 @@
 import Alamofire
 import Foundation
 
-/**
- A passthrough parser that passes the target url of the anime as the playback media
- */
-class DummyParser: VideoProviderParser {
+/// A passthrough parser that holds the reference to the PlaybackMedia
+class PassthroughParser: VideoProviderParser {
     var aliases: [String] { return [] }
     
     func parse(episode: Episode, with session: SessionManager, onCompletion handler: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask {
@@ -31,33 +29,21 @@ class DummyParser: VideoProviderParser {
         
         DispatchQueue.main.async {
             let options = episode.userInfo
-            var isAggregatedAsset = false
             
-            // Infer isAggregated from mime type
-            if let contentType = options[Options.contentType] as? String {
-                switch contentType.lowercased() {
-                case "application/x-mpegurl", "vnd.apple.mpegurl": isAggregatedAsset = true
-                default: break
-                }
-            }
-            
-            handler(BasicPlaybackMedia(
-                url: episode.target,
-                parent: episode,
-                contentType: (options[Options.contentType] as? String) ?? "video/mp4",
-                headers: [ "Referer": episode.link.parent.link.absoluteString ],
-                isAggregated: (options[Options.isAggregated] as? Bool) ?? isAggregatedAsset
-            ), nil)
+            if let mediaRetriever = options[Options.playbackMediaRetriever] as? MediaRetriever {
+                do {
+                    handler(try mediaRetriever(episode).tryUnwrap(), nil)
+                } catch { handler(nil, error) }
+            } else { handler(nil, NineAnimatorError.providerError("No PlaybackMedia is specified for use with a PassthroughParser")) }
         }
         
         return dummyTask
     }
     
+    typealias MediaRetriever = (Episode) throws -> PlaybackMedia?
+    
     enum Options {
-        static let contentType: String =
-            "com.marcuszhou.nineanimator.providerparser.DummyParser.option.contentType"
-        
-        static let isAggregated: String =
-            "com.marcuszhou.nineanimator.providerparser.DummyParser.option.isAggregated"
+        static let playbackMediaRetriever: String =
+        "com.marcuszhou.nineanimator.providerparser.PassthroughParser.mediaRetriever"
     }
 }
