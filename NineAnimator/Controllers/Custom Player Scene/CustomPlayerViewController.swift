@@ -372,8 +372,19 @@ extension DateFormatter {
     }()
 }
 
+extension DateComponentsFormatter {
+    static let playerTimeDateFormatter: DateComponentsFormatter = {
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .positional
+        formatter.zeroFormattingBehavior = .pad
+        formatter.allowedUnits = [.hour, .minute, .second]
+        return formatter
+    }()
+}
+
 extension CustomPlayerViewController {
-    private func format(timeInterval: TimeInterval) -> String {
+    /*
+     private func format(timeInterval: TimeInterval) -> String {
         var timeFormat: String = "mm:ss"
         if timeInterval >= 3600 {
             timeFormat = "HH:mm:ss"
@@ -383,6 +394,17 @@ extension CustomPlayerViewController {
         formatter.dateFormat = timeFormat
         
         return formatter.string(from: date)
+    }
+     */
+    
+    private func format(timeInterval: TimeInterval) -> String {
+        let formatter = DateComponentsFormatter.playerTimeDateFormatter
+        if timeInterval >= 60 * 60 {
+            formatter.allowedUnits = [.hour, .minute, .second]
+        } else {
+            formatter.allowedUnits = [.minute, .second]
+        }
+        return formatter.string(from: timeInterval) ?? "--:--"
     }
 }
 
