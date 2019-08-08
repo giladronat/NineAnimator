@@ -329,6 +329,8 @@ extension CustomPlayerViewController {
     }
     
     @IBAction private func playbackProgressSliderValueChanged(_ sender: UISlider) {
+        // TODO: Update time label while sliding instead of relying on playback time change
+        // Lets user "preview" the time they slide to before seeking completes
         seek(to: TimeInterval(sender.value))
     }
 }
