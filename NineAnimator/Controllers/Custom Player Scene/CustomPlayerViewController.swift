@@ -316,12 +316,20 @@ extension CustomPlayerViewController {
         player.seek(to: seekTime)
     }
     
+    func seek(to time: TimeInterval) {
+        player.seek(to: CMTime(seconds: time))
+    }
+    
     @IBAction private func fastForwardTapped(_ sender: Any) {
         seek(by: 15)
     }
     
     @IBAction private func rewindTapped(_ sender: Any) {
         seek(by: -15)
+    }
+    
+    @IBAction private func playbackProgressSliderValueChanged(_ sender: UISlider) {
+        seek(to: TimeInterval(sender.value))
     }
 }
 
