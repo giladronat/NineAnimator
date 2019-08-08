@@ -28,6 +28,8 @@ class CustomPlayerViewController: UIViewController {
     @IBOutlet private weak var playerLayerView: PlayerLayerView!
     
     // Control UI
+    @IBOutlet private weak var controlContainerOverlay: UIView!
+    
     @IBOutlet private weak var playButton: UIButton!
     @IBOutlet private weak var currentPlaybackTimeLabel: UILabel!
     @IBOutlet private weak var timeToEndLabel: UILabel!
@@ -37,6 +39,8 @@ class CustomPlayerViewController: UIViewController {
     
     @IBOutlet private weak var playbackProgressSlider: UISlider!
     @IBOutlet private weak var playbackBufferProgressView: UIProgressView!
+    @IBOutlet private weak var rewindButton: UIButton!
+    @IBOutlet private weak var fastForwardButton: UIButton!
     
     func play(_ media: PlaybackMedia) {
         self.media = media
@@ -294,6 +298,30 @@ extension CustomPlayerViewController {
             let bufferProgress = Float(loadedTimeRange.end.seconds / item.duration.seconds)
             self?.playbackBufferProgressView.setProgress(bufferProgress, animated: true)
         }
+    }
+}
+
+// MARK: - Seeking
+
+extension CustomPlayerViewController {
+    func seek(by offsetSeconds: TimeInterval) {
+        let currentTime = player.currentTime()
+        let seekTime = CMTime(seconds: currentTime.seconds + offsetSeconds)
+//        Log.debug("Seeking: %@", format(timeInterval: seekTime.seconds))
+        
+        // AVPlayer automatically clamps seeking to item.seekableTimeRanges
+        // Therefore, no need to guard against seeking before 0 or after end time
+        
+        // Impressively, it also handles the buffering on its own -- we get callbacks
+        player.seek(to: seekTime)
+    }
+    
+    @IBAction private func fastForwardTapped(_ sender: Any) {
+        seek(by: 15)
+    }
+    
+    @IBAction private func rewindTapped(_ sender: Any) {
+        seek(by: -15)
     }
 }
 

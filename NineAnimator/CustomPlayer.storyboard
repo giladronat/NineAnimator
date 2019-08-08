@@ -22,52 +22,78 @@
                                 <rect key="frame" x="0.0" y="44" width="414" height="769"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="--:--" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nid-b5-m8X">
-                                <rect key="frame" x="20" y="736" width="47" height="38"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vw9-rr-J3w">
-                                <rect key="frame" x="175" y="776" width="64" height="36"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="Play"/>
-                                <connections>
-                                    <action selector="playTappedWithSender:" destination="d3x-0P-5GI" eventType="touchUpInside" id="7K9-OU-fQY"/>
-                                </connections>
-                            </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="--:--" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1iA-hV-rGE">
-                                <rect key="frame" x="325" y="736" width="69" height="38"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="--:--" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nIe-as-DF2">
-                                <rect key="frame" x="184" y="736" width="47" height="38"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" hidesWhenStopped="YES" animating="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="L0n-Fg-W3U">
-                                <rect key="frame" x="26" y="709" width="20" height="20"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            </activityIndicatorView>
-                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hdV-bN-Xm9">
-                                <rect key="frame" x="20" y="687" width="374" height="2"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            </progressView>
-                            <slider opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="UqK-Qv-4pt">
-                                <rect key="frame" x="18" y="628" width="378" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            </slider>
+                            <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UaD-DK-17d">
+                                <rect key="frame" x="0.0" y="44" width="414" height="769"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="--:--" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nid-b5-m8X">
+                                        <rect key="frame" x="20" y="685" width="47" height="38"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vw9-rr-J3w">
+                                        <rect key="frame" x="175" y="725" width="64" height="36"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="Play"/>
+                                        <connections>
+                                            <action selector="playTappedWithSender:" destination="d3x-0P-5GI" eventType="touchUpInside" id="7K9-OU-fQY"/>
+                                        </connections>
+                                    </button>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="--:--" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1iA-hV-rGE">
+                                        <rect key="frame" x="325" y="685" width="69" height="38"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="--:--" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nIe-as-DF2">
+                                        <rect key="frame" x="184" y="685" width="47" height="38"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" hidesWhenStopped="YES" animating="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="L0n-Fg-W3U">
+                                        <rect key="frame" x="26" y="658" width="20" height="20"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    </activityIndicatorView>
+                                    <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hdV-bN-Xm9">
+                                        <rect key="frame" x="20" y="636" width="374" height="2"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    </progressView>
+                                    <slider opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="UqK-Qv-4pt">
+                                        <rect key="frame" x="18" y="577" width="378" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    </slider>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="y3c-FY-oIn">
+                                        <rect key="frame" x="178" y="656" width="60" height="34"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="Rewind"/>
+                                        <connections>
+                                            <action selector="rewindTapped:" destination="d3x-0P-5GI" eventType="touchUpInside" id="pQS-bR-CZk"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yNy-w9-t7h">
+                                        <rect key="frame" x="325" y="656" width="67" height="34"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="Forward"/>
+                                        <connections>
+                                            <action selector="fastForwardTapped:" destination="d3x-0P-5GI" eventType="touchUpInside" id="H8H-RJ-KRO"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstItem="UaD-DK-17d" firstAttribute="top" secondItem="A2e-hQ-TxY" secondAttribute="top" id="Mj5-ip-a7Q"/>
+                            <constraint firstItem="UaD-DK-17d" firstAttribute="bottom" secondItem="A2e-hQ-TxY" secondAttribute="bottom" id="T0Y-bt-JkX"/>
                             <constraint firstItem="A2e-hQ-TxY" firstAttribute="top" secondItem="px8-lR-8uH" secondAttribute="top" id="TH5-eQ-pU4"/>
                             <constraint firstItem="A2e-hQ-TxY" firstAttribute="trailing" secondItem="px8-lR-8uH" secondAttribute="trailing" id="WT0-Lv-GjR"/>
+                            <constraint firstItem="UaD-DK-17d" firstAttribute="trailing" secondItem="A2e-hQ-TxY" secondAttribute="trailing" id="djZ-Rb-vqM"/>
+                            <constraint firstItem="UaD-DK-17d" firstAttribute="leading" secondItem="A2e-hQ-TxY" secondAttribute="leading" id="lYy-qt-Wdm"/>
                             <constraint firstItem="A2e-hQ-TxY" firstAttribute="leading" secondItem="px8-lR-8uH" secondAttribute="leading" id="sAU-fL-73Q"/>
                             <constraint firstItem="px8-lR-8uH" firstAttribute="bottom" secondItem="A2e-hQ-TxY" secondAttribute="bottom" id="zVF-W9-e3B"/>
                         </constraints>
@@ -77,11 +103,14 @@
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="bufferSpinner" destination="L0n-Fg-W3U" id="UXh-iH-y0s"/>
+                        <outlet property="controlContainerOverlay" destination="UaD-DK-17d" id="cT1-6A-UzY"/>
                         <outlet property="currentPlaybackTimeLabel" destination="nid-b5-m8X" id="L4m-uV-EZJ"/>
+                        <outlet property="fastForwardButton" destination="yNy-w9-t7h" id="1mR-cQ-yen"/>
                         <outlet property="playButton" destination="Vw9-rr-J3w" id="SXP-5B-PCd"/>
                         <outlet property="playbackBufferProgressView" destination="hdV-bN-Xm9" id="r2K-PI-lKq"/>
                         <outlet property="playbackProgressSlider" destination="UqK-Qv-4pt" id="1Sf-GX-RjU"/>
                         <outlet property="playerLayerView" destination="A2e-hQ-TxY" id="3F7-ae-pDU"/>
+                        <outlet property="rewindButton" destination="y3c-FY-oIn" id="sCh-tL-6tQ"/>
                         <outlet property="timeToEndLabel" destination="1iA-hV-rGE" id="Tit-50-Tuw"/>
                         <outlet property="totalTimeLabel" destination="nIe-as-DF2" id="VWF-a7-Djr"/>
                     </connections>
