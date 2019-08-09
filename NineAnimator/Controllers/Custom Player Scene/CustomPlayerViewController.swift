@@ -42,6 +42,8 @@ class CustomPlayerViewController: UIViewController {
     @IBOutlet private weak var rewindButton: UIButton!
     @IBOutlet private weak var fastForwardButton: UIButton!
     
+    private var isPlaybackProgressSliding = false
+    
     func play(_ media: PlaybackMedia) {
         self.media = media
         play(media.avPlayerItem)
@@ -111,7 +113,10 @@ class CustomPlayerViewController: UIViewController {
     private func updatePlaybackUI(with currentTime: CMTime) {
         guard let item = self.playerItem else {
             Log.debug("No player item to update playback UI")
-            // No need to handle this yet, so return.
+            // This probably won't happen
+            currentPlaybackTimeLabel.text = "--:--"
+            timeToEndLabel.text = "--:--"
+            totalTimeLabel.text = "--:--"
             return
         }
         
@@ -120,8 +125,8 @@ class CustomPlayerViewController: UIViewController {
         let currentPlaybackString = self.format(timeInterval: currentPlaybackSeconds)
         let timeToEndString = "-\(self.format(timeInterval: timeToEndSeconds))"
         
-        self.currentPlaybackTimeLabel.text = currentPlaybackString
-        self.timeToEndLabel.text = timeToEndString
+        currentPlaybackTimeLabel.text = currentPlaybackString
+        timeToEndLabel.text = timeToEndString
         // totalTimeLabel ~> item.duration is updated when item becomes ready to play and doesn't change afterward
         
         self.playbackProgressSlider.setValue(Float(currentPlaybackSeconds), animated: true)
@@ -339,7 +344,16 @@ extension CustomPlayerViewController {
     @IBAction private func playbackProgressSliderValueChanged(_ sender: UISlider) {
         // TODO: Update time label while sliding instead of relying on playback time change
         // Lets user "preview" the time they slide to before seeking completes
+        isPlaybackProgressSliding = true
         seek(to: TimeInterval(sender.value))
+    }
+    
+    @IBAction func playbackProgressSliderTouchDown(_ sender: UISlider) {
+        isPlaybackProgressSliding = true
+    }
+    
+    @IBAction func playbackProgressSliderTouchUp(_ sender: UISlider) {
+        isPlaybackProgressSliding = false
     }
 }
 

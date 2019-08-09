@@ -66,6 +66,9 @@
                                         <rect key="frame" x="18" y="577" width="378" height="30"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <connections>
+                                            <action selector="playbackProgressSliderTouchDown:" destination="d3x-0P-5GI" eventType="touchDown" id="BrR-mr-lIu"/>
+                                            <action selector="playbackProgressSliderTouchDown:" destination="d3x-0P-5GI" eventType="touchUpOutside" id="ocY-6R-lhK"/>
+                                            <action selector="playbackProgressSliderTouchUp:" destination="d3x-0P-5GI" eventType="touchUpInside" id="50f-nL-duD"/>
                                             <action selector="playbackProgressSliderValueChanged:" destination="d3x-0P-5GI" eventType="valueChanged" id="6JQ-9M-uOT"/>
                                         </connections>
                                     </slider>
