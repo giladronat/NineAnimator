@@ -108,6 +108,25 @@ class CustomPlayerViewController: UIViewController {
         }
     }
     
+    private func updatePlaybackUI(with currentTime: CMTime) {
+        guard let item = self.playerItem else {
+            Log.debug("No player item to update playback UI")
+            // No need to handle this yet, so return.
+            return
+        }
+        
+        let currentPlaybackSeconds = currentTime.seconds
+        let timeToEndSeconds = item.duration.seconds - currentTime.seconds
+        let currentPlaybackString = self.format(timeInterval: currentPlaybackSeconds)
+        let timeToEndString = "-\(self.format(timeInterval: timeToEndSeconds))"
+        
+        self.currentPlaybackTimeLabel.text = currentPlaybackString
+        self.timeToEndLabel.text = timeToEndString
+        // totalTimeLabel ~> item.duration is updated when item becomes ready to play and doesn't change afterward
+        
+        self.playbackProgressSlider.setValue(Float(currentPlaybackSeconds), animated: true)
+    }
+    
     // MARK: - Observing
     
     private func addPlayerItemObservers(_ playerItem: AVPlayerItem) {
@@ -170,19 +189,8 @@ class CustomPlayerViewController: UIViewController {
     
     private func addPlayerObservers(_ player: AVPlayer) {
         timeObserverToken = player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 1.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC)), queue: DispatchQueue.main) { [weak self] time in
-            guard let item = self?.playerItem, let self = self else { return }
-            
             // Update UI
-            // TODO: Extract this
-            let currentPlaybackSeconds = time.seconds
-            let timeToEndSeconds = item.duration.seconds - time.seconds
-            let currentPlaybackString = self.format(timeInterval: currentPlaybackSeconds)
-            let timeToEndString = "-\(self.format(timeInterval: timeToEndSeconds))"
-            
-            self.currentPlaybackTimeLabel.text = currentPlaybackString
-            self.timeToEndLabel.text = timeToEndString
-            
-            self.playbackProgressSlider.setValue(Float(currentPlaybackSeconds), animated: true)
+            self?.updatePlaybackUI(with: time)
         }
         
         playerTimeControlStatusObservation = observePlayerTimeControlStatus(player)
