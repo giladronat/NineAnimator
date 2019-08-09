@@ -43,6 +43,7 @@ class CustomPlayerViewController: UIViewController {
     @IBOutlet private weak var fastForwardButton: UIButton!
     
     private var isPlaybackProgressSliding = false
+    private var wasPlayingBeforeSliding = false
     
     func play(_ media: PlaybackMedia) {
         self.media = media
@@ -357,10 +358,13 @@ extension CustomPlayerViewController {
     
     @IBAction private func playbackProgressSliderTouchDown(_ sender: UISlider) {
         isPlaybackProgressSliding = true
+        wasPlayingBeforeSliding = player.timeControlStatus == .playing
+        player.pause()
     }
     
     @IBAction private func playbackProgressSliderTouchUp(_ sender: UISlider) {
         isPlaybackProgressSliding = false
+        if wasPlayingBeforeSliding { player.play() }
     }
 }
 
