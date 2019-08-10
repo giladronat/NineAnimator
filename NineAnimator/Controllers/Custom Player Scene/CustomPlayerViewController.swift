@@ -88,14 +88,14 @@ class CustomPlayerViewController: UIViewController {
         player.play()
         
         // Reflect UI
-        playButton.setTitle("Pause", for: .normal)
+        playButton.setImage(#imageLiteral(resourceName: "Pause Icon"), for: .normal)
     }
     
     private func pause() {
         player.pause()
         
         // Reflect UI
-        playButton.setTitle("Play", for: .normal)
+        playButton.setImage(#imageLiteral(resourceName: "Play Icon"), for: .normal)
     }
     
     // TODO: Call somewhere. Maybe viewWillDisappear (PiP?)
