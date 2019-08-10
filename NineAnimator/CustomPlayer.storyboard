@@ -25,12 +25,11 @@
                             <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UaD-DK-17d">
                                 <rect key="frame" x="44" y="0.0" width="808" height="393"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0:00:00" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nid-b5-m8X">
-                                        <rect key="frame" x="8" y="355" width="61" height="30"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nid-b5-m8X">
+                                        <rect key="frame" x="8" y="355" width="50" height="30"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="30" id="3St-Cv-WYn"/>
-                                            <constraint firstAttribute="width" relation="lessThanOrEqual" constant="62" id="iEn-va-ApF"/>
-                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="46" id="jpM-lQ-ut5"/>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="50" id="jpM-lQ-ut5"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
@@ -75,18 +74,17 @@
                                             <action selector="fastForwardTapped:" destination="d3x-0P-5GI" eventType="touchUpInside" id="H8H-RJ-KRO"/>
                                         </connections>
                                     </button>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-00:00" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1iA-hV-rGE">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1iA-hV-rGE">
                                         <rect key="frame" x="746" y="355" width="54" height="30"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" relation="lessThanOrEqual" constant="62" id="MtY-mn-EEt"/>
-                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="46" id="xIL-Y9-Ggb"/>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="54" id="xIL-Y9-Ggb"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="UqK-Qv-4pt">
-                                        <rect key="frame" x="75" y="355" width="665" height="31"/>
+                                        <rect key="frame" x="64" y="355" width="676" height="31"/>
                                         <connections>
                                             <action selector="playbackProgressSliderTouchDown:" destination="d3x-0P-5GI" eventType="touchDown" id="BrR-mr-lIu"/>
                                             <action selector="playbackProgressSliderTouchDown:" destination="d3x-0P-5GI" eventType="touchUpOutside" id="ocY-6R-lhK"/>
