@@ -31,9 +31,21 @@ class CustomPlayerViewController: UIViewController {
     @IBOutlet private weak var controlContainerOverlay: UIView!
     
     @IBOutlet private weak var playButton: UIButton!
-    @IBOutlet private weak var currentPlaybackTimeLabel: UILabel!
-    @IBOutlet private weak var timeToEndLabel: UILabel!
-    @IBOutlet private weak var totalTimeLabel: UILabel!
+    @IBOutlet private weak var currentPlaybackTimeLabel: UILabel! {
+        didSet {
+            currentPlaybackTimeLabel.font = UIFont.monospacedDigitSystemFont(ofSize: currentPlaybackTimeLabel.font.pointSize, weight: UIFont.Weight.regular)
+        }
+    }
+    @IBOutlet private weak var timeToEndLabel: UILabel! {
+        didSet {
+            timeToEndLabel.font = UIFont.monospacedDigitSystemFont(ofSize: timeToEndLabel.font.pointSize, weight: UIFont.Weight.regular)
+        }
+    }
+    @IBOutlet private weak var totalTimeLabel: UILabel! {
+        didSet {
+            totalTimeLabel.font = UIFont.monospacedDigitSystemFont(ofSize: totalTimeLabel.font.pointSize, weight: UIFont.Weight.regular)
+        }
+    }
     
     @IBOutlet private weak var bufferSpinner: UIActivityIndicatorView!
     
