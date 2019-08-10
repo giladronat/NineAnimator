@@ -33,6 +33,7 @@ class CustomPlayerViewController: UIViewController {
     @IBOutlet private weak var playButton: UIButton!
     @IBOutlet private weak var currentPlaybackTimeLabel: UILabel! {
         didSet {
+            // TODO: Determine good placeholder values that don't mess with layout
             currentPlaybackTimeLabel.font = currentPlaybackTimeLabel.font.monospacedDigitFont
         }
     }
@@ -52,7 +53,9 @@ class CustomPlayerViewController: UIViewController {
     @IBOutlet private weak var playbackProgressSlider: UISlider!
     @IBOutlet private weak var playbackBufferProgressView: UIProgressView!
     @IBOutlet private weak var rewindButton: UIButton!
+    @IBOutlet private weak var rewindContainer: UIView!
     @IBOutlet private weak var fastForwardButton: UIButton!
+    @IBOutlet private weak var fastForwardContainer: UIView!
     
     private var isPlaybackProgressSliding = false
     private var wasPlayingBeforeSliding = false
