@@ -30,6 +30,7 @@ class CustomPlayerViewController: UIViewController {
     // Control UI
     @IBOutlet private weak var controlContainerOverlay: UIView!
     
+    private var isDisplayingControls = true
     private var fadeControlsTimer: Timer?
     private var fadeControlsTimeInterval: TimeInterval = 3.0
     
@@ -187,7 +188,7 @@ class CustomPlayerViewController: UIViewController {
                         self.totalTimeLabel.text = self.format(timeInterval: totalTimeSeconds)
                         self.playbackProgressSlider.maximumValue = Float(totalTimeSeconds)
                         
-                        self.setFadeControlTimer()
+//                        self.setFadeControlTimer()
                     }
                 }
             case .failed:
@@ -406,9 +407,13 @@ extension CustomPlayerViewController {
     private func setFadeControlTimer() {
         fadeControlsTimer?.invalidate()
         fadeControlsTimer = Timer.scheduledTimer(withTimeInterval: fadeControlsTimeInterval,
-                                                 repeats: false) { [weak self] timer in
+                                                 repeats: false) { [weak self] _ in
                                                     self?.displayControls(false)
         }
+    }
+    
+    @IBAction private func viewTapped(_ sender: UITapGestureRecognizer) {
+        displayControls(!isDisplayingControls)
     }
     
     private func displayControls(_ visible: Bool) {
@@ -422,11 +427,13 @@ extension CustomPlayerViewController {
     private func showControls() {
         // TODO: Animate
         controlContainerOverlay.isHidden = false
-        setFadeControlTimer()
+//        setFadeControlTimer()
+        isDisplayingControls = true
     }
     
     private func hideControls() {
         controlContainerOverlay.isHidden = true
+        isDisplayingControls = false
     }
 }
 

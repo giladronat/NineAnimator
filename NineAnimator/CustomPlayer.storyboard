@@ -160,6 +160,9 @@
                             <constraint firstItem="A2e-hQ-TxY" firstAttribute="top" secondItem="8ZS-Vq-jm6" secondAttribute="top" id="rmV-vs-7mm"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="px8-lR-8uH"/>
+                        <connections>
+                            <outletCollection property="gestureRecognizers" destination="ceD-h8-QMR" appends="YES" id="1Hu-eJ-8r8"/>
+                        </connections>
                     </view>
                     <nil key="simulatedBottomBarMetrics"/>
                     <connections>
@@ -187,6 +190,11 @@
                 <tapGestureRecognizer numberOfTapsRequired="2" id="lGg-nb-8oK">
                     <connections>
                         <action selector="forwardDoubleTapped:" destination="d3x-0P-5GI" id="8jB-Ob-U7q"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer delaysTouchesBegan="YES" id="ceD-h8-QMR">
+                    <connections>
+                        <action selector="viewTapped:" destination="d3x-0P-5GI" id="qgC-O4-OrY"/>
                     </connections>
                 </tapGestureRecognizer>
             </objects>
