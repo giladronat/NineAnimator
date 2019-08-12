@@ -419,6 +419,8 @@ extension CustomPlayerViewController {
         displayControls(!isDisplayingControls)
     }
     
+    /// Makes viewTapped wait to make sure there's no double tap.
+    // Otherwise, viewTapped gets called immediately
     private func prepareGestureRecognizers() {
         viewTappedGestureRecognizer.require(toFail: rewindDoubleTapGestureRecognizer)
         viewTappedGestureRecognizer.require(toFail: fastForwardDoubleTapGestureRecognizer)
@@ -544,7 +546,7 @@ extension CustomPlayerViewController {
  
  Details:
  
- - [ ] Check gesture recognizers' .delaysTouchesBegan/Ended
+ - [X] Check gesture recognizers' .delaysTouchesBegan/Ended
  - [ ] Disable & enable controls based on item ready/buffering
  - [ ] Swapping between spinner and play/pause when buffering
  - [ ] Determine good placeholder values that don't mess with layout
