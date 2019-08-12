@@ -33,7 +33,6 @@ class CustomPlayerViewController: UIViewController {
     @IBOutlet private weak var playButton: UIButton!
     @IBOutlet private weak var currentPlaybackTimeLabel: UILabel! {
         didSet {
-            // TODO: Determine good placeholder values that don't mess with layout
             currentPlaybackTimeLabel.font = currentPlaybackTimeLabel.font.monospacedDigitFont
         }
     }
@@ -130,9 +129,9 @@ class CustomPlayerViewController: UIViewController {
         guard let item = self.playerItem else {
             Log.debug("No player item to update playback UI")
             // This probably won't happen
-            currentPlaybackTimeLabel.text = "--:--"
-            timeToEndLabel.text = "--:--"
-            totalTimeLabel.text = "--:--"
+            currentPlaybackTimeLabel.text = "00:00"
+            timeToEndLabel.text = "-00:00"
+            totalTimeLabel.text = "00:00"
             return
         }
         
@@ -360,6 +359,17 @@ extension CustomPlayerViewController {
     
     @IBAction private func rewindTapped(_ sender: Any) {
         seek(by: -15)
+    }
+    
+    @IBAction private func forwardDoubleTapped(_ sender: UITapGestureRecognizer) {
+        if sender.state == .ended {
+            Log.debug("Double tapped forward")
+        }
+    }
+    @IBAction private func rewindDoubleTapped(_ sender: UITapGestureRecognizer) {
+        if sender.state == .ended {
+            Log.debug("Double tapped backward")
+        }
     }
     
     @IBAction private func playbackProgressSliderValueChanged(_ sender: UISlider) {

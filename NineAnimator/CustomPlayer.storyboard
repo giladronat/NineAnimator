@@ -25,6 +25,22 @@
                             <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UaD-DK-17d">
                                 <rect key="frame" x="44" y="0.0" width="808" height="393"/>
                                 <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2kF-kK-6V7">
+                                        <rect key="frame" x="0.0" y="0.0" width="404" height="355"/>
+                                        <color key="backgroundColor" white="1" alpha="0.60000002379999995" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <gestureRecognizers/>
+                                        <connections>
+                                            <outletCollection property="gestureRecognizers" destination="GLv-iI-uem" appends="YES" id="f8R-2w-voc"/>
+                                        </connections>
+                                    </view>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="arw-KT-etA">
+                                        <rect key="frame" x="404" y="0.0" width="404" height="355"/>
+                                        <color key="backgroundColor" white="1" alpha="0.40375222450422527" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <gestureRecognizers/>
+                                        <connections>
+                                            <outletCollection property="gestureRecognizers" destination="lGg-nb-8oK" appends="YES" id="DOs-0O-RwQ"/>
+                                        </connections>
+                                    </view>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nid-b5-m8X">
                                         <rect key="frame" x="8" y="355" width="50" height="30"/>
                                         <constraints>
@@ -35,8 +51,19 @@
                                         <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="--:--" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nIe-as-DF2">
+                                        <rect key="frame" x="362" y="309" width="73" height="38"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hdV-bN-Xm9">
+                                        <rect key="frame" x="211" y="260" width="374" height="2"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    </progressView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vw9-rr-J3w">
-                                        <rect key="frame" x="348" y="141" width="111" height="112"/>
+                                        <rect key="frame" x="348.5" y="140.5" width="111" height="112"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="111" id="OiP-hp-Toz"/>
                                             <constraint firstAttribute="height" constant="112" id="p5b-hJ-KVv"/>
@@ -47,21 +74,6 @@
                                             <action selector="playTappedWithSender:" destination="d3x-0P-5GI" eventType="touchUpInside" id="7K9-OU-fQY"/>
                                         </connections>
                                     </button>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="--:--" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nIe-as-DF2">
-                                        <rect key="frame" x="362" y="309" width="73" height="38"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" hidesWhenStopped="YES" animating="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="L0n-Fg-W3U">
-                                        <rect key="frame" x="217" y="282" width="20" height="20"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    </activityIndicatorView>
-                                    <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hdV-bN-Xm9">
-                                        <rect key="frame" x="211" y="260" width="374" height="2"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    </progressView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="y3c-FY-oIn">
                                         <rect key="frame" x="121.5" y="156.5" width="80" height="80"/>
                                         <constraints>
@@ -74,14 +86,6 @@
                                             <action selector="rewindTapped:" destination="d3x-0P-5GI" eventType="touchUpInside" id="pQS-bR-CZk"/>
                                         </connections>
                                     </button>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2kF-kK-6V7">
-                                        <rect key="frame" x="0.0" y="0.0" width="404" height="355"/>
-                                        <color key="backgroundColor" white="1" alpha="0.60000002379999995" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="arw-KT-etA">
-                                        <rect key="frame" x="404" y="0.0" width="404" height="355"/>
-                                        <color key="backgroundColor" white="1" alpha="0.40375222450422527" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    </view>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yNy-w9-t7h">
                                         <rect key="frame" x="606.5" y="156.5" width="80" height="80"/>
                                         <constraints>
@@ -112,6 +116,10 @@
                                             <action selector="playbackProgressSliderValueChanged:" destination="d3x-0P-5GI" eventType="valueChanged" id="6JQ-9M-uOT"/>
                                         </connections>
                                     </slider>
+                                    <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" hidesWhenStopped="YES" animating="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="L0n-Fg-W3U">
+                                        <rect key="frame" x="389" y="284" width="20" height="20"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    </activityIndicatorView>
                                 </subviews>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.29558208626760563" colorSpace="custom" customColorSpace="displayP3"/>
                                 <constraints>
@@ -171,6 +179,16 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dK0-O7-rhv" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer numberOfTapsRequired="2" id="GLv-iI-uem">
+                    <connections>
+                        <action selector="rewindDoubleTapped:" destination="d3x-0P-5GI" id="pYm-Qr-vpo"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer numberOfTapsRequired="2" id="lGg-nb-8oK">
+                    <connections>
+                        <action selector="forwardDoubleTapped:" destination="d3x-0P-5GI" id="8jB-Ob-U7q"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="-291.96428571428572" y="111.59420289855073"/>
         </scene>
