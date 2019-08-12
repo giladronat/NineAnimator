@@ -56,6 +56,8 @@ class CustomPlayerViewController: UIViewController {
     @IBOutlet private weak var fastForwardButton: UIButton!
     @IBOutlet private weak var fastForwardContainer: UIView!
     
+    private var skipDurationSeconds: TimeInterval = 15.0
+    
     private var isPlaybackProgressSliding = false
     private var wasPlayingBeforeSliding = false
     
@@ -354,21 +356,21 @@ extension CustomPlayerViewController {
     }
     
     @IBAction private func fastForwardTapped(_ sender: Any) {
-        seek(by: 15)
+        seek(by: skipDurationSeconds)
     }
     
     @IBAction private func rewindTapped(_ sender: Any) {
-        seek(by: -15)
+        seek(by: -skipDurationSeconds)
     }
     
     @IBAction private func forwardDoubleTapped(_ sender: UITapGestureRecognizer) {
         if sender.state == .ended {
-            Log.debug("Double tapped forward")
+            seek(by: skipDurationSeconds)
         }
     }
     @IBAction private func rewindDoubleTapped(_ sender: UITapGestureRecognizer) {
         if sender.state == .ended {
-            Log.debug("Double tapped backward")
+            seek(by: -skipDurationSeconds)
         }
     }
     
