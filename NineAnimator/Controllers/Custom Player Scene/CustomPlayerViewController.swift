@@ -455,3 +455,35 @@ extension CustomPlayerViewController {
         super.viewWillAppear(animated)
     }
 }
+
+// MARK: - Tasks
+
+/*
+ 
+ Features:
+
+ - [ ] Hide controls after certain time
+ - [ ] Double-tap skip gesture
+ - [ ] Next episode button
+ - [ ] iPad PiP
+ - [ ] User activity & continuity (via NativePlayerController)
+ - [ ] Progress saving & restoration (done in NativePlayerController)
+ - [ ] Button to change aspect zooming (like native double-tap)
+ - [ ] Auto-play option
+ 
+ Clean-up:
+ 
+ - [ ] Clean up UI modification with respect to the player item
+ (possibly extract to a view model)
+ - [ ] Document potential statuses better
+ - [ ] Decide on which public APIs to expose to make code reusable
+ - [ ] See which parts of the code can and should be tested
+ 
+ Details:
+ 
+ - [ ] Disable & enable controls based on item ready/buffering
+ - [ ] Swapping between spinner and play/pause when buffering
+ - [ ] Determine good placeholder values that don't mess with layout
+ - [ ] Stack double-tap skips like Netflix/Twitch
+ 
+*/
