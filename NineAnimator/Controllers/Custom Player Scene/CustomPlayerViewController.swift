@@ -30,6 +30,9 @@ class CustomPlayerViewController: UIViewController {
     // Control UI
     @IBOutlet private weak var controlContainerOverlay: UIView!
     
+    private var fadeControlsTimer: Timer?
+    private var fadeControlsTimeInterval: TimeInterval = 3.0
+    
     @IBOutlet private weak var playButton: UIButton!
     @IBOutlet private weak var currentPlaybackTimeLabel: UILabel! {
         didSet {
@@ -56,7 +59,7 @@ class CustomPlayerViewController: UIViewController {
     @IBOutlet private weak var fastForwardButton: UIButton!
     @IBOutlet private weak var fastForwardContainer: UIView!
     
-    private var skipDurationSeconds: TimeInterval = 15.0
+    private var skipDurationTimeInterval: TimeInterval = 15.0
     
     private var isPlaybackProgressSliding = false
     private var wasPlayingBeforeSliding = false
@@ -183,6 +186,8 @@ class CustomPlayerViewController: UIViewController {
                         let totalTimeSeconds = TimeInterval(item.duration.seconds)
                         self.totalTimeLabel.text = self.format(timeInterval: totalTimeSeconds)
                         self.playbackProgressSlider.maximumValue = Float(totalTimeSeconds)
+                        
+                        self.setFadeControlTimer()
                     }
                 }
             case .failed:
@@ -356,21 +361,21 @@ extension CustomPlayerViewController {
     }
     
     @IBAction private func fastForwardTapped(_ sender: Any) {
-        seek(by: skipDurationSeconds)
+        seek(by: skipDurationTimeInterval)
     }
     
     @IBAction private func rewindTapped(_ sender: Any) {
-        seek(by: -skipDurationSeconds)
+        seek(by: -skipDurationTimeInterval)
     }
     
     @IBAction private func forwardDoubleTapped(_ sender: UITapGestureRecognizer) {
         if sender.state == .ended {
-            seek(by: skipDurationSeconds)
+            seek(by: skipDurationTimeInterval)
         }
     }
     @IBAction private func rewindDoubleTapped(_ sender: UITapGestureRecognizer) {
         if sender.state == .ended {
-            seek(by: -skipDurationSeconds)
+            seek(by: -skipDurationTimeInterval)
         }
     }
     
@@ -392,6 +397,36 @@ extension CustomPlayerViewController {
     @IBAction private func playbackProgressSliderTouchUp(_ sender: UISlider) {
         isPlaybackProgressSliding = false
         if wasPlayingBeforeSliding { player.play() }
+    }
+}
+
+// MARK: - Control Fading
+
+extension CustomPlayerViewController {
+    private func setFadeControlTimer() {
+        fadeControlsTimer?.invalidate()
+        fadeControlsTimer = Timer.scheduledTimer(withTimeInterval: fadeControlsTimeInterval,
+                                                 repeats: false) { [weak self] timer in
+                                                    self?.displayControls(false)
+        }
+    }
+    
+    private func displayControls(_ visible: Bool) {
+        if visible {
+            showControls()
+        } else {
+            hideControls()
+        }
+    }
+    
+    private func showControls() {
+        // TODO: Animate
+        controlContainerOverlay.isHidden = false
+        setFadeControlTimer()
+    }
+    
+    private func hideControls() {
+        controlContainerOverlay.isHidden = true
     }
 }
 
@@ -465,13 +500,14 @@ extension CustomPlayerViewController {
  Features:
 
  - [ ] Hide controls after certain time
- - [ ] Double-tap skip gesture
+    - [ ] Hold finger on screen to keep controls on
  - [ ] Next episode button
  - [ ] iPad PiP
  - [ ] User activity & continuity (via NativePlayerController)
  - [ ] Progress saving & restoration (done in NativePlayerController)
  - [ ] Button to change aspect zooming (like native double-tap)
  - [ ] Auto-play option
+ - [X] Double-tap skip gesture
  
  Clean-up:
  
@@ -483,6 +519,7 @@ extension CustomPlayerViewController {
  
  Details:
  
+ - [ ] Check gesture recognizers' .delaysTouchesBegan/Ended
  - [ ] Disable & enable controls based on item ready/buffering
  - [ ] Swapping between spinner and play/pause when buffering
  - [ ] Determine good placeholder values that don't mess with layout
