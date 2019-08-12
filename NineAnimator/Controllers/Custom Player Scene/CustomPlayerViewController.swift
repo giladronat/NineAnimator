@@ -33,6 +33,7 @@ class CustomPlayerViewController: UIViewController {
     private var isDisplayingControls = true
     private var fadeControlsTimer: Timer?
     private var fadeControlsTimeInterval: TimeInterval = 3.0
+    @IBOutlet private weak var viewTappedGestureRecognizer: UITapGestureRecognizer!
     
     @IBOutlet private weak var playButton: UIButton!
     @IBOutlet private weak var currentPlaybackTimeLabel: UILabel! {
@@ -57,8 +58,10 @@ class CustomPlayerViewController: UIViewController {
     @IBOutlet private weak var playbackBufferProgressView: UIProgressView!
     @IBOutlet private weak var rewindButton: UIButton!
     @IBOutlet private weak var rewindContainer: UIView!
+    @IBOutlet private weak var rewindDoubleTapGestureRecognizer: UITapGestureRecognizer!
     @IBOutlet private weak var fastForwardButton: UIButton!
     @IBOutlet private weak var fastForwardContainer: UIView!
+    @IBOutlet private weak var fastForwardDoubleTapGestureRecognizer: UITapGestureRecognizer!
     
     private var skipDurationTimeInterval: TimeInterval = 15.0
     
@@ -416,6 +419,11 @@ extension CustomPlayerViewController {
         displayControls(!isDisplayingControls)
     }
     
+    private func prepareGestureRecognizers() {
+        viewTappedGestureRecognizer.require(toFail: rewindDoubleTapGestureRecognizer)
+        viewTappedGestureRecognizer.require(toFail: fastForwardDoubleTapGestureRecognizer)
+    }
+    
     private func displayControls(_ visible: Bool) {
         if visible {
             showControls()
@@ -485,6 +493,16 @@ extension CustomPlayerViewController {
         formatter.dateFormat = timeFormat
         
         return formatter.string(from: date)
+    }
+}
+
+// MARK: - Life Cycle
+
+extension CustomPlayerViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        prepareGestureRecognizers()
     }
 }
 

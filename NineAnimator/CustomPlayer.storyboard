@@ -22,25 +22,25 @@
                                 <rect key="frame" x="0.0" y="0.0" width="896" height="414"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2kF-kK-6V7">
+                                <rect key="frame" x="0.0" y="0.0" width="448" height="355"/>
+                                <color key="backgroundColor" white="1" alpha="0.60000002379999995" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <gestureRecognizers/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="GLv-iI-uem" appends="YES" id="f8R-2w-voc"/>
+                                </connections>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="arw-KT-etA">
+                                <rect key="frame" x="448" y="0.0" width="448" height="355"/>
+                                <color key="backgroundColor" white="1" alpha="0.40375222450422527" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <gestureRecognizers/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="lGg-nb-8oK" appends="YES" id="DOs-0O-RwQ"/>
+                                </connections>
+                            </view>
                             <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UaD-DK-17d">
                                 <rect key="frame" x="44" y="0.0" width="808" height="393"/>
                                 <subviews>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2kF-kK-6V7">
-                                        <rect key="frame" x="0.0" y="0.0" width="404" height="355"/>
-                                        <color key="backgroundColor" white="1" alpha="0.60000002379999995" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <gestureRecognizers/>
-                                        <connections>
-                                            <outletCollection property="gestureRecognizers" destination="GLv-iI-uem" appends="YES" id="f8R-2w-voc"/>
-                                        </connections>
-                                    </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="arw-KT-etA">
-                                        <rect key="frame" x="404" y="0.0" width="404" height="355"/>
-                                        <color key="backgroundColor" white="1" alpha="0.40375222450422527" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <gestureRecognizers/>
-                                        <connections>
-                                            <outletCollection property="gestureRecognizers" destination="lGg-nb-8oK" appends="YES" id="DOs-0O-RwQ"/>
-                                        </connections>
-                                    </view>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nid-b5-m8X">
                                         <rect key="frame" x="8" y="355" width="50" height="30"/>
                                         <constraints>
@@ -126,25 +126,17 @@
                                     <constraint firstItem="yNy-w9-t7h" firstAttribute="centerX" secondItem="UaD-DK-17d" secondAttribute="centerX" multiplier="1.6" id="20F-aR-4fi"/>
                                     <constraint firstItem="Vw9-rr-J3w" firstAttribute="centerX" secondItem="UaD-DK-17d" secondAttribute="centerX" id="2cS-Aw-44v"/>
                                     <constraint firstAttribute="bottomMargin" secondItem="1iA-hV-rGE" secondAttribute="bottom" id="4aR-pB-pff"/>
-                                    <constraint firstItem="2kF-kK-6V7" firstAttribute="top" secondItem="UaD-DK-17d" secondAttribute="top" id="79A-Q3-4S3"/>
                                     <constraint firstAttribute="bottomMargin" secondItem="nid-b5-m8X" secondAttribute="bottom" id="DN3-6l-yxk"/>
                                     <constraint firstItem="yNy-w9-t7h" firstAttribute="centerY" secondItem="Vw9-rr-J3w" secondAttribute="centerY" id="EM5-Dd-m6U"/>
-                                    <constraint firstAttribute="trailing" secondItem="arw-KT-etA" secondAttribute="trailing" id="G0m-0o-2IH"/>
-                                    <constraint firstItem="2kF-kK-6V7" firstAttribute="bottom" secondItem="UqK-Qv-4pt" secondAttribute="top" id="OcS-FI-m0t"/>
-                                    <constraint firstItem="2kF-kK-6V7" firstAttribute="leading" secondItem="UaD-DK-17d" secondAttribute="leading" id="UJe-oX-LVm"/>
                                     <constraint firstItem="nid-b5-m8X" firstAttribute="leading" secondItem="UaD-DK-17d" secondAttribute="leadingMargin" id="Vtl-3E-gY6"/>
                                     <constraint firstItem="Vw9-rr-J3w" firstAttribute="centerY" secondItem="UaD-DK-17d" secondAttribute="centerY" id="YeJ-mZ-v3A"/>
                                     <constraint firstItem="1iA-hV-rGE" firstAttribute="height" secondItem="nid-b5-m8X" secondAttribute="height" id="ch2-9y-h5X"/>
                                     <constraint firstItem="y3c-FY-oIn" firstAttribute="centerX" secondItem="UaD-DK-17d" secondAttribute="centerX" multiplier="0.4" id="e6b-8k-6RT"/>
-                                    <constraint firstItem="arw-KT-etA" firstAttribute="bottom" secondItem="2kF-kK-6V7" secondAttribute="bottom" id="fTQ-gB-WO2"/>
-                                    <constraint firstItem="2kF-kK-6V7" firstAttribute="trailing" secondItem="UaD-DK-17d" secondAttribute="centerX" id="glN-sX-GJL"/>
                                     <constraint firstItem="UqK-Qv-4pt" firstAttribute="leading" secondItem="nid-b5-m8X" secondAttribute="trailing" constant="8" symbolic="YES" id="jV7-od-Gv0"/>
                                     <constraint firstAttribute="trailingMargin" secondItem="1iA-hV-rGE" secondAttribute="trailing" id="nhr-Bj-cet"/>
                                     <constraint firstItem="y3c-FY-oIn" firstAttribute="centerY" secondItem="Vw9-rr-J3w" secondAttribute="centerY" id="pVD-OY-sT0"/>
                                     <constraint firstItem="1iA-hV-rGE" firstAttribute="leading" secondItem="UqK-Qv-4pt" secondAttribute="trailing" constant="8" symbolic="YES" id="rCr-dj-9Ud"/>
-                                    <constraint firstItem="arw-KT-etA" firstAttribute="top" secondItem="UaD-DK-17d" secondAttribute="top" id="rgD-Le-We1"/>
                                     <constraint firstItem="UqK-Qv-4pt" firstAttribute="centerY" secondItem="1iA-hV-rGE" secondAttribute="centerY" id="wIv-jk-jLb"/>
-                                    <constraint firstItem="arw-KT-etA" firstAttribute="leading" secondItem="UaD-DK-17d" secondAttribute="centerX" id="z3V-rv-UB7"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -154,10 +146,18 @@
                             <constraint firstItem="A2e-hQ-TxY" firstAttribute="trailing" secondItem="8ZS-Vq-jm6" secondAttribute="trailing" id="8y4-WQ-FzC"/>
                             <constraint firstItem="UaD-DK-17d" firstAttribute="leading" secondItem="px8-lR-8uH" secondAttribute="leading" id="AOo-hg-ibX"/>
                             <constraint firstItem="A2e-hQ-TxY" firstAttribute="leading" secondItem="8ZS-Vq-jm6" secondAttribute="leading" id="Gd7-dN-UOI"/>
+                            <constraint firstItem="2kF-kK-6V7" firstAttribute="top" secondItem="8ZS-Vq-jm6" secondAttribute="top" id="ReC-kj-Tfm"/>
+                            <constraint firstItem="arw-KT-etA" firstAttribute="leading" secondItem="8ZS-Vq-jm6" secondAttribute="centerX" id="VtE-G4-A3m"/>
                             <constraint firstItem="UaD-DK-17d" firstAttribute="bottom" secondItem="px8-lR-8uH" secondAttribute="bottom" id="W3j-zH-Jka"/>
+                            <constraint firstItem="arw-KT-etA" firstAttribute="bottom" secondItem="2kF-kK-6V7" secondAttribute="bottom" id="XZw-9S-7Lp"/>
                             <constraint firstItem="UaD-DK-17d" firstAttribute="top" secondItem="px8-lR-8uH" secondAttribute="top" id="aIh-jl-7wP"/>
+                            <constraint firstItem="arw-KT-etA" firstAttribute="top" secondItem="8ZS-Vq-jm6" secondAttribute="top" id="daD-NW-4nr"/>
+                            <constraint firstItem="2kF-kK-6V7" firstAttribute="trailing" secondItem="8ZS-Vq-jm6" secondAttribute="centerX" id="eWh-dU-enM"/>
                             <constraint firstItem="UaD-DK-17d" firstAttribute="trailing" secondItem="px8-lR-8uH" secondAttribute="trailing" id="fIS-kt-Qes"/>
+                            <constraint firstItem="2kF-kK-6V7" firstAttribute="leading" secondItem="8ZS-Vq-jm6" secondAttribute="leading" id="mTH-9V-UgL"/>
                             <constraint firstItem="A2e-hQ-TxY" firstAttribute="top" secondItem="8ZS-Vq-jm6" secondAttribute="top" id="rmV-vs-7mm"/>
+                            <constraint firstItem="arw-KT-etA" firstAttribute="trailing" secondItem="8ZS-Vq-jm6" secondAttribute="trailing" id="slk-i5-gr1"/>
+                            <constraint firstItem="2kF-kK-6V7" firstAttribute="bottom" secondItem="UqK-Qv-4pt" secondAttribute="top" id="vEt-6M-Bo9"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="px8-lR-8uH"/>
                         <connections>
@@ -171,14 +171,17 @@
                         <outlet property="currentPlaybackTimeLabel" destination="nid-b5-m8X" id="L4m-uV-EZJ"/>
                         <outlet property="fastForwardButton" destination="yNy-w9-t7h" id="1mR-cQ-yen"/>
                         <outlet property="fastForwardContainer" destination="arw-KT-etA" id="y8a-gf-u0p"/>
+                        <outlet property="fastForwardDoubleTapGestureRecognizer" destination="lGg-nb-8oK" id="BU6-Kn-7VU"/>
                         <outlet property="playButton" destination="Vw9-rr-J3w" id="SXP-5B-PCd"/>
                         <outlet property="playbackBufferProgressView" destination="hdV-bN-Xm9" id="r2K-PI-lKq"/>
                         <outlet property="playbackProgressSlider" destination="UqK-Qv-4pt" id="1Sf-GX-RjU"/>
                         <outlet property="playerLayerView" destination="A2e-hQ-TxY" id="3F7-ae-pDU"/>
                         <outlet property="rewindButton" destination="y3c-FY-oIn" id="sCh-tL-6tQ"/>
                         <outlet property="rewindContainer" destination="2kF-kK-6V7" id="v3s-N2-DHd"/>
+                        <outlet property="rewindDoubleTapGestureRecognizer" destination="GLv-iI-uem" id="i0E-yw-5Mt"/>
                         <outlet property="timeToEndLabel" destination="1iA-hV-rGE" id="Tit-50-Tuw"/>
                         <outlet property="totalTimeLabel" destination="nIe-as-DF2" id="VWF-a7-Djr"/>
+                        <outlet property="viewTappedGestureRecognizer" destination="ceD-h8-QMR" id="4tS-69-x0n"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dK0-O7-rhv" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -192,7 +195,7 @@
                         <action selector="forwardDoubleTapped:" destination="d3x-0P-5GI" id="8jB-Ob-U7q"/>
                     </connections>
                 </tapGestureRecognizer>
-                <tapGestureRecognizer delaysTouchesBegan="YES" id="ceD-h8-QMR">
+                <tapGestureRecognizer id="ceD-h8-QMR">
                     <connections>
                         <action selector="viewTapped:" destination="d3x-0P-5GI" id="qgC-O4-OrY"/>
                     </connections>
