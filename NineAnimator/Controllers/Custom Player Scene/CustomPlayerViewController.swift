@@ -301,7 +301,7 @@ extension CustomPlayerViewController {
                 self?.fadeControlsTimer?.invalidate()
             case .playing:
                 Log.debug("Status: playing")
-                self?.setFadeControlTimer()
+                self?.setFadeControlsTimer()
                 self?.bufferSpinner.isHidden = true
             case .waitingToPlayAtSpecifiedRate:
                 // Waiting Reason is often "evaluatingBufferingRate" -- not buffering
@@ -404,7 +404,7 @@ extension CustomPlayerViewController {
     
     @IBAction private func playbackProgressSliderTouchUp(_ sender: UISlider) {
         isPlaybackProgressSliding = false
-        setFadeControlTimer()
+        setFadeControlsTimer()
         if wasPlayingBeforeSliding { player.play() }
     }
 }
@@ -412,7 +412,7 @@ extension CustomPlayerViewController {
 // MARK: - Control Fading
 
 extension CustomPlayerViewController {
-    private func setFadeControlTimer() {
+    private func setFadeControlsTimer() {
         fadeControlsTimer?.invalidate()
         fadeControlsTimer = Timer.scheduledTimer(withTimeInterval: fadeControlsTimeInterval,
                                                  repeats: false) { [weak self] _ in
@@ -444,7 +444,7 @@ extension CustomPlayerViewController {
         controlContainerOverlay.isHidden = false
         if player.timeControlStatus == .playing {
             // Do not fade controls when paused
-            setFadeControlTimer()
+            setFadeControlsTimer()
         }
         isDisplayingControls = true
     }
