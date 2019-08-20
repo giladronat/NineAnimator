@@ -299,7 +299,7 @@ extension CustomPlayerViewController {
                     Log.debug("Player paused and unlikely to keep up (buffering)")
                 }
             case .playing:
-                Log.debug("Status: playing (not buffering)")
+                Log.debug("Status: playing")
                 self?.bufferSpinner.isHidden = true
             case .waitingToPlayAtSpecifiedRate:
                 // Waiting Reason is often "evaluatingBufferingRate" -- not buffering
@@ -335,7 +335,8 @@ extension CustomPlayerViewController {
             }
             
             guard let loadedTimeRange = loadedTimeRanges.first?.timeRangeValue else {
-                Log.error("Empty loaded time ranges")
+                Log.debug("Empty loaded time ranges")
+                // TODO: Maybe clear buffer progress
                 return
             }
             
@@ -395,11 +396,13 @@ extension CustomPlayerViewController {
     @IBAction private func playbackProgressSliderTouchDown(_ sender: UISlider) {
         isPlaybackProgressSliding = true
         wasPlayingBeforeSliding = player.timeControlStatus == .playing
+        fadeControlsTimer?.invalidate()
         player.pause()
     }
     
     @IBAction private func playbackProgressSliderTouchUp(_ sender: UISlider) {
         isPlaybackProgressSliding = false
+        setFadeControlTimer()
         if wasPlayingBeforeSliding { player.play() }
     }
 }
@@ -437,12 +440,13 @@ extension CustomPlayerViewController {
     private func showControls() {
         // TODO: Animate
         controlContainerOverlay.isHidden = false
-//        setFadeControlTimer()
+        setFadeControlTimer()
         isDisplayingControls = true
     }
     
     private func hideControls() {
         controlContainerOverlay.isHidden = true
+        fadeControlsTimer?.invalidate()
         isDisplayingControls = false
     }
 }
