@@ -190,8 +190,6 @@ class CustomPlayerViewController: UIViewController {
                         let totalTimeSeconds = TimeInterval(item.duration.seconds)
                         self.totalTimeLabel.text = self.format(timeInterval: totalTimeSeconds)
                         self.playbackProgressSlider.maximumValue = Float(totalTimeSeconds)
-                        
-//                        self.setFadeControlTimer()
                     }
                 }
             case .failed:
@@ -298,8 +296,12 @@ extension CustomPlayerViewController {
                 if !(self?.playerItem?.isPlaybackLikelyToKeepUp ?? true) {
                     Log.debug("Player paused and unlikely to keep up (buffering)")
                 }
+                
+                // Allow controls to stay visible when paused
+                self?.fadeControlsTimer?.invalidate()
             case .playing:
                 Log.debug("Status: playing")
+                self?.setFadeControlTimer()
                 self?.bufferSpinner.isHidden = true
             case .waitingToPlayAtSpecifiedRate:
                 // Waiting Reason is often "evaluatingBufferingRate" -- not buffering
@@ -440,7 +442,10 @@ extension CustomPlayerViewController {
     private func showControls() {
         // TODO: Animate
         controlContainerOverlay.isHidden = false
-        setFadeControlTimer()
+        if player.timeControlStatus == .playing {
+            // Do not fade controls when paused
+            setFadeControlTimer()
+        }
         isDisplayingControls = true
     }
     
