@@ -398,14 +398,18 @@ extension CustomPlayerViewController {
     @IBAction private func playbackProgressSliderTouchDown(_ sender: UISlider) {
         isPlaybackProgressSliding = true
         wasPlayingBeforeSliding = player.timeControlStatus == .playing
+        viewTappedGestureRecognizer.isEnabled = false // disables viewTapped hiding controls when not dragging
         fadeControlsTimer?.invalidate()
         player.pause()
     }
     
     @IBAction private func playbackProgressSliderTouchUp(_ sender: UISlider) {
         isPlaybackProgressSliding = false
-        setFadeControlsTimer()
-        if wasPlayingBeforeSliding { player.play() }
+        viewTappedGestureRecognizer.isEnabled = true
+        if wasPlayingBeforeSliding {
+            setFadeControlsTimer()
+            player.play()
+        }
     }
 }
 
@@ -429,6 +433,7 @@ extension CustomPlayerViewController {
     private func prepareGestureRecognizers() {
         viewTappedGestureRecognizer.require(toFail: rewindDoubleTapGestureRecognizer)
         viewTappedGestureRecognizer.require(toFail: fastForwardDoubleTapGestureRecognizer)
+        // Gesture also disabled when tapping inside progress slider
     }
     
     private func displayControls(_ visible: Bool) {
