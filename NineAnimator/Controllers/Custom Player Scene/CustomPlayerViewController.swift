@@ -450,19 +450,29 @@ extension CustomPlayerViewController {
     }
     
     private func showControls() {
-        // TODO: Animate
         controlContainerOverlay.isHidden = false
-        if player.timeControlStatus == .playing {
-            // Do not fade controls when paused
-            setFadeControlsTimer()
-        }
         isDisplayingControls = true
+        UIView.animate(withDuration: 0.5,
+                       animations: {
+            self.controlContainerOverlay.alpha = 1.0
+        }, completion: { _ in
+            if self.player.timeControlStatus == .playing {
+                // Do not fade controls when paused
+                self.setFadeControlsTimer()
+            }
+        })
     }
     
     private func hideControls() {
-        controlContainerOverlay.isHidden = true
         fadeControlsTimer?.invalidate()
         isDisplayingControls = false
+        UIView.animate(withDuration: 0.5,
+                       animations: {
+            self.controlContainerOverlay.alpha = 0.0
+        },
+                       completion: { _ in
+            self.controlContainerOverlay.isHidden = true
+        })
     }
 }
 
