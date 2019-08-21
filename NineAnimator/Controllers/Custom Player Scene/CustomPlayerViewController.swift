@@ -34,6 +34,7 @@ class CustomPlayerViewController: UIViewController {
     private var fadeControlsTimer: Timer?
     private var fadeControlsTimeInterval: TimeInterval = 3.0
     @IBOutlet private weak var viewTappedGestureRecognizer: UITapGestureRecognizer!
+    @IBOutlet weak var viewLongPressGestureRecognizer: UILongPressGestureRecognizer!
     
     @IBOutlet private weak var playButton: UIButton!
     @IBOutlet private weak var currentPlaybackTimeLabel: UILabel! {
@@ -404,6 +405,7 @@ extension CustomPlayerViewController {
         isPlaybackProgressSliding = true
         wasPlayingBeforeSliding = player.timeControlStatus == .playing
         viewTappedGestureRecognizer.isEnabled = false // disables viewTapped hiding controls when not dragging
+        viewLongPressGestureRecognizer.isEnabled = false
         fadeControlsTimer?.invalidate()
         player.pause()
     }
@@ -411,6 +413,7 @@ extension CustomPlayerViewController {
     @IBAction private func playbackProgressSliderTouchUp(_ sender: UISlider) {
         isPlaybackProgressSliding = false
         viewTappedGestureRecognizer.isEnabled = true
+        viewLongPressGestureRecognizer.isEnabled = true
         if wasPlayingBeforeSliding {
             setFadeControlsTimer()
             player.play()
@@ -430,7 +433,25 @@ extension CustomPlayerViewController {
     }
     
     @IBAction private func viewTapped(_ sender: UITapGestureRecognizer) {
-        displayControls(!isDisplayingControls)
+        if sender.state == .ended {
+            displayControls(!isDisplayingControls)
+        }
+    }
+    
+    @IBAction private func viewLongPressRecognized(_ sender: UILongPressGestureRecognizer) {
+        switch sender.state {
+        case .began:
+            Log.debug("Long press began")
+            fadeControlsTimer?.invalidate()
+        case .cancelled:
+            Log.debug("Long press cancelled, falling through")
+            fallthrough
+        case .ended:
+            Log.debug("Long press ended")
+            setFadeControlsTimer()
+        default:
+            return
+        }
     }
     
     /// Makes viewTapped wait to make sure there's no double tap.
