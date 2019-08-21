@@ -125,6 +125,7 @@ class CustomPlayerViewController: UIViewController {
         if player.timeControlStatus == .playing {
             pause()
         } else if player.timeControlStatus == .paused {
+            setFadeControlsTimer()
             play()
         } else if player.timeControlStatus == .waitingToPlayAtSpecifiedRate {
             // TODO: Handle this
@@ -368,20 +369,24 @@ extension CustomPlayerViewController {
     }
     
     @IBAction private func fastForwardTapped(_ sender: Any) {
+        setFadeControlsTimer()
         seek(by: skipDurationTimeInterval)
     }
     
     @IBAction private func rewindTapped(_ sender: Any) {
+        setFadeControlsTimer()
         seek(by: -skipDurationTimeInterval)
     }
     
     @IBAction private func forwardDoubleTapped(_ sender: UITapGestureRecognizer) {
         if sender.state == .ended {
+            setFadeControlsTimer()
             seek(by: skipDurationTimeInterval)
         }
     }
     @IBAction private func rewindDoubleTapped(_ sender: UITapGestureRecognizer) {
         if sender.state == .ended {
+            setFadeControlsTimer()
             seek(by: -skipDurationTimeInterval)
         }
     }
@@ -540,7 +545,7 @@ extension CustomPlayerViewController {
  
  Features:
 
- - [ ] Hide controls after certain time
+ - [X] Hide controls after certain time
     - [ ] Hold finger on screen to keep controls on
  - [ ] Next episode button
  - [ ] iPad PiP
