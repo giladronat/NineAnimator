@@ -22,20 +22,40 @@
                                 <rect key="frame" x="0.0" y="0.0" width="896" height="414"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2kF-kK-6V7">
-                                <rect key="frame" x="0.0" y="0.0" width="448" height="355"/>
-                                <color key="backgroundColor" white="1" alpha="0.60000002379999995" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <gestureRecognizers/>
+                            <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jpX-2F-SYJ" userLabel="Gesture Background View">
+                                <rect key="frame" x="0.0" y="0.0" width="896" height="414"/>
+                                <subviews>
+                                    <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2kF-kK-6V7">
+                                        <rect key="frame" x="0.0" y="0.0" width="448" height="414"/>
+                                        <color key="backgroundColor" white="1" alpha="0.60000002379999995" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <gestureRecognizers/>
+                                        <connections>
+                                            <outletCollection property="gestureRecognizers" destination="GLv-iI-uem" appends="YES" id="f8R-2w-voc"/>
+                                        </connections>
+                                    </view>
+                                    <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="arw-KT-etA">
+                                        <rect key="frame" x="448" y="0.0" width="448" height="414"/>
+                                        <color key="backgroundColor" white="1" alpha="0.40375222450422527" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <gestureRecognizers/>
+                                        <connections>
+                                            <outletCollection property="gestureRecognizers" destination="lGg-nb-8oK" appends="YES" id="DOs-0O-RwQ"/>
+                                        </connections>
+                                    </view>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="arw-KT-etA" firstAttribute="top" secondItem="jpX-2F-SYJ" secondAttribute="top" id="2wr-JQ-4af"/>
+                                    <constraint firstItem="2kF-kK-6V7" firstAttribute="leading" secondItem="jpX-2F-SYJ" secondAttribute="leading" id="78N-hW-Xg6"/>
+                                    <constraint firstItem="2kF-kK-6V7" firstAttribute="trailing" secondItem="jpX-2F-SYJ" secondAttribute="centerX" id="Biu-Ka-bKx"/>
+                                    <constraint firstItem="2kF-kK-6V7" firstAttribute="top" secondItem="jpX-2F-SYJ" secondAttribute="top" id="TZJ-xp-65K"/>
+                                    <constraint firstAttribute="bottom" secondItem="arw-KT-etA" secondAttribute="bottom" id="ZUa-hy-Bxy"/>
+                                    <constraint firstItem="arw-KT-etA" firstAttribute="leading" secondItem="jpX-2F-SYJ" secondAttribute="centerX" id="ghT-Gj-gj3"/>
+                                    <constraint firstAttribute="trailing" secondItem="arw-KT-etA" secondAttribute="trailing" id="hPK-LQ-wHK"/>
+                                    <constraint firstAttribute="bottom" secondItem="2kF-kK-6V7" secondAttribute="bottom" id="tOV-fo-MvB"/>
+                                </constraints>
                                 <connections>
-                                    <outletCollection property="gestureRecognizers" destination="GLv-iI-uem" appends="YES" id="f8R-2w-voc"/>
-                                </connections>
-                            </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="arw-KT-etA">
-                                <rect key="frame" x="448" y="0.0" width="448" height="355"/>
-                                <color key="backgroundColor" white="1" alpha="0.40375222450422527" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <gestureRecognizers/>
-                                <connections>
-                                    <outletCollection property="gestureRecognizers" destination="lGg-nb-8oK" appends="YES" id="DOs-0O-RwQ"/>
+                                    <outletCollection property="gestureRecognizers" destination="bL8-xu-bGe" appends="YES" id="asX-nP-Mnp"/>
+                                    <outletCollection property="gestureRecognizers" destination="ceD-h8-QMR" appends="YES" id="ZJI-0C-Fma"/>
                                 </connections>
                             </view>
                             <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UaD-DK-17d" customClass="PassthroughView" customModule="NineAnimator" customModuleProvider="target">
@@ -143,26 +163,19 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstAttribute="bottom" secondItem="A2e-hQ-TxY" secondAttribute="bottom" id="3XW-pz-u8C"/>
+                            <constraint firstItem="jpX-2F-SYJ" firstAttribute="top" secondItem="A2e-hQ-TxY" secondAttribute="top" id="57I-AW-Z2f"/>
                             <constraint firstItem="A2e-hQ-TxY" firstAttribute="trailing" secondItem="8ZS-Vq-jm6" secondAttribute="trailing" id="8y4-WQ-FzC"/>
                             <constraint firstItem="UaD-DK-17d" firstAttribute="leading" secondItem="px8-lR-8uH" secondAttribute="leading" id="AOo-hg-ibX"/>
                             <constraint firstItem="A2e-hQ-TxY" firstAttribute="leading" secondItem="8ZS-Vq-jm6" secondAttribute="leading" id="Gd7-dN-UOI"/>
-                            <constraint firstItem="2kF-kK-6V7" firstAttribute="top" secondItem="8ZS-Vq-jm6" secondAttribute="top" id="ReC-kj-Tfm"/>
-                            <constraint firstItem="arw-KT-etA" firstAttribute="leading" secondItem="8ZS-Vq-jm6" secondAttribute="centerX" id="VtE-G4-A3m"/>
                             <constraint firstItem="UaD-DK-17d" firstAttribute="bottom" secondItem="px8-lR-8uH" secondAttribute="bottom" id="W3j-zH-Jka"/>
-                            <constraint firstItem="arw-KT-etA" firstAttribute="bottom" secondItem="2kF-kK-6V7" secondAttribute="bottom" id="XZw-9S-7Lp"/>
                             <constraint firstItem="UaD-DK-17d" firstAttribute="top" secondItem="px8-lR-8uH" secondAttribute="top" id="aIh-jl-7wP"/>
-                            <constraint firstItem="arw-KT-etA" firstAttribute="top" secondItem="8ZS-Vq-jm6" secondAttribute="top" id="daD-NW-4nr"/>
-                            <constraint firstItem="2kF-kK-6V7" firstAttribute="trailing" secondItem="8ZS-Vq-jm6" secondAttribute="centerX" id="eWh-dU-enM"/>
+                            <constraint firstItem="jpX-2F-SYJ" firstAttribute="bottom" secondItem="A2e-hQ-TxY" secondAttribute="bottom" id="aeQ-Jm-q45"/>
                             <constraint firstItem="UaD-DK-17d" firstAttribute="trailing" secondItem="px8-lR-8uH" secondAttribute="trailing" id="fIS-kt-Qes"/>
-                            <constraint firstItem="2kF-kK-6V7" firstAttribute="leading" secondItem="8ZS-Vq-jm6" secondAttribute="leading" id="mTH-9V-UgL"/>
+                            <constraint firstItem="jpX-2F-SYJ" firstAttribute="trailing" secondItem="A2e-hQ-TxY" secondAttribute="trailing" id="hXj-QT-QAh"/>
                             <constraint firstItem="A2e-hQ-TxY" firstAttribute="top" secondItem="8ZS-Vq-jm6" secondAttribute="top" id="rmV-vs-7mm"/>
-                            <constraint firstItem="arw-KT-etA" firstAttribute="trailing" secondItem="8ZS-Vq-jm6" secondAttribute="trailing" id="slk-i5-gr1"/>
-                            <constraint firstItem="2kF-kK-6V7" firstAttribute="bottom" secondItem="UqK-Qv-4pt" secondAttribute="top" id="vEt-6M-Bo9"/>
+                            <constraint firstItem="jpX-2F-SYJ" firstAttribute="leading" secondItem="A2e-hQ-TxY" secondAttribute="leading" id="rue-Gm-6CE"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="px8-lR-8uH"/>
-                        <connections>
-                            <outletCollection property="gestureRecognizers" destination="ceD-h8-QMR" appends="YES" id="1Hu-eJ-8r8"/>
-                        </connections>
                     </view>
                     <nil key="simulatedBottomBarMetrics"/>
                     <connections>
@@ -181,6 +194,7 @@
                         <outlet property="rewindDoubleTapGestureRecognizer" destination="GLv-iI-uem" id="i0E-yw-5Mt"/>
                         <outlet property="timeToEndLabel" destination="1iA-hV-rGE" id="Tit-50-Tuw"/>
                         <outlet property="totalTimeLabel" destination="nIe-as-DF2" id="VWF-a7-Djr"/>
+                        <outlet property="viewLongPressGestureRecognizer" destination="bL8-xu-bGe" id="6iv-ht-rts"/>
                         <outlet property="viewTappedGestureRecognizer" destination="ceD-h8-QMR" id="4tS-69-x0n"/>
                     </connections>
                 </viewController>
@@ -200,6 +214,11 @@
                         <action selector="viewTapped:" destination="d3x-0P-5GI" id="qgC-O4-OrY"/>
                     </connections>
                 </tapGestureRecognizer>
+                <pongPressGestureRecognizer allowableMovement="10" minimumPressDuration="0.5" id="bL8-xu-bGe">
+                    <connections>
+                        <action selector="viewLongPressRecognized:" destination="d3x-0P-5GI" id="72A-Dk-vdb"/>
+                    </connections>
+                </pongPressGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="-291.96428571428572" y="111.59420289855073"/>
         </scene>
