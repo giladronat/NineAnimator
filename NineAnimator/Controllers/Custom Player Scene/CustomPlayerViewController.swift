@@ -370,24 +370,24 @@ extension CustomPlayerViewController {
     }
     
     @IBAction private func fastForwardTapped(_ sender: Any) {
-        setFadeControlsTimer()
+        if player.timeControlStatus != .paused { setFadeControlsTimer() }
         seek(by: skipDurationTimeInterval)
     }
     
     @IBAction private func rewindTapped(_ sender: Any) {
-        setFadeControlsTimer()
+        if player.timeControlStatus != .paused { setFadeControlsTimer() }
         seek(by: -skipDurationTimeInterval)
     }
     
     @IBAction private func forwardDoubleTapped(_ sender: UITapGestureRecognizer) {
         if sender.state == .ended {
-            setFadeControlsTimer()
+            if player.timeControlStatus != .paused { setFadeControlsTimer() }
             seek(by: skipDurationTimeInterval)
         }
     }
     @IBAction private func rewindDoubleTapped(_ sender: UITapGestureRecognizer) {
         if sender.state == .ended {
-            setFadeControlsTimer()
+            if player.timeControlStatus != .paused { setFadeControlsTimer() }
             seek(by: -skipDurationTimeInterval)
         }
     }
