@@ -34,7 +34,7 @@ class CustomPlayerViewController: UIViewController {
     private var fadeControlsTimer: Timer?
     private var fadeControlsTimeInterval: TimeInterval = 3.0
     @IBOutlet private weak var viewTappedGestureRecognizer: UITapGestureRecognizer!
-    @IBOutlet weak var viewLongPressGestureRecognizer: UILongPressGestureRecognizer!
+    @IBOutlet private weak var viewLongPressGestureRecognizer: UILongPressGestureRecognizer!
     
     @IBOutlet private weak var playButton: UIButton!
     @IBOutlet private weak var currentPlaybackTimeLabel: UILabel! {
@@ -137,6 +137,23 @@ class CustomPlayerViewController: UIViewController {
             // probably pause or track whether user previously hit play/pause
             print("Play tapped while waiting to play")
         }
+    }
+    
+    /// Toggles video aspect ratio between fill and fit
+    @IBAction private func videoGravityTapped(sender: UIButton) {
+        switch playerLayerView.playerLayer.videoGravity {
+        case .resizeAspectFill:
+            playerLayerView.playerLayer.videoGravity = .resizeAspect
+        // TODO: Change button
+        case .resizeAspect:
+            playerLayerView.playerLayer.videoGravity = .resizeAspectFill
+        // TODO: Change button
+        default:
+            // No stretching
+            break
+        }
+        
+        if player.timeControlStatus != .paused { setFadeControlsTimer() }
     }
     
     private func updatePlaybackUI(with currentTime: CMTime) {
@@ -593,7 +610,6 @@ extension CustomPlayerViewController {
  
  Features:
 
- - [ ] Change videoGravity button
  - [ ] Next episode button
  - [ ] iPad PiP
  - [ ] User activity & continuity (via NativePlayerController)
@@ -603,6 +619,7 @@ extension CustomPlayerViewController {
  - [X] Double-tap skip gesture
  - [X] Hide controls after certain time
  - [X] Hold finger on screen to keep controls on
+ - [X] Change videoGravity button
  
  Clean-up:
  
