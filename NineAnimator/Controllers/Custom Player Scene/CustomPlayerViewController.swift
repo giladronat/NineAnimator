@@ -55,7 +55,11 @@ class CustomPlayerViewController: UIViewController {
     
     @IBOutlet private weak var bufferSpinner: UIActivityIndicatorView!
     
-    @IBOutlet private weak var playbackProgressSlider: UISlider!
+    @IBOutlet private weak var playbackProgressSlider: UISlider! {
+        didSet {
+            playbackProgressSlider.setThumbImage(sliderThumbImage(), for: .normal)
+        }
+    }
     @IBOutlet private weak var playbackBufferProgressView: UIProgressView!
     @IBOutlet private weak var rewindButton: UIButton!
     @IBOutlet private weak var rewindContainer: UIView!
@@ -252,15 +256,15 @@ class CustomPlayerViewController: UIViewController {
 
 extension CustomPlayerViewController {
     // Buffering:
-    // playerItem.isPlaybackBufferEmpty
+    // playerItem.isPlaybackBufferEmpty == true
+    // playerItem.isPlaybackLikelyToKeepUp == false
     // player.timeControlStatus == .waitingToPlayAtSpecifiedRate
+    // When playing and needs to buffering, timeControlStatus changes from .playing to .waitingToPlayAtSpecifiedRate, not .paused
     // PlaybackStalled notification
     
     // Not Buffering:
-    // playerItem.isPlaybackLikelyToKeepUp
-    // playerItem.isPlaybackBufferFull
-    
-    // Does playback automatically pause while buffering?
+    // playerItem.isPlaybackLikelyToKeepUp == true
+    // playerItem.isPlaybackBufferFull == true
     
     private func observeIsPlaybackLikelyToKeepUp(_ item: AVPlayerItem) -> NSKeyValueObservation {
         return item.observe(\.isPlaybackLikelyToKeepUp) { [weak self] item, _ in
@@ -416,6 +420,20 @@ extension CustomPlayerViewController {
         if wasPlayingBeforeSliding {
             setFadeControlsTimer()
             player.play()
+        }
+    }
+    
+    // TODO: Extract somewhere else
+    // TODO: Actually decide on design
+    private func sliderThumbImage() -> UIImage {
+        let thumbSize = CGSize(width: 37, height: 37)
+        let renderer = UIGraphicsImageRenderer(size: thumbSize)
+        return renderer.image { ctx in
+            ctx.cgContext.setFillColor(UIColor.red.cgColor)
+            
+            let boundingRect = CGRect(origin: CGPoint(x: 0, y: 0), size: thumbSize)
+            ctx.cgContext.addEllipse(in: boundingRect)
+            ctx.cgContext.drawPath(using: .fill)
         }
     }
 }
@@ -575,8 +593,7 @@ extension CustomPlayerViewController {
  
  Features:
 
- - [X] Hide controls after certain time
-    - [X] Hold finger on screen to keep controls on
+ - [ ] Change videoGravity button
  - [ ] Next episode button
  - [ ] iPad PiP
  - [ ] User activity & continuity (via NativePlayerController)
@@ -584,6 +601,8 @@ extension CustomPlayerViewController {
  - [ ] Button to change aspect zooming (like native double-tap)
  - [ ] Auto-play option
  - [X] Double-tap skip gesture
+ - [X] Hide controls after certain time
+ - [X] Hold finger on screen to keep controls on
  
  Clean-up:
  
@@ -596,6 +615,7 @@ extension CustomPlayerViewController {
  Details:
  
  - [X] Check gesture recognizers' .delaysTouchesBegan/Ended
+ - [ ] Finish slider UI
  - [ ] Disable & enable controls based on item ready/buffering
  - [ ] Swapping between spinner and play/pause when buffering
  - [ ] Determine good placeholder values that don't mess with layout
