@@ -126,7 +126,6 @@ class CustomPlayerViewController: UIViewController {
         if player.timeControlStatus == .playing {
             pause()
         } else if player.timeControlStatus == .paused {
-            setFadeControlsTimer()
             play()
         } else if player.timeControlStatus == .waitingToPlayAtSpecifiedRate {
             // TODO: Handle this
@@ -577,7 +576,7 @@ extension CustomPlayerViewController {
  Features:
 
  - [X] Hide controls after certain time
-    - [ ] Hold finger on screen to keep controls on
+    - [X] Hold finger on screen to keep controls on
  - [ ] Next episode button
  - [ ] iPad PiP
  - [ ] User activity & continuity (via NativePlayerController)

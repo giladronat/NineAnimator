@@ -27,7 +27,7 @@
                                 <subviews>
                                     <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2kF-kK-6V7">
                                         <rect key="frame" x="0.0" y="0.0" width="448" height="414"/>
-                                        <color key="backgroundColor" white="1" alpha="0.60000002379999995" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <gestureRecognizers/>
                                         <connections>
                                             <outletCollection property="gestureRecognizers" destination="GLv-iI-uem" appends="YES" id="f8R-2w-voc"/>
@@ -35,7 +35,7 @@
                                     </view>
                                     <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="arw-KT-etA">
                                         <rect key="frame" x="448" y="0.0" width="448" height="414"/>
-                                        <color key="backgroundColor" white="1" alpha="0.40375222450422527" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <gestureRecognizers/>
                                         <connections>
                                             <outletCollection property="gestureRecognizers" destination="lGg-nb-8oK" appends="YES" id="DOs-0O-RwQ"/>
@@ -141,7 +141,7 @@
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                     </activityIndicatorView>
                                 </subviews>
-                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.29558208626760563" colorSpace="custom" customColorSpace="displayP3"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstItem="yNy-w9-t7h" firstAttribute="centerX" secondItem="UaD-DK-17d" secondAttribute="centerX" multiplier="1.6" id="20F-aR-4fi"/>
                                     <constraint firstItem="Vw9-rr-J3w" firstAttribute="centerX" secondItem="UaD-DK-17d" secondAttribute="centerX" id="2cS-Aw-44v"/>
