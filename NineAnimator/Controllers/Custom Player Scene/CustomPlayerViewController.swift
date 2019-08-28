@@ -331,6 +331,7 @@ extension CustomPlayerViewController {
                     // Waiting for the buffer
                     Log.debug("Waiting to minimize stalls")
                     self?.bufferSpinner.isHidden = false
+                    self?.displayControls(true)
                 }
                 
             @unknown default:
@@ -458,6 +459,8 @@ extension CustomPlayerViewController {
 // MARK: - Control Fading
 
 extension CustomPlayerViewController {
+    /// Kicks off the timer that hides controls
+    // Calling this while a timer is ongoing effectively resets it
     private func setFadeControlsTimer() {
         fadeControlsTimer?.invalidate()
         fadeControlsTimer = Timer.scheduledTimer(withTimeInterval: fadeControlsTimeInterval,
@@ -472,6 +475,7 @@ extension CustomPlayerViewController {
         }
     }
     
+    /// Prevents controls from fading while a finger is held on screen with controls visible
     @IBAction private func viewLongPressRecognized(_ sender: UILongPressGestureRecognizer) {
         switch sender.state {
         case .began:
@@ -496,7 +500,7 @@ extension CustomPlayerViewController {
         // Gesture also disabled when tapping inside progress slider
     }
     
-    private func displayControls(_ visible: Bool) {
+    func displayControls(_ visible: Bool) {
         if visible {
             showControls()
         } else {
@@ -512,7 +516,7 @@ extension CustomPlayerViewController {
             self.controlContainerOverlay.alpha = 1.0
         }, completion: { _ in
             if self.player.timeControlStatus == .playing {
-                // Do not fade controls when paused
+                // Do not fade controls when paused or buffering
                 self.setFadeControlsTimer()
             }
         })
@@ -614,7 +618,6 @@ extension CustomPlayerViewController {
  - [ ] iPad PiP
  - [ ] User activity & continuity (via NativePlayerController)
  - [ ] Progress saving & restoration (done in NativePlayerController)
- - [ ] Button to change aspect zooming (like native double-tap)
  - [ ] Auto-play option
  - [X] Double-tap skip gesture
  - [X] Hide controls after certain time
@@ -635,6 +638,7 @@ extension CustomPlayerViewController {
  - [ ] Finish slider UI
  - [ ] Disable & enable controls based on item ready/buffering
  - [ ] Swapping between spinner and play/pause when buffering
+ - [ ] Add slick shadow to control overlay (so controls don't interfere with video)
  - [ ] Determine good placeholder values that don't mess with layout
  - [ ] Stack double-tap skips like Netflix/Twitch
  
