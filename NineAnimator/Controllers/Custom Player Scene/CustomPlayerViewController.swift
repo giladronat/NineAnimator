@@ -602,7 +602,8 @@ extension CustomPlayerViewController {
     override func viewWillAppear(_ animated: Bool) {
         let m3u8TestPlayerItem = AVPlayerItem(url: URL(string: "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8")!)
         let mp4TestPlayerItem = AVPlayerItem(url: URL(string: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_2mb.mp4")!)
-        play(m3u8TestPlayerItem)
+        play(mp4TestPlayerItem)
+//        play(m3u8TestPlayerItem)
         
         super.viewWillAppear(animated)
     }
@@ -638,7 +639,7 @@ extension CustomPlayerViewController {
  - [ ] Finish slider UI
  - [ ] Disable & enable controls based on item ready/buffering
  - [ ] Swapping between spinner and play/pause when buffering
- - [ ] Add slick shadow to control overlay (so controls don't interfere with video)
+ - [X] Add slick shadow to control overlay (so controls don't interfere with video)
  - [ ] Determine good placeholder values that don't mess with layout
  - [ ] Stack double-tap skips like Netflix/Twitch
  

@@ -149,7 +149,7 @@
                                         </connections>
                                     </button>
                                 </subviews>
-                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.25" colorSpace="custom" customColorSpace="displayP3"/>
                                 <constraints>
                                     <constraint firstItem="yNy-w9-t7h" firstAttribute="centerX" secondItem="UaD-DK-17d" secondAttribute="centerX" multiplier="1.6" id="20F-aR-4fi"/>
                                     <constraint firstItem="Vw9-rr-J3w" firstAttribute="centerX" secondItem="UaD-DK-17d" secondAttribute="centerX" id="2cS-Aw-44v"/>
