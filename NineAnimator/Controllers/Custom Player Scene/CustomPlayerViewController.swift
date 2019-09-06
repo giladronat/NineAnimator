@@ -11,6 +11,8 @@ import UIKit
 
 // swiftlint:disable todo
 class CustomPlayerViewController: UIViewController {
+    public static let storyboardName = "CustomPlayer"
+    
     private var media: PlaybackMedia?
     private var playerItem: AVPlayerItem?
     
@@ -188,6 +190,13 @@ class CustomPlayerViewController: UIViewController {
     
     // MARK: - Observing
     
+    private func addAppStateObservers() {
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(onAppWillResignActive(_:)),
+                                               name: UIApplication.willResignActiveNotification,
+                                               object: UIApplication.shared)
+    }
+    
     private func addPlayerItemObservers(_ playerItem: AVPlayerItem) {
         playerItemStatusObservation = observeStatus(playerItem)
         playerItemIsPlaybackLikelyToKeepUpObservation = observeIsPlaybackLikelyToKeepUp(playerItem)
@@ -266,8 +275,6 @@ class CustomPlayerViewController: UIViewController {
         
         playerTimeControlStatusObservation = nil
     }
-    
-    // MARK: - Notifications
     
     @objc private func playerItemDidPlayToEndTime(_ notification: Notification) {
         Log.debug("Finished playing")
@@ -559,6 +566,15 @@ extension CustomPlayerViewController {
     }
 }
 
+// MARK: - App State
+
+extension CustomPlayerViewController {
+    @objc private func onAppWillResignActive(_ notification: Notification) {
+        // TODO: PiP handling
+        pause()
+    }
+}
+
 // MARK: - Audio Session
 
 extension CustomPlayerViewController {
@@ -615,7 +631,7 @@ extension CustomPlayerViewController {
 extension CustomPlayerViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        addAppStateObservers()
         prepareGestureRecognizers()
     }
 }
@@ -624,9 +640,9 @@ extension CustomPlayerViewController {
 
 extension CustomPlayerViewController {
     override func viewWillAppear(_ animated: Bool) {
-        let m3u8TestPlayerItem = AVPlayerItem(url: URL(string: "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8")!)
-        let mp4TestPlayerItem = AVPlayerItem(url: URL(string: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_2mb.mp4")!)
-        play(mp4TestPlayerItem)
+//        let m3u8TestPlayerItem = AVPlayerItem(url: URL(string: "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8")!)
+//        let mp4TestPlayerItem = AVPlayerItem(url: URL(string: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_2mb.mp4")!)
+//        play(mp4TestPlayerItem)
 //        play(m3u8TestPlayerItem)
         
         super.viewWillAppear(animated)
