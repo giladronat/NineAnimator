@@ -514,6 +514,10 @@ extension CustomPlayerViewController {
         return .lightContent
     }
     
+    override var prefersHomeIndicatorAutoHidden: Bool {
+        return !isDisplayingControls
+    }
+    
     func displayControls(_ visible: Bool) {
         if visible {
             showControls()
@@ -525,6 +529,7 @@ extension CustomPlayerViewController {
     private func showControls() {
         controlContainerOverlay.isHidden = false
         isDisplayingControls = true
+        self.setNeedsUpdateOfHomeIndicatorAutoHidden()
         UIView.animate(withDuration: 0.5,
                        animations: {
                         self.gestureBackgroundView.backgroundColor = self.gestureControlBackgroundColor
@@ -548,7 +553,8 @@ extension CustomPlayerViewController {
                         self.setNeedsStatusBarAppearanceUpdate()
         },
                        completion: { _ in
-            self.controlContainerOverlay.isHidden = true
+                        self.controlContainerOverlay.isHidden = true
+                        self.setNeedsUpdateOfHomeIndicatorAutoHidden()
         })
     }
 }
