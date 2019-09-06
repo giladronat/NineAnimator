@@ -67,6 +67,8 @@ class CustomPlayerViewController: UIViewController {
     @IBOutlet private weak var fastForwardButton: UIButton!
     @IBOutlet private weak var fastForwardContainer: UIView!
     @IBOutlet private weak var fastForwardDoubleTapGestureRecognizer: UITapGestureRecognizer!
+    @IBOutlet private weak var gestureBackgroundView: UIView!
+    private let gestureControlBackgroundColor = UIColor(white: 0, alpha: 0.25)
     
     private var skipDurationTimeInterval: TimeInterval = 15.0
     
@@ -525,6 +527,7 @@ extension CustomPlayerViewController {
         isDisplayingControls = true
         UIView.animate(withDuration: 0.5,
                        animations: {
+                        self.gestureBackgroundView.backgroundColor = self.gestureControlBackgroundColor
                         self.controlContainerOverlay.alpha = 1.0
                         self.setNeedsStatusBarAppearanceUpdate()
         }, completion: { _ in
@@ -540,6 +543,7 @@ extension CustomPlayerViewController {
         isDisplayingControls = false
         UIView.animate(withDuration: 0.5,
                        animations: {
+                        self.gestureBackgroundView.backgroundColor = UIColor.clear
                         self.controlContainerOverlay.alpha = 0.0
                         self.setNeedsStatusBarAppearanceUpdate()
         },
