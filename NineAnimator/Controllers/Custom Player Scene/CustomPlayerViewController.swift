@@ -500,6 +500,14 @@ extension CustomPlayerViewController {
         // Gesture also disabled when tapping inside progress slider
     }
     
+    override var prefersStatusBarHidden: Bool {
+        return !isDisplayingControls
+    }
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+    
     func displayControls(_ visible: Bool) {
         if visible {
             showControls()
@@ -513,7 +521,8 @@ extension CustomPlayerViewController {
         isDisplayingControls = true
         UIView.animate(withDuration: 0.5,
                        animations: {
-            self.controlContainerOverlay.alpha = 1.0
+                        self.controlContainerOverlay.alpha = 1.0
+                        self.setNeedsStatusBarAppearanceUpdate()
         }, completion: { _ in
             if self.player.timeControlStatus == .playing {
                 // Do not fade controls when paused or buffering
@@ -527,7 +536,8 @@ extension CustomPlayerViewController {
         isDisplayingControls = false
         UIView.animate(withDuration: 0.5,
                        animations: {
-            self.controlContainerOverlay.alpha = 0.0
+                        self.controlContainerOverlay.alpha = 0.0
+                        self.setNeedsStatusBarAppearanceUpdate()
         },
                        completion: { _ in
             self.controlContainerOverlay.isHidden = true
@@ -636,8 +646,9 @@ extension CustomPlayerViewController {
  Details:
  
  - [X] Check gesture recognizers' .delaysTouchesBegan/Ended
+ - [X] Hide and show status bar alongside controls
  - [ ] Finish slider UI
- - [ ] Disable & enable controls based on item ready/buffering
+ - [X] Disable & enable controls based on item ready/buffering
  - [ ] Swapping between spinner and play/pause when buffering
  - [X] Add slick shadow to control overlay (so controls don't interfere with video)
  - [ ] Determine good placeholder values that don't mess with layout
