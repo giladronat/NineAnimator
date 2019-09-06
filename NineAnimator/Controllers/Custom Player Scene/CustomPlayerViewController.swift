@@ -156,6 +156,10 @@ class CustomPlayerViewController: UIViewController {
         if player.timeControlStatus != .paused { setFadeControlsTimer() }
     }
     
+    @IBAction private func dismissTapped(sender: UIButton) {
+        self.presentingViewController?.dismiss(animated: true)
+    }
+    
     private func updatePlaybackUI(with currentTime: CMTime) {
         guard let item = self.playerItem else {
             Log.debug("No player item to update playback UI")
@@ -497,7 +501,7 @@ extension CustomPlayerViewController {
     private func prepareGestureRecognizers() {
         viewTappedGestureRecognizer.require(toFail: rewindDoubleTapGestureRecognizer)
         viewTappedGestureRecognizer.require(toFail: fastForwardDoubleTapGestureRecognizer)
-        // Gesture also disabled when tapping inside progress slider
+        // View tapped gesture also disabled when tapping inside progress slider
     }
     
     override var prefersStatusBarHidden: Bool {

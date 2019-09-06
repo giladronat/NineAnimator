@@ -141,11 +141,19 @@
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                     </activityIndicatorView>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4ue-cq-8xA">
-                                        <rect key="frame" x="0.0" y="8" width="49" height="30"/>
+                                        <rect key="frame" x="759" y="23" width="49" height="30"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <state key="normal" title="Aspect"/>
                                         <connections>
                                             <action selector="videoGravityTappedWithSender:" destination="d3x-0P-5GI" eventType="touchUpInside" id="g4U-5Q-OWO"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CRG-6D-lNw">
+                                        <rect key="frame" x="8" y="18" width="39" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="Close"/>
+                                        <connections>
+                                            <action selector="dismissTappedWithSender:" destination="d3x-0P-5GI" eventType="touchUpInside" id="lca-QI-U15"/>
                                         </connections>
                                     </button>
                                 </subviews>
