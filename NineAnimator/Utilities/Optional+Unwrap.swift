@@ -31,9 +31,9 @@ extension Optional {
     }
     
     /// Run the closure with the value if there is a value in this optional
-    func unwrap<ResultType>(_ ifUnwrapped: (Wrapped) -> ResultType) -> ResultType? {
+    func unwrap<ResultType>(_ ifUnwrapped: (Wrapped) throws -> ResultType) rethrows -> ResultType? {
         switch self {
-        case let .some(value): return ifUnwrapped(value)
+        case let .some(value): return try ifUnwrapped(value)
         default: return nil
         }
     }

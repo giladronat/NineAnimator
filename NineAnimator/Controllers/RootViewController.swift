@@ -34,6 +34,10 @@ class RootViewController: UITabBarController, Themable {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Update appearance at launch
+        updateDynamicTheme()
+        
         RootViewController.shared = self
         Theme.provision(self)
         
@@ -69,6 +73,7 @@ class RootViewController: UITabBarController, Themable {
         if !NineAnimator.default.user.didSetupLatestVersion {
             let storyboard = UIStoryboard(name: "Setup", bundle: Bundle.main)
             if let viewController = storyboard.instantiateInitialViewController() {
+                viewController.modalPresentationStyle = .fullScreen
                 presentOnTop(viewController)
             }
         }
@@ -218,11 +223,28 @@ extension RootViewController {
     }
 }
 
-// MARK: - Themable
+// MARK: - Themable and Theming
 extension RootViewController {
     func theme(didUpdate theme: Theme) {
         tabBar.barStyle = theme.barStyle
+        tabBar.tintColor = theme.tint
         view.tintColor = theme.tint
+        
+        // Configure the proper overriding style for the tab bar
+        configureStyleOverride(tabBar, withTheme: theme)
+    }
+    
+    /// For dynamic appearances on iOS 13 or later, which syncs with
+    /// the system appearance
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        (UIApplication.shared.delegate as? AppDelegate)?
+        .updateDynamicAppearance(withTraitCollection: traitCollection)
+    }
+    
+    /// Force update the dynamic theme settings
+    func updateDynamicTheme() {
+        (UIApplication.shared.delegate as? AppDelegate)?
+        .updateDynamicAppearance(withTraitCollection: traitCollection)
     }
 }
 

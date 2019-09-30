@@ -41,6 +41,11 @@ class TrackingServiceTableViewController: UITableViewController {
     private var malAuthenticationTask: NineAnimatorAsyncTask?
     private var malAccountInfoFetchTask: NineAnimatorAsyncTask?
     
+    // Simkl
+    @IBOutlet private weak var simklStatusLabel: UILabel!
+    @IBOutlet private weak var simklActionLabel: UILabel!
+    private var simklAccountInfoFetchTask: NineAnimatorAsyncTask?
+    
     // Preserve a reference to the authentication session
     private var authenticationSessionReference: AnyObject?
     
@@ -51,6 +56,8 @@ class TrackingServiceTableViewController: UITableViewController {
         anilistUpdateStatus()
         kitsuUpdateStatus()
         malUpdateStatus()
+        simklUpdateStatus()
+        
         tableView.makeThemable()
     }
     
@@ -76,6 +83,10 @@ class TrackingServiceTableViewController: UITableViewController {
             if !mal.didSetup {
                 malPresentAuthenticationPage()
             } else { malLogout() }
+        case "service.simkl.action":
+            if !simkl.didSetup {
+                simklPresentAuthenticationPage()
+            } else { simklLogOut() }
         default:
             Log.info("An unimplemented cell with identifier \"%@\" was selected", identifier)
         }
@@ -363,20 +374,117 @@ extension TrackingServiceTableViewController {
         }
         
         // Open the authentication dialog/web page
-        if #available(iOS 12.0, *) {
-            let session = ASWebAuthenticationSession(url: anilist.ssoUrl, callbackURLScheme: anilist.ssoCallbackScheme, completionHandler: callback)
-            _ = session.start()
-            authenticationSessionReference = session
-        } else {
-            let session = SFAuthenticationSession(url: anilist.ssoUrl, callbackURLScheme: anilist.ssoCallbackScheme, completionHandler: callback)
-            _ = session.start()
-            authenticationSessionReference = session
-        }
+        beginWebAuthenticationSession(
+            ssoUrl: anilist.ssoUrl,
+            callbackScheme: anilist.ssoCallbackScheme,
+            completion: callback
+        )
     }
     
     // Tell AniList service to logout
     private func anilistLogOut() {
         anilist.deauthenticate()
         anilistUpdateStatus()
+    }
+}
+
+// MARK: - Simkl.com specifics
+extension TrackingServiceTableViewController {
+    private var simkl: Simkl { return NineAnimator.default.service(type: Simkl.self) }
+    
+    private func simklUpdateStatus() {
+        if simkl.didSetup {
+            simklActionLabel.text = "Sign Out"
+            simklStatusLabel.text = "Updating"
+            
+            let updateStatusLabel = {
+                text in
+                DispatchQueue.main.async { [weak self] in self?.simklStatusLabel.text = text }
+            }
+            
+            simklAccountInfoFetchTask = simkl.currentUser()
+                .error { _ in updateStatusLabel("Unavailable") }
+                .finally { updateStatusLabel("Signed in as \($0.name)") }
+        } else {
+            simklStatusLabel.text = "Not Setup"
+            simklActionLabel.text = "Setup Simkl.com"
+        }
+    }
+    
+    private func simklLogOut() {
+        simkl.deauthenticate()
+        simklUpdateStatus()
+    }
+    
+    private func simklPresentAuthenticationPage() {
+        let callback: NineAnimatorCallback<URL> = {
+            [simkl, weak self] url, callbackError in
+            defer { DispatchQueue.main.async { [weak self] in self?.simklUpdateStatus() } }
+            var error = callbackError
+            
+            // If callback url is provided
+            if let url = url {
+                error = simkl.authenticate(withUrl: url)
+            }
+            
+            // If an error is present
+            if let error = error {
+                Log.error("[Simkl.com] Authentication session finished with error: %@", error)
+            }
+        }
+        
+        // Open the authentication dialog/web page
+        beginWebAuthenticationSession(
+            ssoUrl: simkl.ssoUrl,
+            callbackScheme: simkl.ssoCallbackScheme,
+            completion: callback
+        )
+    }
+}
+
+// MARK: - Web Authentication Presentation
+extension TrackingServiceTableViewController {
+    /// Present the Single-Sign-On authentication page
+    ///
+    /// This method creates the authentication session suitable for the version
+    /// of the system and preserves the reference to the session.
+    private func beginWebAuthenticationSession(ssoUrl: URL, callbackScheme: String, completion callback: @escaping NineAnimatorCallback<URL>) {
+        // Open the authentication dialog/web page
+        if #available(iOS 12.0, *) {
+            let session = ASWebAuthenticationSession(
+                url: ssoUrl,
+                callbackURLScheme: anilist.ssoCallbackScheme,
+                completionHandler: callback
+            )
+            
+            // Set presentation context provider for authentication
+            // session
+            if #available(iOS 13.0, *) {
+                session.presentationContextProvider = self
+            }
+            
+            // Start the authentication session a`nd store the
+            // references
+            _ = session.start()
+            authenticationSessionReference = session
+        } else {
+            let session = SFAuthenticationSession(
+                url: ssoUrl,
+                callbackURLScheme: anilist.ssoCallbackScheme,
+                completionHandler: callback
+            )
+            
+            // Start the authentication session and store the
+            // references
+            _ = session.start()
+            authenticationSessionReference = session
+        }
+    }
+}
+
+@available(iOS 12.0, *)
+extension TrackingServiceTableViewController: ASWebAuthenticationPresentationContextProviding {
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        return view.window!
     }
 }
