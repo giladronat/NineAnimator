@@ -1,10 +1,10 @@
 {
-  "commitish" : "2.5.1",
+  "commitish" : "2.7.0",
   "iOS" : [
     {
       "name" : "ViewAnimator",
-      "hash" : "1bc4b2511c3ff6d8431d04a613cee319b2fe0e596fabd8f046597478b0b3c4e3",
-      "swiftToolchainVersion" : "5.1 (swiftlang-1100.0.270.13 clang-1100.0.33.7)"
+      "hash" : "fa14a085a23a2be46fa5577c1edf7595ea2f62986625d3a5720c3ba1ff15d1d4",
+      "swiftToolchainVersion" : "5.1.2 (swiftlang-1100.0.278 clang-1100.0.33.9)"
     }
   ]
 }

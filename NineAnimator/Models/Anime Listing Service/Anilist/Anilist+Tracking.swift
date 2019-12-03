@@ -46,10 +46,43 @@ extension Anilist {
             return
         }
         
-        // Make GraphQL mutation request
+        // Obtain the new tracking
+        let updatedTracking = progressTracking(
+            for: reference,
+            withUpdatedEpisodeProgress: episodeNumber
+        )
+        
+        update(reference, newTracking: updatedTracking)
+    }
+    
+    func update(_ reference: ListingAnimeReference, newTracking: ListingAnimeTracking) {
+        // Make GraphQL mutation request and save the new tracking state if
+        // succeeded.
+        // swiftlint:disable multiline_arguments
         mutationGraphQL(fileQuery: "AniListTrackingMutation", variables: [
             "mediaId": Int(reference.uniqueIdentifier)!,
-            "progress": episodeNumber
-        ])
+            "progress": newTracking.currentProgress
+        ]) { if $0 { self.donateTracking(newTracking, forReference: reference) } }
+        // swiftlint:enable multiline_arguments
+    }
+    
+    /// Update a tracking state for a particular reference
+    ///
+    /// Sources of `ListingAnimeTracking`:
+    /// - `init` of `StaticListingAnimeCollection`
+    /// - `Anilist.reference(from: AnimeLink)`
+    func contributeReferenceTracking(_ tracking: ListingAnimeTracking, forReference reference: ListingAnimeReference) {
+        donateTracking(tracking, forReference: reference)
+    }
+    
+    /// Create the `ListingAnimeTracking` from query results
+    func createReferenceTracking(from mediaList: GQLMediaList?, withSupplementalMedia media: GQLMedia) -> ListingAnimeTracking? {
+        // Supposingly it's only valid for a currently watching anime
+        if /* mediaList?.status == .current, */let progress = mediaList?.progress {
+            return ListingAnimeTracking(
+                currentProgress: progress,
+                episodes: media.episodes
+            )
+        } else { return nil }
     }
 }

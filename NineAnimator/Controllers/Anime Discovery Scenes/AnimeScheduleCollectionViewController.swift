@@ -19,7 +19,7 @@
 
 import UIKit
 
-class AnimeScheduleCollectionViewController: UICollectionViewController, ContentProviderDelegate, DontBotherViewController, Themable {
+class AnimeScheduleCollectionViewController: MinFilledCollectionViewController, ContentProviderDelegate, DontBotherViewController, Themable {
     // Defining constants
     
     /// The maximal cell width before increasing the number of cells in a line
@@ -34,6 +34,12 @@ class AnimeScheduleCollectionViewController: UICollectionViewController, Content
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Initialize Min Filled Layout
+        setLayoutParameters(
+            alwaysFillLine: false,
+            minimalSize: .init(width: 300, height: 100)
+        )
         
         // Inset from the sides
         collectionView.contentInset = .init(top: 0, left: 8, bottom: 0, right: 8)
@@ -132,35 +138,6 @@ class AnimeScheduleCollectionViewController: UICollectionViewController, Content
             let item = view.representingScheduledAnime {
             RootViewController.shared?.open(immedietly: item.link, in: self)
         }
-    }
-    
-    override func viewWillLayoutSubviews() {
-        if view.bounds.width != previousBounds.width,
-            let cvLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-            // Calculate the cell width based on the new width of the collection view
-            let interLineSpacing = cvLayout.minimumInteritemSpacing
-            let availableWidth = view.bounds.inset(by: collectionView.adjustedContentInset).width
-            
-            let numberOfItemsPerLine = ceil((availableWidth + interLineSpacing) / (maximalCellWidth + interLineSpacing))
-            let cellWidth = (availableWidth + interLineSpacing) / numberOfItemsPerLine - interLineSpacing
-            
-            // Store the calculated size
-            cvLayout.itemSize = CGSize(width: cellWidth, height: cellHeight)
-            
-            // Last, invalidate the collection view layout
-            cvLayout.invalidateLayout()
-        }
-        previousBounds = view.bounds.size
-        
-        super.viewWillLayoutSubviews()
-    }
-    
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        coordinator.animate(alongsideTransition: {
-            _ in self.collectionView.performBatchUpdates({
-                self.collectionView.layoutIfNeeded()
-            }, completion: nil)
-        }, completion: nil)
     }
 }
 

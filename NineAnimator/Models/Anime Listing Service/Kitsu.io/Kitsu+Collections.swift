@@ -100,7 +100,7 @@ extension Kitsu {
                     page = max(0, page - 1)
                 } else { self.results.append($0) }
 
-                Log.info("%@ references found for list %@", self.results.count, self.identifier)
+                Log.info("[Kitsu.io] %@ references found for list %@", self.results.count, self.identifier)
                 self.delegate?.pageIncoming(page, from: self)
                 self.requestTask = nil
             }
@@ -114,12 +114,14 @@ extension Kitsu {
     }
     
     func collections() -> NineAnimatorPromise<[ListingAnimeCollection]> {
-        return .success([
-            ("dropped", "Dropped"),
-            ("completed", "Completed"),
-            ("on_hold", "On Hold"),
-            ("planned", "To Watch"),
-            ("current", "Currently Watching")
-        ] .map { KitsuAnimeCollection($0.0, readableStatus: $0.1, parent: self) })
+        return reauthenticateIfNeeded().then {
+            [
+                ("current", "Currently Watching"),
+                ("planned", "To Watch"),
+                ("completed", "Completed"),
+                ("on_hold", "On Hold"),
+                ("dropped", "Dropped")
+            ] .map { KitsuAnimeCollection($0.0, readableStatus: $0.1, parent: self) }
+        }
     }
 }

@@ -124,4 +124,8 @@ extension Kitsu {
         // Remove all resolved promises
         _mutationTaskPool.removeAll { ($0 as? NineAnimatorPromiseProtocol)?.isResolved == true }
     }
+    
+    func update(_ reference: ListingAnimeReference, newTracking: ListingAnimeTracking) {
+        // New
+    }
 }

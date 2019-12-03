@@ -17,16 +17,19 @@
 //  along with NineAnimator.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+import Alamofire
 import Foundation
 
 // Implementations for 9anime endpoint switching
-extension NASourceNineAnime {
+extension NASourceNineAnime/*: Alamofire.RequestAdapter*/ {
     var possibleHosts: [String] {
         return [
             // A list of hosts that 9anime uses
             "9anime.ru",
             "www2.9anime.to",
-            "9anime.live"
+            "9anime.live",
+            "9anime.nl",
+            "9anime.one"
         ]
     }
     
@@ -73,6 +76,9 @@ extension NASourceNineAnime {
             urlBuilder.host = _currentHost
         }
         
+        // Enforce HTTPS
+        urlBuilder.scheme = "https"
+        
         // Generate url
         guard let generatedUrl = urlBuilder.url else {
             Log.error("[9anime] Unable to generate 9anime url. Passing original URL.")
@@ -80,4 +86,12 @@ extension NASourceNineAnime {
         }
         return generatedUrl
     }
+    
+//    func adapt(_ urlRequest: URLRequest) throws -> URLRequest {
+//        var newRequest = urlRequest
+//        if let url = urlRequest.url {
+//            newRequest.url = _process(url: url)
+//        }
+//        return newRequest
+//    }
 }

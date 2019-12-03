@@ -64,6 +64,12 @@ class RootViewController: UITabBarController, Themable {
             RootViewController._pendingRestoreConfig = nil
             _restore(pendingRestoreConfig)
         }
+        
+        // Open the pending navigating to page
+        if let pendingNavigatingTo = RootViewController._pendingNavigatingToPage {
+            RootViewController._pendingNavigatingToPage = nil
+            navigate(toScene: pendingNavigatingTo)
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -96,16 +102,50 @@ extension RootViewController {
         self.castControllerDelegate = CastController.default.present(from: topViewController)
     }
     
+    /// Present the activity sheet for sharing the `AnyLink`
+    func presentShareSheet(forLink link: AnyLink, from sourceView: UIView, inViewController vc: UIViewController? = nil) {
+        // Sharing the redirection link from NineAnimatorCloud
+        let sharingLink = link.cloudRedirectionUrl
+        let activityViewController = UIActivityViewController(
+            activityItems: [ sharingLink ],
+            applicationActivities: nil
+        )
+        
+        // Configure appearance for iOS 13+
+        if #available(iOS 13.0, *) {
+            activityViewController.overrideUserInterfaceStyle = overrideUserInterfaceStyle
+        }
+        
+        // Set Source view
+        if let popover = activityViewController.popoverPresentationController {
+            popover.sourceView = sourceView
+        }
+        
+        // Present the activity controller
+        if let vc = vc {
+            vc.present(activityViewController, animated: true)
+        } else { presentOnTop(activityViewController) }
+    }
+    
+    /// Open an `AnyLink` struct
     static func open(whenReady link: AnyLink) {
         if let sharedRootViewController = shared {
             sharedRootViewController.open(immedietly: link)
         } else { _pendingOpeningLink = link }
     }
     
+    /// Attempt to restore the configuration file located at `url`
     static func restore(whenReady url: URL) {
         if let sharedRootViewController = shared {
             sharedRootViewController._restore(url)
         } else { _pendingRestoreConfig = url }
+    }
+    
+    /// Request the `RootViewController` to navigate to a certain tab/scene
+    static func navigateWhenReady(toScene scene: NineAnimatorRootScene) {
+        if let shared = RootViewController.shared {
+            shared.navigate(toScene: scene)
+        } else { _pendingNavigatingToPage = scene }
     }
 }
 
@@ -165,6 +205,23 @@ extension RootViewController {
             navigationController.popToRootViewController(animated: true)
             navigationController.pushViewController(targetViewController, animated: true)
         }
+    }
+}
+
+// MARK: - Navigating to Pages
+extension RootViewController {
+    fileprivate static var _pendingNavigatingToPage: NineAnimatorRootScene?
+    
+    private func navigate(toScene scene: NineAnimatorRootScene) {
+        self.selectedIndex = scene.rawValue
+    }
+    
+    /// Declaration of the available scenes in the `RootViewController`
+    enum NineAnimatorRootScene: Int {
+        case toWatch = 0
+        case featured = 1
+        case library = 2
+        case search = 3
     }
 }
 

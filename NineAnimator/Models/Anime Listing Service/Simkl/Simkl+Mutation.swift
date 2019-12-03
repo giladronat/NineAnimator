@@ -93,4 +93,8 @@ extension Simkl {
           .finally { _ in Log.info("[Simkl.com] Mutation request made") }
         mutationQueues.append(task)
     }
+    
+    func update(_ reference: ListingAnimeReference, newTracking: ListingAnimeTracking) {
+        // New
+    }
 }
