@@ -77,8 +77,7 @@ class CustomPlayerViewController: UIViewController {
     private var isPlaybackProgressSliding = false
     private var wasPlayingBeforeSliding = false
     
-    @IBOutlet private weak var pipStartButton: UIButton!
-    @IBOutlet private weak var pipStopButton: UIButton!
+    @IBOutlet private weak var pipToggleButton: UIButton!
     var pipController: AVPictureInPictureController?
     private var pipPossibleObservation: NSKeyValueObservation?
     
@@ -649,7 +648,6 @@ extension CustomPlayerViewController {
         super.viewDidLoad()
         addControllerObservers()
         prepareGestureRecognizers()
-        setPiPButtons()
     }
 }
 
@@ -660,16 +658,25 @@ extension CustomPlayerViewController: AVPictureInPictureControllerDelegate {
         return AVPictureInPictureController.isPictureInPictureSupported() && NineAnimator.default.user.allowPictureInPicturePlayback
     }
     
+    /// Sets PiP button based on state of pipController and settings
     func setPiPButtons() {
         if #available(iOS 13.0, *) {
             let startImage = AVPictureInPictureController.pictureInPictureButtonStartImage
             let stopImage = AVPictureInPictureController.pictureInPictureButtonStopImage
             
-            pipStartButton.setImage(startImage, for: .normal)
-            pipStopButton.setImage(stopImage, for: .normal)
+            if pipController?.isPictureInPictureActive ?? false {
+                pipToggleButton.setImage(stopImage, for: .normal)
+            } else {
+                pipToggleButton.setImage(startImage, for: .normal)
+            }
         } else {
             // TODO: Use our own image
             // No image for now (still developing UI)
+            if pipController?.isPictureInPictureActive ?? false {
+                pipToggleButton.setTitle("Start PiP", for: .normal)
+            } else {
+                pipToggleButton.setTitle("Stop PiP", for: .normal)
+            }
         }
     }
     
@@ -681,20 +688,23 @@ extension CustomPlayerViewController: AVPictureInPictureControllerDelegate {
             if let pipController = pipController {
                 pipPossibleObservation = observeIsPiPPossible(pipController: pipController)
             }
+            
+            setPiPButtons()
         } else {
-            // PiP not supported by current device. Disable PiP button.
-//            pictureInPictureButton.isEnabled = false
+            // Hide PiP from user
+            tearDownPiP()
+            pipToggleButton.isHidden = true
         }
     }
     
     func observeIsPiPPossible(pipController: AVPictureInPictureController) -> NSKeyValueObservation {
         return pipController.observe(\.isPictureInPicturePossible) { [weak self] pipController, _ in
-            self?.pipStartButton.isEnabled = pipController.isPictureInPicturePossible
-            self?.pipStopButton.isEnabled = pipController.isPictureInPicturePossible
+            self?.pipToggleButton.isEnabled = pipController.isPictureInPicturePossible
         }
     }
     
     func tearDownPiP() {
+        pipController = nil
         pipPossibleObservation = nil
     }
     
@@ -702,6 +712,23 @@ extension CustomPlayerViewController: AVPictureInPictureControllerDelegate {
 //        playerViewController.allowsPictureInPicturePlayback = shouldUsePictureInPicture
         // Ignoring the others since those are retrived on app state changes
     }
+    
+    @IBAction private func togglePiPMode(_ sender: Any) {
+        if pipController?.isPictureInPictureActive ?? false {
+            pipController?.stopPictureInPicture()
+        } else {
+            pipController?.startPictureInPicture()
+        }
+        
+        setPiPButtons()
+    }
+    
+    // MARK: - PiP Delegate
+    /*
+    func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
+        <#code#>
+    }
+ */
 }
 
 // MARK: - Test Preview
