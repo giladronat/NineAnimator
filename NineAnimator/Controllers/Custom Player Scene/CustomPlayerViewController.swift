@@ -130,6 +130,7 @@ class CustomPlayerViewController: UIViewController {
         if let item = playerItem {
             removePlayerItemObservers(item)
         }
+        removeControllerObservers()
         tearDownPiP()
         tearDownPlaybackSession()
     }
@@ -210,6 +211,11 @@ class CustomPlayerViewController: UIViewController {
             name: UserDefaults.didChangeNotification,
             object: nil
         )
+    }
+    
+    private func removeControllerObservers() {
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willResignActiveNotification, object: UIApplication.shared)
+        NotificationCenter.default.removeObserver(self, name: UserDefaults.didChangeNotification, object: nil)
     }
     
     private func addPlayerItemObservers(_ playerItem: AVPlayerItem) {
