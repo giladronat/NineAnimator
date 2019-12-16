@@ -6,7 +6,7 @@
 //  Copyright © 2019 Marcus Zhou. All rights reserved.
 //
 
-import AVFoundation
+import AVKit
 import UIKit
 
 // swiftlint:disable todo
@@ -70,12 +70,17 @@ class CustomPlayerViewController: UIViewController {
     @IBOutlet private weak var fastForwardContainer: UIView!
     @IBOutlet private weak var fastForwardDoubleTapGestureRecognizer: UITapGestureRecognizer!
     @IBOutlet private weak var gestureBackgroundView: UIView!
-    private let gestureControlBackgroundColor = UIColor(white: 0, alpha: 0.25)
+    private let gestureControlBackgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.25)
     
     private var skipDurationTimeInterval: TimeInterval = 15.0
     
     private var isPlaybackProgressSliding = false
     private var wasPlayingBeforeSliding = false
+    
+    @IBOutlet private weak var pipStartButton: UIButton!
+    @IBOutlet private weak var pipStopButton: UIButton!
+    var pipController: AVPictureInPictureController?
+    private var pipPossibleObservation: NSKeyValueObservation?
     
     func play(_ media: PlaybackMedia) {
         self.media = media
@@ -633,6 +638,46 @@ extension CustomPlayerViewController {
         super.viewDidLoad()
         addAppStateObservers()
         prepareGestureRecognizers()
+        setPiPButtons()
+    }
+}
+
+// MARK: - PiP
+
+extension CustomPlayerViewController: AVPictureInPictureControllerDelegate {
+    func setPiPButtons() {
+        if #available(iOS 13.0, *) {
+            let startImage = AVPictureInPictureController.pictureInPictureButtonStartImage
+            let stopImage = AVPictureInPictureController.pictureInPictureButtonStopImage
+            
+            pipStartButton.setImage(startImage, for: .normal)
+            pipStopButton.setImage(stopImage, for: .normal)
+        } else {
+            // TODO: Use our own image
+            // No image for now (still developing UI)
+        }
+    }
+    
+    func setupPictureInPicture() {
+        // Ensure PiP is supported by current device
+        if AVPictureInPictureController.isPictureInPictureSupported() {
+            // Create new controller passing reference to the AVPlayerLayer
+            pipController = AVPictureInPictureController(playerLayer: playerLayerView.playerLayer)
+            pipController?.delegate = self
+            if let pipController = pipController {
+                pipPossibleObservation = observeIsPiPPossible(pipController: pipController)
+            }
+        } else {
+            // PiP not supported by current device. Disable PiP button.
+//            pictureInPictureButton.isEnabled = false
+        }
+    }
+    
+    func observeIsPiPPossible(pipController: AVPictureInPictureController) -> NSKeyValueObservation {
+        return pipController.observe(\.isPictureInPicturePossible) { [weak self] pipController, _ in
+            self?.pipStartButton.isEnabled = pipController.isPictureInPicturePossible
+            self?.pipStopButton.isEnabled = pipController.isPictureInPicturePossible
+        }
     }
 }
 
@@ -641,9 +686,12 @@ extension CustomPlayerViewController {
 extension CustomPlayerViewController {
     override func viewWillAppear(_ animated: Bool) {
 //        let m3u8TestPlayerItem = AVPlayerItem(url: URL(string: "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8")!)
-//        let mp4TestPlayerItem = AVPlayerItem(url: URL(string: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_2mb.mp4")!)
-//        play(mp4TestPlayerItem)
+        let mp4TestPlayerItem = AVPlayerItem(url: URL(string: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_2mb.mp4")!)
+//        let mp4URL = Bundle.main.url(forResource: "SampleVideo_1280x720_2mb", withExtension: "mp4")
+//        let localMP4TestPlayerItem = AVPlayerItem(url: mp4URL!)
+        play(mp4TestPlayerItem)
 //        play(m3u8TestPlayerItem)
+//        play(localMP4TestPlayerItem)
         
         super.viewWillAppear(animated)
     }

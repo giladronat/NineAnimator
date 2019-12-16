@@ -152,6 +152,14 @@
                                             <action selector="dismissTappedWithSender:" destination="d3x-0P-5GI" eventType="touchUpInside" id="lca-QI-U15"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9zA-ym-uRa">
+                                        <rect key="frame" x="679" y="18" width="59" height="30"/>
+                                        <state key="normal" title="PiP Stop"/>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kfW-6a-4RQ">
+                                        <rect key="frame" x="606" y="18" width="60" height="30"/>
+                                        <state key="normal" title="PiP Start"/>
+                                    </button>
                                     <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="L0n-Fg-W3U">
                                         <rect key="frame" x="66" y="285" width="20" height="20"/>
                                     </activityIndicatorView>
@@ -163,15 +171,18 @@
                                     <constraint firstAttribute="bottomMargin" secondItem="1iA-hV-rGE" secondAttribute="bottom" id="4aR-pB-pff"/>
                                     <constraint firstAttribute="trailing" secondItem="4ue-cq-8xA" secondAttribute="trailing" constant="8" id="50A-MQ-5kk"/>
                                     <constraint firstItem="hdV-bN-Xm9" firstAttribute="width" secondItem="UqK-Qv-4pt" secondAttribute="width" id="9es-a4-aJo"/>
+                                    <constraint firstItem="9zA-ym-uRa" firstAttribute="leading" secondItem="kfW-6a-4RQ" secondAttribute="trailing" constant="13" id="ArB-kT-5Li"/>
                                     <constraint firstItem="nIe-as-DF2" firstAttribute="height" secondItem="1iA-hV-rGE" secondAttribute="height" multiplier="1.26667" id="Awh-QF-PKW"/>
                                     <constraint firstItem="hdV-bN-Xm9" firstAttribute="leading" secondItem="UqK-Qv-4pt" secondAttribute="leading" id="BGD-Mc-BGI"/>
                                     <constraint firstAttribute="bottomMargin" secondItem="nid-b5-m8X" secondAttribute="bottom" id="DN3-6l-yxk"/>
                                     <constraint firstItem="yNy-w9-t7h" firstAttribute="centerY" secondItem="Vw9-rr-J3w" secondAttribute="centerY" id="EM5-Dd-m6U"/>
+                                    <constraint firstItem="kfW-6a-4RQ" firstAttribute="top" secondItem="9zA-ym-uRa" secondAttribute="top" id="HuK-fm-M71"/>
                                     <constraint firstItem="nIe-as-DF2" firstAttribute="centerY" secondItem="hdV-bN-Xm9" secondAttribute="centerY" id="KUE-Jf-NYU"/>
                                     <constraint firstItem="hdV-bN-Xm9" firstAttribute="top" secondItem="L0n-Fg-W3U" secondAttribute="bottom" constant="22" id="O1f-zY-Xzt"/>
                                     <constraint firstItem="CRG-6D-lNw" firstAttribute="top" secondItem="UaD-DK-17d" secondAttribute="top" constant="18" id="OQH-gB-AWj"/>
                                     <constraint firstItem="nid-b5-m8X" firstAttribute="leading" secondItem="UaD-DK-17d" secondAttribute="leadingMargin" id="Vtl-3E-gY6"/>
                                     <constraint firstItem="Vw9-rr-J3w" firstAttribute="centerY" secondItem="UaD-DK-17d" secondAttribute="centerY" id="YeJ-mZ-v3A"/>
+                                    <constraint firstItem="9zA-ym-uRa" firstAttribute="top" secondItem="4ue-cq-8xA" secondAttribute="top" id="aC4-CQ-I3I"/>
                                     <constraint firstItem="L0n-Fg-W3U" firstAttribute="leading" secondItem="hdV-bN-Xm9" secondAttribute="leading" id="btp-94-UOR"/>
                                     <constraint firstItem="1iA-hV-rGE" firstAttribute="height" secondItem="nid-b5-m8X" secondAttribute="height" id="ch2-9y-h5X"/>
                                     <constraint firstItem="y3c-FY-oIn" firstAttribute="centerX" secondItem="UaD-DK-17d" secondAttribute="centerX" multiplier="0.4" id="e6b-8k-6RT"/>
@@ -179,6 +190,7 @@
                                     <constraint firstItem="UqK-Qv-4pt" firstAttribute="leading" secondItem="nid-b5-m8X" secondAttribute="trailing" constant="8" symbolic="YES" id="jV7-od-Gv0"/>
                                     <constraint firstAttribute="trailingMargin" secondItem="1iA-hV-rGE" secondAttribute="trailing" id="nhr-Bj-cet"/>
                                     <constraint firstItem="y3c-FY-oIn" firstAttribute="centerY" secondItem="Vw9-rr-J3w" secondAttribute="centerY" id="pVD-OY-sT0"/>
+                                    <constraint firstItem="4ue-cq-8xA" firstAttribute="leading" secondItem="9zA-ym-uRa" secondAttribute="trailing" constant="13" id="qIA-NL-A7D"/>
                                     <constraint firstItem="1iA-hV-rGE" firstAttribute="leading" secondItem="UqK-Qv-4pt" secondAttribute="trailing" constant="8" symbolic="YES" id="rCr-dj-9Ud"/>
                                     <constraint firstItem="nIe-as-DF2" firstAttribute="trailing" secondItem="1iA-hV-rGE" secondAttribute="trailing" id="vQ9-3s-iyp"/>
                                     <constraint firstItem="UqK-Qv-4pt" firstAttribute="top" secondItem="hdV-bN-Xm9" secondAttribute="bottom" constant="26" id="vjY-rN-u8k"/>
@@ -213,6 +225,8 @@
                         <outlet property="fastForwardContainer" destination="arw-KT-etA" id="y8a-gf-u0p"/>
                         <outlet property="fastForwardDoubleTapGestureRecognizer" destination="lGg-nb-8oK" id="BU6-Kn-7VU"/>
                         <outlet property="gestureBackgroundView" destination="jpX-2F-SYJ" id="Uv4-ur-ak6"/>
+                        <outlet property="pipStartButton" destination="kfW-6a-4RQ" id="fiM-Ce-FUP"/>
+                        <outlet property="pipStopButton" destination="9zA-ym-uRa" id="9Jf-EA-LZH"/>
                         <outlet property="playButton" destination="Vw9-rr-J3w" id="SXP-5B-PCd"/>
                         <outlet property="playbackBufferProgressView" destination="hdV-bN-Xm9" id="r2K-PI-lKq"/>
                         <outlet property="playbackProgressSlider" destination="UqK-Qv-4pt" id="1Sf-GX-RjU"/>
