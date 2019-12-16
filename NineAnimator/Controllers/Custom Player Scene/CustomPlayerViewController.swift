@@ -104,6 +104,8 @@ class CustomPlayerViewController: UIViewController {
         
         setUpPlaybackSession()
         
+        setUpPictureInPicture()
+        
         // Set up player with item
         // Important to call _after_ adding observers
         player.replaceCurrentItem(with: playerItem)
@@ -129,6 +131,7 @@ class CustomPlayerViewController: UIViewController {
         if let item = playerItem {
             removePlayerItemObservers(item)
         }
+        tearDownPiP()
         tearDownPlaybackSession()
     }
     
@@ -195,11 +198,19 @@ class CustomPlayerViewController: UIViewController {
     
     // MARK: - Observing
     
-    private func addAppStateObservers() {
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(onAppWillResignActive(_:)),
-                                               name: UIApplication.willResignActiveNotification,
-                                               object: UIApplication.shared)
+    private func addControllerObservers() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(onAppWillResignActive(_:)),
+            name: UIApplication.willResignActiveNotification,
+            object: UIApplication.shared
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(onUserPreferenceDidChange(notification:)),
+            name: UserDefaults.didChangeNotification,
+            object: nil
+        )
     }
     
     private func addPlayerItemObservers(_ playerItem: AVPlayerItem) {
@@ -636,7 +647,7 @@ extension CustomPlayerViewController {
 extension CustomPlayerViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        addAppStateObservers()
+        addControllerObservers()
         prepareGestureRecognizers()
         setPiPButtons()
     }
@@ -681,6 +692,15 @@ extension CustomPlayerViewController: AVPictureInPictureControllerDelegate {
             self?.pipStartButton.isEnabled = pipController.isPictureInPicturePossible
             self?.pipStopButton.isEnabled = pipController.isPictureInPicturePossible
         }
+    }
+    
+    func tearDownPiP() {
+        pipPossibleObservation = nil
+    }
+    
+    @objc func onUserPreferenceDidChange(notification _: Notification) {
+//        playerViewController.allowsPictureInPicturePlayback = shouldUsePictureInPicture
+        // Ignoring the others since those are retrived on app state changes
     }
 }
 
