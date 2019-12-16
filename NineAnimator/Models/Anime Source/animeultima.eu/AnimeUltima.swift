@@ -40,10 +40,7 @@ class NASourceAnimeUltima: BaseSource, Source, PromiseSource {
         return "AnimeUltima is a free anime streaming website with many self-hosted servers. This website is guarded by Cloudflare; you may be require to verify your identity manually."
     }
     
-    override var endpoint: String { return "https://www15.animeultima.eu" }
-    
-    lazy var _auEngineParser = AUEngineParser(self)
-    lazy var _fastStreamParser = FastStreamParser(self)
+    override var endpoint: String { return "https://www16.animeultima.eu" }
     
     func link(from url: URL) -> NineAnimatorPromise<AnyLink> {
         return .fail(.unknownError)
@@ -74,5 +71,10 @@ class NASourceAnimeUltima: BaseSource, Source, PromiseSource {
         if let preferredServer = serverPreferencesMap.max(by: { $0.value < $1.value })?.key {
             return preferredServer
         } else { return super.recommendServer(for: anime) }
+    }
+    
+    override init(with parent: NineAnimator) {
+        super.init(with: parent)
+        registerPrivateParsers()
     }
 }

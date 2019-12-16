@@ -19,6 +19,7 @@
 
 import Alamofire
 import Foundation
+import Kingfisher
 
 typealias NineAnimatorCallback<T> = (T?, Error?) -> Void
 
@@ -44,7 +45,8 @@ class NineAnimator: SessionDelegate {
         return 60 * 30
     }
     
-    let client = URLSession(configuration: .default)
+    /// Reachability manager
+    private(set) var reachability: NetworkReachabilityManager?
     
     private let mainAdditionalHeaders: HTTPHeaders = {
         var headers = SessionManager.defaultHTTPHeaders
@@ -95,12 +97,19 @@ class NineAnimator: SessionDelegate {
         attributes: [ .concurrent ]
     )
     
+    /// Chained image modifiers
+    var _imageResourceModifiers = [Kingfisher.ImageDownloadRequestModifier]()
+    
     override init() {
         super.init()
+        
+        // Init reachability manager
+        reachability = NetworkReachabilityManager()
         
         // Register implemented sources and services
         registerDefaultSources()
         registerDefaultServices()
+        setupGlobalImageRequestModifiers()
     }
 }
 
@@ -135,13 +144,14 @@ extension NineAnimator {
     
     /// Register the default set of sources
     private func registerDefaultSources() {
+        register(source: NASourceNineAnime(with: self))
         register(source: NASourceAnimePahe(with: self))
         register(source: NASourceWonderfulSubs(with: self))
         register(source: NASourceAnimeUltima(with: self))
+        register(source: NASourceAnimeKisa(with: self))
+        register(source: NASourceFourAnime(with: self))
         register(source: NASourceGogoAnime(with: self))
         register(source: NASourceAnimeTwist(with: self))
-        register(source: NASourceAnimeKisa(with: self))
-        register(source: NASourceNineAnime(with: self))
         register(source: NASourceKissanime(with: self))
         register(source: NASourceMasterAnime(with: self))
     }
@@ -233,7 +243,7 @@ extension NineAnimator {
                 $0.value.object != nil
             }
             let diff = before - self.trackingContextReferences.count
-            if diff > 0 { Log.info("[NineAnimator.TrackingContextPool] %@ references removed", diff) }
+            if diff > 0 { Log.error("[NineAnimator.TrackingContextPool] %@ references removed", diff) }
         }
     }
 }

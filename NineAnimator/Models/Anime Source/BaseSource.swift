@@ -35,7 +35,7 @@ class BaseSource: SessionDelegate {
     
     var _cfResolverTimer: Timer?
     var _cfPausedTasks = [Alamofire.RequestRetryCompletion]()
-    var _internalUAIdentity = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"
+    var _internalUAIdentity = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Safari/605.1.15"
     
     /// The session used to create ajax requests
     lazy var retriverSession: SessionManager = createRetriverSession()
@@ -79,7 +79,7 @@ class BaseSource: SessionDelegate {
         return endpoint.hasSuffix(host)
     }
     
-    /// Default recommendServer(for:) implementation
+    /// Default `recommendServer(for:)` implementation
     ///
     /// The default recommendation behavior is to find the first streaming
     /// source whose name is registered in the default VideoProviderRegistry
@@ -87,7 +87,26 @@ class BaseSource: SessionDelegate {
         let availableServers = anime.servers
         return availableServers.first {
             VideoProviderRegistry.default.provider(for: $0.value) != nil
+            || VideoProviderRegistry.default.provider(for: $0.key) != nil
         }?.key
+    }
+    
+    /// Default `recommendServers(for, ofPurpose:)` implementation
+    ///
+    /// This implementation recommend servers by trying to obtain the provider for each server
+    /// and check if the provider is being recommended for the specified purpose
+    func recommendServers(for anime: Anime, ofPurpose purpose: VideoProviderParser.Purpose) -> [Anime.ServerIdentifier] {
+        let availableServers = anime.servers
+        let registry = VideoProviderRegistry.default
+        
+        return availableServers.compactMap {
+            // Try to obtain the parser and check if its recommended for the
+            // specified purpose
+            if let provider = registry.provider(for: $0.value) ?? registry.provider(for: $0.key),
+                provider.isParserRecommended(forPurpose: purpose) {
+                return $0.key
+            } else { return nil }
+        }
     }
     
     func request(browse url: URL, headers: [String: String], completion handler: @escaping NineAnimatorCallback<String>) -> NineAnimatorAsyncTask? {
