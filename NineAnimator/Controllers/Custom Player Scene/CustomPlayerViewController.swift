@@ -645,6 +645,10 @@ extension CustomPlayerViewController {
 // MARK: - PiP
 
 extension CustomPlayerViewController: AVPictureInPictureControllerDelegate {
+    private var shouldUsePiP: Bool {
+        return AVPictureInPictureController.isPictureInPictureSupported() && NineAnimator.default.user.allowPictureInPicturePlayback
+    }
+    
     func setPiPButtons() {
         if #available(iOS 13.0, *) {
             let startImage = AVPictureInPictureController.pictureInPictureButtonStartImage
@@ -658,10 +662,9 @@ extension CustomPlayerViewController: AVPictureInPictureControllerDelegate {
         }
     }
     
-    func setupPictureInPicture() {
-        // Ensure PiP is supported by current device
-        if AVPictureInPictureController.isPictureInPictureSupported() {
-            // Create new controller passing reference to the AVPlayerLayer
+    func setUpPictureInPicture() {
+        // Check PiP support and user setting
+        if shouldUsePiP {
             pipController = AVPictureInPictureController(playerLayer: playerLayerView.playerLayer)
             pipController?.delegate = self
             if let pipController = pipController {
