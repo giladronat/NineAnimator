@@ -682,12 +682,13 @@ extension CustomPlayerViewController: AVPictureInPictureControllerDelegate {
     }
     
     /// Sets PiP button based on state of pipController and settings
-    func setPiPButtons() {
+    func setPiPButtons(pipActive: Bool) {
         if #available(iOS 13.0, *) {
+            // iOS 13 has standard PiP images
             let startImage = AVPictureInPictureController.pictureInPictureButtonStartImage
             let stopImage = AVPictureInPictureController.pictureInPictureButtonStopImage
             
-            if pipController?.isPictureInPictureActive ?? false {
+            if pipActive {
                 pipToggleButton.setImage(stopImage, for: .normal)
             } else {
                 pipToggleButton.setImage(startImage, for: .normal)
@@ -695,7 +696,7 @@ extension CustomPlayerViewController: AVPictureInPictureControllerDelegate {
         } else {
             // TODO: Use our own image
             // No image for now (still developing UI)
-            if pipController?.isPictureInPictureActive ?? false {
+            if pipActive {
                 pipToggleButton.setTitle("Start PiP", for: .normal)
             } else {
                 pipToggleButton.setTitle("Stop PiP", for: .normal)
@@ -709,10 +710,11 @@ extension CustomPlayerViewController: AVPictureInPictureControllerDelegate {
             pipController = AVPictureInPictureController(playerLayer: playerLayerView.playerLayer)
             pipController?.delegate = self
             if let pipController = pipController {
-                pipPossibleObservation = observeIsPiPPossible(pipController: pipController)
+//                pipPossibleObservation = observeIsPiPPossible(pipController: pipController)
+                pipPossibleObservation = pipController.observe(\.isPictureInPicturePossible, changeHandler: onIsPiPPossibleChange(pipController:change:))
             }
             
-            setPiPButtons()
+            setPiPButtons(pipActive: false)
         } else {
             // Hide PiP from user
             tearDownPiP()
@@ -720,10 +722,9 @@ extension CustomPlayerViewController: AVPictureInPictureControllerDelegate {
         }
     }
     
-    func observeIsPiPPossible(pipController: AVPictureInPictureController) -> NSKeyValueObservation {
-        return pipController.observe(\.isPictureInPicturePossible) { [weak self] pipController, _ in
-            self?.pipToggleButton.isEnabled = pipController.isPictureInPicturePossible
-        }
+    func onIsPiPPossibleChange(pipController: AVPictureInPictureController, change _: NSKeyValueObservedChange<Bool>) {
+        self.pipToggleButton.isEnabled = pipController.isPictureInPicturePossible
+        Log.debug("PiP: isPiPPossible changed to %@", pipController.isPictureInPicturePossible)
     }
     
     func tearDownPiP() {
@@ -732,6 +733,7 @@ extension CustomPlayerViewController: AVPictureInPictureControllerDelegate {
     }
     
     @objc func onUserPreferenceDidChange(notification _: Notification) {
+        // TODO: Turn PiP on or off based on shouldUsePiP
 //        playerViewController.allowsPictureInPicturePlayback = shouldUsePictureInPicture
         // Ignoring the others since those are retrived on app state changes
     }
@@ -742,16 +744,27 @@ extension CustomPlayerViewController: AVPictureInPictureControllerDelegate {
         } else {
             pipController?.startPictureInPicture()
         }
-        
-        setPiPButtons()
     }
     
     // MARK: - PiP Delegate
-    /*
+    
     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
-        <#code#>
+        completionHandler(true)
     }
- */
+    
+    func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
+        
+    }
+    
+    func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        Log.info("PiP: Started")
+        setPiPButtons(pipActive: true)
+    }
+    
+    func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        Log.info("PiP: Stopped")
+        setPiPButtons(pipActive: false)
+    }
 }
 
 // MARK: - Test Preview
@@ -759,10 +772,10 @@ extension CustomPlayerViewController: AVPictureInPictureControllerDelegate {
 extension CustomPlayerViewController {
     override func viewWillAppear(_ animated: Bool) {
 //        let m3u8TestPlayerItem = AVPlayerItem(url: URL(string: "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8")!)
-        let mp4TestPlayerItem = AVPlayerItem(url: URL(string: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_2mb.mp4")!)
+//        let mp4TestPlayerItem = AVPlayerItem(url: URL(string: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_2mb.mp4")!)
 //        let mp4URL = Bundle.main.url(forResource: "SampleVideo_1280x720_2mb", withExtension: "mp4")
 //        let localMP4TestPlayerItem = AVPlayerItem(url: mp4URL!)
-        play(mp4TestPlayerItem)
+//        play(mp4TestPlayerItem)
 //        play(m3u8TestPlayerItem)
 //        play(localMP4TestPlayerItem)
         
