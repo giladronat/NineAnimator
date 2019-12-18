@@ -18,6 +18,8 @@ class CustomPlayerViewController: UIViewController {
     
     private let player = AVPlayer()
     
+    // MARK: - Playback Observations
+    
     private var playerItemStatusObservation: NSKeyValueObservation?
     private var timeObserverToken: Any?
     private var playerItemIsPlaybackLikelyToKeepUpObservation: NSKeyValueObservation?
@@ -29,7 +31,8 @@ class CustomPlayerViewController: UIViewController {
     
     @IBOutlet private weak var playerLayerView: PlayerLayerView!
     
-    // Control UI
+    // MARK: - Control UI Properties
+    
     @IBOutlet private weak var controlContainerOverlay: UIView!
     
     private var isDisplayingControls = true
@@ -77,9 +80,13 @@ class CustomPlayerViewController: UIViewController {
     private var isPlaybackProgressSliding = false
     private var wasPlayingBeforeSliding = false
     
+    // MARK: - PiP Properties
+    
     @IBOutlet private weak var pipToggleButton: UIButton!
     var pipController: AVPictureInPictureController?
     private var pipPossibleObservation: NSKeyValueObservation?
+    
+    // MARK: - Play
     
     func play(_ media: PlaybackMedia) {
         self.media = media
@@ -135,9 +142,17 @@ class CustomPlayerViewController: UIViewController {
         tearDownPlaybackSession()
     }
     
+    func presentFromRoot() {
+        RootViewController.shared?.presentOnTop(self, animated: true) {
+            // Check whether to play or not
+        }
+    }
+    
     // TODO: Make possible UI states explicit -- paused, buffering, etc
     
     // MARK: - UI Actions
+    
+    /// Toggles play/pause
     @IBAction private func playTapped(sender: UIButton) {
         if player.timeControlStatus == .playing {
             pause()
@@ -168,10 +183,13 @@ class CustomPlayerViewController: UIViewController {
         if player.timeControlStatus != .paused { setFadeControlsTimer() }
     }
     
+    /// Close video
     @IBAction private func dismissTapped(sender: UIButton) {
         self.presentingViewController?.dismiss(animated: true)
     }
     
+    /// Updates UI labels, slider, etc.
+    /// Called frequently from within playback time observation block
     private func updatePlaybackUI(with currentTime: CMTime) {
         guard let item = self.playerItem else {
             Log.debug("No player item to update playback UI")
@@ -375,10 +393,6 @@ extension CustomPlayerViewController {
     }
     
     @objc private func playerItemPlaybackStalled(_ notification: Notification) {
-        // ???: Do notifications get called on the same thread they're registered in?
-        if !Thread.isMainThread {
-            print("Stalled notification received on other thread")
-        }
         // Buffering
         DispatchQueue.main.async { [weak self] in
             self?.bufferSpinner.isHidden = false
@@ -386,6 +400,7 @@ extension CustomPlayerViewController {
         }
     }
     
+    /// Updates slider UI with how far the video has loaded
     private func observeLoadedTimeRanges(_ item: AVPlayerItem) -> NSKeyValueObservation {
         return item.observe(\.loadedTimeRanges) { [weak self] item, _ in
             let loadedTimeRanges = item.loadedTimeRanges
@@ -494,7 +509,7 @@ extension CustomPlayerViewController {
 
 extension CustomPlayerViewController {
     /// Kicks off the timer that hides controls
-    // Calling this while a timer is ongoing effectively resets it
+    /// Calling this while a timer is ongoing effectively resets it
     private func setFadeControlsTimer() {
         fadeControlsTimer?.invalidate()
         fadeControlsTimer = Timer.scheduledTimer(withTimeInterval: fadeControlsTimeInterval,
@@ -503,6 +518,7 @@ extension CustomPlayerViewController {
         }
     }
     
+    /// Toggle controls display, gesture recognizes entire `self.view`
     @IBAction private func viewTapped(_ sender: UITapGestureRecognizer) {
         if sender.state == .ended {
             displayControls(!isDisplayingControls)
@@ -527,7 +543,7 @@ extension CustomPlayerViewController {
     }
     
     /// Makes viewTapped wait to make sure there's no double tap.
-    // Otherwise, viewTapped gets called immediately
+    /// Otherwise, viewTapped gets called immediately
     private func prepareGestureRecognizers() {
         viewTappedGestureRecognizer.require(toFail: rewindDoubleTapGestureRecognizer)
         viewTappedGestureRecognizer.require(toFail: fastForwardDoubleTapGestureRecognizer)
@@ -537,7 +553,8 @@ extension CustomPlayerViewController {
     override var prefersStatusBarHidden: Bool {
         return !isDisplayingControls
     }
-    
+
+    /// Sets white text status bar, since background is dark when controls are shown
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
