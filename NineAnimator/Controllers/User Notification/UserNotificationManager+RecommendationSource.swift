@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -25,8 +25,13 @@ extension UserNotificationManager {
         var piority: RecommendationSource.Piority = .defaultHigh
         
         func shouldReload(recommendation: Recommendation) -> Bool {
-            // Reload subscribed recommendations every time
-            return true
+            let oldSet = recommendation.items.reduce(into: Set<AnyLink>()) {
+                $0.insert($1.link)
+            }
+            let currentSet = NineAnimator.default.user.subscribedAnimes.reduce(into: Set<AnyLink>()) {
+                $0.insert(.anime($1))
+            }
+            return oldSet != currentSet
         }
         
         func generateRecommendations() -> NineAnimatorPromise<Recommendation> {

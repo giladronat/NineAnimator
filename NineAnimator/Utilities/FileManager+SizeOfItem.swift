@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ import Foundation
 extension FileManager {
     /// Obtain the size of the items at a particular path, accounting its children
     func sizeOfItem(atUrl url: URL, queue: DispatchQueue = .global()) -> NineAnimatorPromise<Int> {
-        return NineAnimatorPromise.firstly(queue: queue) {
+        NineAnimatorPromise.firstly(queue: queue) {
             try url.resourceValues(forKeys: [
                 .fileAllocatedSizeKey,
                 .isDirectoryKey

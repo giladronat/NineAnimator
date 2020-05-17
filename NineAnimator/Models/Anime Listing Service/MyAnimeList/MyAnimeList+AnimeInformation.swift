@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -33,42 +33,54 @@ extension MyAnimeList {
         private var _numRatings: Int?
         private var _relatedAnimeReferences: [ListingAnimeReference]
         private var _numEpisodes: Int?
+        private var _parent: MyAnimeList
 
-        var characters: NineAnimatorPromise<[ListingAnimeCharacter]> { return .fail(.unknownError) }
-        var reviews: NineAnimatorPromise<[ListingAnimeReview]> { return .fail(.unknownError) }
-        var relatedReferences: NineAnimatorPromise<[ListingAnimeReference]> { return .success(_relatedAnimeReferences) }
+        var reviews: NineAnimatorPromise<[ListingAnimeReview]> { .fail(.unknownError) }
+        var futureAiringSchedules: NineAnimatorPromise<[ListingAiringEpisode]> { .fail(.unknownError) }
+        
+        var relatedReferences: NineAnimatorPromise<[ListingAnimeReference]> {
+            .success(_relatedAnimeReferences)
+        }
+        
+        var characters: NineAnimatorPromise<[ListingAnimeCharacter]> {
+            self._parent.jikanRequestCharactersAndStaffs(self.reference).then {
+                charactersResponse in charactersResponse.characters.compactMap {
+                    (character: JikanCharacter) -> ListingAnimeCharacter? in
+                    ListingAnimeCharacter(
+                        name: character.name,
+                        role: character.role,
+                        voiceActorName: character.voiceActors.map {
+                            "\($0.name) (\($0.language))"
+                        }.joined(separator: ", "),
+                        image: character.imageUrl
+                    )
+                }
+            }
+        }
         
         var statistics: NineAnimatorPromise<ListingAnimeStatistics> {
-            return NineAnimatorPromise.firstly {
-                [weak self] in
-                guard let self = self,
-                    let mean = self._meanRatings,
-                    let n = self._numRatings else { return nil }
-                
-                // Generate 100 data points for the ratings
-                let numArtificialDataPoints = 20
-                let maxRatings = 10.0
-                // Assuming the distribution is normal, in reality is probably isn't.
-//                let porportions = mean / maxRatings
-//                let standardDeviation = sqrt(porportions * (1.0 - porportions) / Double(n)) * maxRatings
-                let standardDeviation = 2.0
-                let generatedDataPoints = (0...numArtificialDataPoints).map {
-                    index -> (Double, Double) in
-                    let x = Double(index) / Double(numArtificialDataPoints) * maxRatings
-                    return (x, pow(M_E, -pow(x - mean, 2) / (2 * pow(standardDeviation, 2))) /
-                        (standardDeviation * sqrt(2 * .pi)))
-                }
-                
-                // Construct the statistics object
+            self._parent.jikanRequestAnimeStatistics(self.reference).then {
+                [weak self] jikanStats in
+                guard let self = self else { return nil }
                 return ListingAnimeStatistics(
-                    ratingsDistribution: Dictionary(uniqueKeysWithValues: generatedDataPoints),
-                    numberOfRatings: n,
+                    ratingsDistribution: Dictionary(
+                        uniqueKeysWithValues: jikanStats.scores.compactMap {
+                            score -> (Double, Double)? in
+                            if let key = Double(score.key) {
+                                return (key, Double(score.value.votes))
+                            }
+                            return nil
+                        }
+                    ),
+                    numberOfRatings: jikanStats.scores.reduce(0) { $0 + $1.value.votes },
                     episodesCount: self._numEpisodes
                 )
             }
         }
         
-        init(_ animeEntry: NSDictionary, withReference reference: ListingAnimeReference) throws {
+        init(_ animeEntry: NSDictionary, parent: MyAnimeList, withReference reference: ListingAnimeReference) throws {
+            self._parent = parent
+            
             let numberFormatter = NumberFormatter()
             numberFormatter.numberStyle = .decimal
             numberFormatter.maximumFractionDigits = 2
@@ -133,7 +145,7 @@ extension MyAnimeList {
     }
     
     func listingAnime(from reference: ListingAnimeReference) -> NineAnimatorPromise<ListingAnimeInformation> {
-        return apiRequest("/anime/\(reference.uniqueIdentifier)", query: [
+        apiRequest("/anime/\(reference.uniqueIdentifier)", query: [
             "fields": "alternative_titles,average_episode_duration,broadcast,created_at,end_date,main_picture,mean,media_type,nsfw,num_scoring_users,popularity,rank,synopsis,title,background,related_anime,related_anime{node{my_list_status{start_date,finish_date}}},num_episodes,start_date"
         ]).then {
             response in
@@ -142,7 +154,7 @@ extension MyAnimeList {
             }
             
             // Construct the listing anime information
-            return try MyAnimeListListingAnimeInformation(animeEntry, withReference: reference)
+            return try MyAnimeListListingAnimeInformation(animeEntry, parent: self, withReference: reference)
         }
     }
 }

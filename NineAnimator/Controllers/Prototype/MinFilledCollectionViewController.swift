@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -48,13 +48,18 @@ class MinFilledCollectionViewController: UICollectionViewController, MinFilledLa
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
         if let layoutHelper = layoutHelper {
-            layoutHelper.viewWillTransition(coordinator: coordinator, in: collectionView)
+            layoutHelper.viewWillTransition(
+                coordinator: coordinator,
+                in: collectionView
+            )
         } else { Log.error("[MinFilledCollectionViewController] View changing bounds while the layout helper has not been initialized") }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return layoutHelper.collectionView(
+        layoutHelper.collectionView(
             collectionView,
             layout: layout,
             sizeForItemAt: indexPath

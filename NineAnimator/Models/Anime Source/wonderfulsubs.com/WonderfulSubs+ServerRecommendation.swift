@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ import Foundation
 
 extension NASourceWonderfulSubs {
     func _recommendServer(for anime: Anime) -> Anime.ServerIdentifier? {
-        return _recommendServer(for: anime, ofPurpose: .playback).first
+        _recommendServer(for: anime, ofPurpose: .playback).first
     }
     
     func _recommendServer(for anime: Anime, ofPurpose purpose: VideoProviderParser.Purpose) -> [Anime.ServerIdentifier] {
@@ -69,7 +69,7 @@ extension NASourceWonderfulSubs {
     }
     
     fileprivate func _recommendServers(for anime: Anime, withPiorities piorities: [Anime.ServerIdentifier: Double], fallbackPiority: Double, cutoffPiority: Double) -> [Anime.ServerIdentifier] {
-        return anime.servers.map {
+        anime.servers.map {
             server -> (Anime.ServerIdentifier, Double) in
             let identifier = server.key
             return (identifier, piorities[identifier.lowercased()] ?? fallbackPiority)

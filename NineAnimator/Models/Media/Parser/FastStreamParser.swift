@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import Foundation
 /// Parser for animeultima's FastStream server
 class FastStreamParser: VideoProviderParser {
     var aliases: [String] {
-        return [ "FastStream", "FastStream 2" ]
+        [ "FastStream", "FastStream 2" ]
     }
     
     private var source: NASourceAnimeUltima
@@ -33,10 +33,10 @@ class FastStreamParser: VideoProviderParser {
     }
     
     func parse(episode: Episode,
-               with session: SessionManager,
+               with session: Session,
                forPurpose _: Purpose,
                onCompletion handler: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask {
-        return source
+        source
             .request(browseUrl: episode.target)
             .then {
                 responseContent in
@@ -70,6 +70,6 @@ class FastStreamParser: VideoProviderParser {
     }
     
     func isParserRecommended(forPurpose purpose: Purpose) -> Bool {
-        return true
+        true
     }
 }

@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -26,10 +26,10 @@ extension NASourceAnimeUltima {
         weak var delegate: ContentProviderDelegate?
         
         // Accessing the search
-        var title: String { return query }
+        var title: String { query }
         var totalPages: Int? = 1
-        var availablePages: Int { return result == nil ? 0 : 1 }
-        var moreAvailable: Bool { return result == nil }
+        var availablePages: Int { result == nil ? 0 : 1 }
+        var moreAvailable: Bool { result == nil }
         
         // The result of the search
         private var result: [AnyLink]?
@@ -92,6 +92,6 @@ extension NASourceAnimeUltima {
     }
     
     func search(keyword: String) -> ContentProvider {
-        return SearchAgent(self, query: keyword)
+        SearchAgent(self, query: keyword)
     }
 }

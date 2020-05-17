@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -26,9 +26,9 @@ class NASearchMasterAnime: ContentProvider {
     
     var totalPages: Int?
     
-    var availablePages: Int { return _results.count }
+    var availablePages: Int { _results.count }
     
-    var moreAvailable: Bool { return totalPages == nil || _results.count < totalPages! }
+    var moreAvailable: Bool { totalPages == nil || _results.count < totalPages! }
     
     weak var delegate: ContentProviderDelegate?
     
@@ -46,7 +46,7 @@ class NASearchMasterAnime: ContentProvider {
     deinit { _lastRequest?.cancel() }
     
     func links(on page: Int) -> [AnyLink] {
-        return _results[page].map { .anime($0) }
+        _results[page].map { .anime($0) }
     }
     
     func more() {

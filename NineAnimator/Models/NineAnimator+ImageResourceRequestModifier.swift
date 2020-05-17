@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ import Kingfisher
 
 extension NineAnimator: Kingfisher.ImageDownloadRequestModifier {
     func modified(for request: URLRequest) -> URLRequest? {
-        return _imageResourceModifiers.reduce(request as URLRequest?) {
+        _imageResourceModifiers.reduce(request as URLRequest?) {
             request, modifier in if let request = request {
                 return modifier.modified(for: request)
             } else { return nil }

@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 //  along with NineAnimator.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+import Alamofire
 import AVFoundation
 import Foundation
 
@@ -59,7 +60,7 @@ class OfflineContent: NSObject {
     
     var parent: OfflineContentManager
     
-    var identifier: String { return "" }
+    var identifier: String { "" }
     
     /// This property marks if this asset is still pending restoration
     ///
@@ -83,7 +84,7 @@ class OfflineContent: NSObject {
     
     /// Set to indicate if this asset is an persisted hls asset
     var isAggregatedAsset: Bool {
-        get { return persistedProperties["aggregated"] as? Bool ?? false }
+        get { persistedProperties["aggregated"] as? Bool ?? false }
         set { persistedProperties["aggregated"] = newValue }
     }
     
@@ -113,18 +114,21 @@ class OfflineContent: NSObject {
     
     /// The request headers that should be sent along with the requests
     var sourceRequestHeaders: [String: String] {
-        get { return persistedProperties["sourceRequestHeaders"] as? [String: String] ?? [:] }
+        get { persistedProperties["sourceRequestHeaders"] as? [String: String] ?? [:] }
         set { persistedProperties["sourceRequestHeaders"] = newValue }
     }
     
     /// Description of the downloading asset
     var localizedDescription: String {
-        return "A Content"
+        "A Content"
     }
     
     /// Date at which the download was last attempted
     /// - Note: Although the property is stored by the `OfflineContent`, its value is maintained by the asset manager.
     var lastDownloadAttempt: Date?
+    
+    /// A counter used to store download information for the retry mechanism
+    var counter = RetryCounter()
     
     init(_ manager: OfflineContentManager, initialState: OfflineState) {
         state = initialState
@@ -150,7 +154,7 @@ class OfflineContent: NSObject {
     /// The url passed into this function may not be the url
     /// that is persisted.
     func suggestName(for url: URL) -> String {
-        return url.deletingPathExtension().lastPathComponent
+        url.deletingPathExtension().lastPathComponent
     }
     
     /// Called when the resource is successfully downloaded to url
@@ -311,14 +315,26 @@ private extension OfflineContent {
             return resumeFailedAggregatedTask()
         }
         
+        // Record the download attempt
+        counter.recordDownloadInitiation()
+        
         // If the resume data is present
         if let resumeData = resumeData {
             // Create and resume task with resume data
             self.task = downloadingSession.downloadTask(withResumeData: resumeData)
             self.resumeData = nil
-        } else if let loadingUrl = sourceRequestUrl {
+        } else if let loadingUrl = sourceRequestUrl,
+                let request = try? URLRequest(
+                    url: loadingUrl,
+                    method: .get,
+                    headers: sourceRequestHeaders
+                ) {
+            Log.info(
+                "[OfflineContent] (Re)initiating preservation from fetched resource identifiers for '%@'.",
+                localizedDescription
+            )
             self.delete(shouldUpdateState: false) // Remove the downloaded content
-            self.task = downloadingSession.downloadTask(with: loadingUrl)
+            self.task = downloadingSession.downloadTask(with: request)
         } else {
             Log.info(
                 "[OfflineContent] (Re)initiating preservation for '%@'.",
@@ -387,6 +403,9 @@ extension OfflineContent {
             return Log.error("[OfflineContent] Trying to start resource resources without setting sourceRequestUrl.")
         }
         
+        // Record the attempt
+        counter.recordResourceRetrival()
+        
         if isAggregatedAsset {
             // Create the asset and init the task with `initAggregatedTask`
             let avAsset = AVURLAsset(
@@ -416,6 +435,50 @@ extension OfflineContent {
         // Update the state and resume the task
         state = .preserving(0.0)
         task?.resume()
+    }
+}
+
+// MARK: - Retry Mechanism
+extension OfflineContent {
+    /// A counter object used for storing retrying information
+    struct RetryCounter {
+        /// Date that the download was initiated
+        var lastDownloadInitiation: Date = .distantPast
+        
+        /// Number of times that the download has been attempted
+        var downloadAttempts = 0
+        
+        /// Last attempt when the resource was retrieved with the `preserve` method
+        var lastResourceRetrivalAttempt = 0
+        
+        /// Suggest the next download attempt no later than the maximal delay
+        func nextDownloadAttempt(maximalDelay: TimeInterval) -> Date {
+            lastDownloadInitiation + min(TimeInterval(downloadAttempts) * 15, maximalDelay)
+        }
+        
+        /// Suggest if the content should re-attempt to obtain the resource URL
+        func shouldRetryRequestResource(maximalResourceFailiureCount: Int) -> Bool {
+            (downloadAttempts - lastResourceRetrivalAttempt) > maximalResourceFailiureCount
+        }
+        
+        /// - Note: Called from `resumeFailedTask()`
+        mutating func recordDownloadInitiation() {
+            downloadAttempts += 1
+            lastDownloadInitiation = .init()
+        }
+        
+        /// Record an resource retrival
+        /// - Note: Called from `startResourceRequest`
+        mutating func recordResourceRetrival() {
+            lastResourceRetrivalAttempt = downloadAttempts
+        }
+        
+        /// Reset the retry counter
+        /// - Note: This method is used only in `OfflineContentManager`
+        mutating func resetCounter() {
+            lastDownloadInitiation = .distantPast
+            downloadAttempts = 0
+        }
     }
 }
 

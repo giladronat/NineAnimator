@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -64,10 +64,10 @@ class OfflineEpisodeContent: OfflineContent {
     }
     
     override var localizedDescription: String {
-        return "Ep. \(episodeLink.name) - \(episodeLink.parent.title)"
+        "Ep. \(episodeLink.name) - \(episodeLink.parent.title)"
     }
     
-    override var identifier: String { return episodeLink.identifier }
+    override var identifier: String { episodeLink.identifier }
     
     /// Hold reference to the current task
     private var currentTask: NineAnimatorAsyncTask?
@@ -163,10 +163,15 @@ class OfflineEpisodeContent: OfflineContent {
     }
     
     override func suggestName(for url: URL) -> String {
-        return "\(episodeLink.parent.title) - Episode \(episodeLink.name)"
+        "\(episodeLink.parent.title) - Episode \(episodeLink.name)"
     }
     
-    override func onCompletion(with url: URL) {
+    override func onCompletion(with url: URL) throws {
+        // Verify that the url asset is playable
+        if !isAggregatedAsset && !AVAsset(url: url).isPlayable {
+            throw NineAnimatorError.providerError("Downloaded episode is invalid")
+        }
+        
         Log.info("[OfflineEpisodeContent] Downloaded to %@", url.absoluteString)
     }
     
@@ -239,9 +244,9 @@ private extension OfflineEpisodeContent {
 }
 
 private func decode(episodeLink data: Data) -> EpisodeLink? {
-    return try? PropertyListDecoder().decode(EpisodeLink.self, from: data)
+    try? PropertyListDecoder().decode(EpisodeLink.self, from: data)
 }
 
 private func encode(_ link: EpisodeLink) -> Data? {
-    return try? PropertyListEncoder().encode(link)
+    try? PropertyListEncoder().encode(link)
 }

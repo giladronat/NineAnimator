@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,17 +17,20 @@
 //  along with NineAnimator.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-import CoreData
 import Foundation
+import Kingfisher
 
-extension PersistentEpisode {
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<PersistentEpisode> {
-        return NSFetchRequest<PersistentEpisode>(entityName: "PersistentEpisode")
+extension NASourceAnimeDao: Kingfisher.ImageDownloadRequestModifier {
+    /// Setup Kingfisher modifier for verified requests to resources
+    func setupGlobalRequestModifier() {
+        parent.registerAdditionalImageModifier(self)
     }
-
-    @NSManaged public var resumeData: Data?
-    @NSManaged public var bookmarkData: Data?
-    @NSManaged public var episodeLinkData: Data?
-    @NSManaged public var isAggregatedAsset: Bool
-    @NSManaged public var downloadTaskIdentifier: Int64
+    
+    func modified(for request: URLRequest) -> URLRequest? {
+        var modifiedRequest: URLRequest? = request
+        if let requestingUrl = request.url, requestingUrl.host == endpointURL.host {
+            modifiedRequest?.setValue(sessionUserAgent, forHTTPHeaderField: "User-Agent")
+        }
+        return modifiedRequest
+    }
 }

@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,10 +23,10 @@ extension Optional {
     /// Try to unwrap the optional value, or throw an error
     ///
     /// Why? This makes chaining much easier and simpler to write & read
-    func tryUnwrap(_ error: NineAnimatorError = .decodeError) throws -> Wrapped {
+    func tryUnwrap(_ error: @autoclosure () -> NineAnimatorError = .decodeError) throws -> Wrapped {
         switch self {
         case let .some(value): return value
-        default: throw error
+        default: throw error()
         }
     }
     
@@ -42,6 +42,6 @@ extension Optional {
 // MARK: Optional<URL>
 extension Optional where Wrapped == URL {
     func tryUnwrap() throws -> Wrapped {
-        return try tryUnwrap(.urlError)
+        try tryUnwrap(.urlError)
     }
 }

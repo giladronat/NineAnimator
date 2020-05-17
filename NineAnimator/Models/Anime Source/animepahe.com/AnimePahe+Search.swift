@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ extension NASourceAnimePahe {
     fileprivate struct SearchAnimeItem: Codable {
         var slug: String
         var title: String
-        var image: String
+        var poster: String
     }
     
     class SearchAgent: ContentProvider {
@@ -40,11 +40,11 @@ extension NASourceAnimePahe {
         private(set) var totalPages: Int?
         private let parent: NASourceAnimePahe
         
-        var availablePages: Int { return searchResults == nil ? 0 : 1 }
-        var moreAvailable: Bool { return searchResults == nil }
+        var availablePages: Int { searchResults == nil ? 0 : 1 }
+        var moreAvailable: Bool { searchResults == nil }
         
         func links(on page: Int) -> [AnyLink] {
-            return searchResults?.map { .anime($0) } ?? []
+            searchResults?.map { .anime($0) } ?? []
         }
         
         func more() {
@@ -62,7 +62,7 @@ extension NASourceAnimePahe {
                     item in AnimeLink(
                         title: item.title,
                         link: self.parent.animeBaseUrl.appendingPathComponent(item.slug),
-                        image: try URL(string: item.image).tryUnwrap(.urlError),
+                        image: try URL(string: item.poster).tryUnwrap(.urlError),
                         source: self.parent
                     )
                 }
@@ -87,6 +87,6 @@ extension NASourceAnimePahe {
     }
     
     func search(keyword: String) -> ContentProvider {
-        return SearchAgent(self, keywords: keyword)
+        SearchAgent(self, keywords: keyword)
     }
 }

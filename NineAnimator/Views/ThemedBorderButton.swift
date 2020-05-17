@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import UIKit
 class ThemedBorderButton: UIButton, Themable {
     @IBInspectable var borderWidth: CGFloat {
         set { layer.borderWidth = newValue }
-        get { return layer.borderWidth }
+        get { layer.borderWidth }
     }
     
     @IBInspectable var useSecondaryColorInsteadOfTint: Bool = false

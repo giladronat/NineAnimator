@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,13 +21,13 @@ import Foundation
 
 extension NASourceWonderfulSubs {
     func featured() -> NineAnimatorPromise<FeaturedContainer> {
-        return NineAnimatorPromise<[AnimeLink]>
+        NineAnimatorPromise<[AnimeLink]>
             .queue(listOfPromises: [ retrieveFeaturedAnimePromise, retrieveLatestAnimePromise ])
             .then { results in BasicFeaturedContainer(featured: results[0], latest: results[1]) }
     }
     
     private var retrieveFeaturedAnimePromise: NineAnimatorPromise<[AnimeLink]> {
-        return request(
+        request(
             ajaxPathDictionary: "/api/media/popular?count=12",
             headers: [ "Referer": endpoint ]
         ) .then {
@@ -38,7 +38,7 @@ extension NASourceWonderfulSubs {
     }
     
     private var retrieveLatestAnimePromise: NineAnimatorPromise<[AnimeLink]> {
-        return request(
+        request(
             ajaxPathDictionary: "/api/media/latest?count=12",
             headers: [ "Referer": endpoint ]
         ) .then {

@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -25,6 +25,9 @@ class LibraryDownloadsCategoryController: MinFilledCollectionViewController, Lib
     private var selectedAnimeLink: AnimeLink?
     
     override func viewDidLoad() {
+        // Load stateful anime list
+        reloadStatefulAnime(shouldNotifyCollectionView: false)
+        
         super.viewDidLoad()
         
         // Initialize Min Filled Layout
@@ -47,16 +50,21 @@ class LibraryDownloadsCategoryController: MinFilledCollectionViewController, Lib
         self.reloadStatefulAnime()
     }
     
-    fileprivate func reloadStatefulAnime() {
+    fileprivate func reloadStatefulAnime(shouldNotifyCollectionView: Bool = true) {
         // Initialize stateful anime pool
         let currentStatefulLinks = OfflineContentManager.shared.statefulAnime
         let shouldAnimate = statefulAnimeMap.count != currentStatefulLinks.count
-        statefulAnimeMap = currentStatefulLinks
         
-        // Animate/reload collection view
-        if shouldAnimate {
-            collectionView.reloadSections([ 0 ])
-        } else { collectionView.reloadData() }
+        if currentStatefulLinks != statefulAnimeMap {
+            statefulAnimeMap = currentStatefulLinks
+            
+            if shouldNotifyCollectionView {
+                // Animate/reload collection view
+                if shouldAnimate {
+                    collectionView.reloadSections([ 0 ])
+                } else { collectionView.reloadData() }
+            }
+        }
     }
 }
 
@@ -90,11 +98,11 @@ extension LibraryDownloadsCategoryController {
 // MARK: - Data Source & Delegate
 extension LibraryDownloadsCategoryController {
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
+        1
     }
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return section == 0 ? statefulAnimeMap.count : 0
+        section == 0 ? statefulAnimeMap.count : 0
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

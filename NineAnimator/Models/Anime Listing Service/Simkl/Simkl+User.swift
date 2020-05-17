@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ extension Simkl {
     }
     
     func currentUser() -> NineAnimatorPromise<User> {
-        return apiRequest("/users/settings", expectedResponseType: NSDictionary.self).then {
+        apiRequest("/users/settings", expectedResponseType: NSDictionary.self).then {
             try DictionaryDecoder().decode(UserSettingsResponse.self, from: $0).user
         }
     }
@@ -57,7 +57,7 @@ extension Simkl {
     }
     
     var cachedUserCollectionsLastUpdate: Date {
-        get { return persistedProperties[PersistedKeys.cacheLastUpdateDate] as? Date ?? .distantPast }
+        get { persistedProperties[PersistedKeys.cacheLastUpdateDate] as? Date ?? .distantPast }
         set { persistedProperties[PersistedKeys.cacheLastUpdateDate] = newValue }
     }
 }

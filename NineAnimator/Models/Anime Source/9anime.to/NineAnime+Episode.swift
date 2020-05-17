@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,32 +22,59 @@ import SwiftSoup
 
 extension NASourceNineAnime {
     func episode(from link: EpisodeLink, with anime: Anime, _ handler: @escaping NineAnimatorCallback<Episode>) -> NineAnimatorAsyncTask? {
-        let dataIdentifier = link.identifier.split(separator: "|").first!
-        let ajaxHeaders: [String: String] = ["Referer": link.parent.link.absoluteString]
+        let linkComponents = link.identifier.split(separator: "|")
+        let dataIdentifier = linkComponents.first ?? ""
+        let episodePath = linkComponents.last ?? ""
+        
+        let refererUrl = URL(
+            string: String(episodePath),
+            relativeTo: link.parent.link
+        ) ?? link.parent.link
         let infoPath = "/ajax/episode/info"
-        return signedRequest(
-            ajax: infoPath,
-            parameters: [
+        let resolveParametersPromise: NineAnimatorPromise<[String: CustomStringConvertible]>
+        
+        if anime.servers[link.server] == "MyCloud" {
+            // Additional key required for mycloud
+            resolveParametersPromise = MyCloudParser.retrieveWindowKey(
+                with: browseSession,
+                referer: link.parent.link.appendingPathComponent(String(episodePath))
+            ) .then {
+                [
+                    "id": dataIdentifier,
+                    "server": link.server,
+                    "mcloud": $0
+                ]
+            }
+        } else {
+            resolveParametersPromise = .success([
                 "id": dataIdentifier,
                 "server": link.server
-            ],
-            with: ajaxHeaders
-        ) {
-            response, error in
-            guard let responseJson = response else {
-                return handler(nil, error)
+            ])
+        }
+        
+        return renewSession(referer: refererUrl.absoluteString).thenPromise {
+            resolveParametersPromise
+        } .thenPromise {
+            requestParameters in NineAnimatorPromise {
+                self.signedRequest(
+                    ajax: infoPath,
+                    parameters: requestParameters,
+                    with: [ "Referer": refererUrl.absoluteString ],
+                    completion: $0
+                )
             }
+        } .then {
+            responseJson -> Episode in
             
             guard let targetString = responseJson["target"] as? String,
-                let target = URL(string: targetString)
-                else {
-                    Log.error("Target not defined or is invalid in response")
-                    return handler(nil, NineAnimatorError.responseError(
-                        "target url not defined or invalid"
-                    ))
+                let target = URL(string: targetString) else {
+                Log.error("Target not defined or is invalid in response")
+                throw NineAnimatorError.responseError(
+                    "target url not defined or invalid"
+                )
             }
             
-            handler(Episode(link, target: target, parent: anime), nil)
-        }
+            return Episode(link, target: target, parent: anime)
+        } .handle(handler)
     }
 }

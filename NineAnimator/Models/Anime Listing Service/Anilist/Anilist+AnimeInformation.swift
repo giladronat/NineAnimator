@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -30,11 +30,14 @@ extension Anilist {
         var description: String
         var information: [String: String]
         
+        var futureAiringSchedules: NineAnimatorPromise<[ListingAiringEpisode]> {
+            .success(_airingEpisodes)
+        }
         var characters: NineAnimatorPromise<[ListingAnimeCharacter]> {
-            return .firstly { [_characters] in _characters }
+            .success(_characters)
         }
         var statistics: NineAnimatorPromise<ListingAnimeStatistics> {
-            return .firstly {
+            .firstly {
                 [_statistics] in
                 guard _statistics.ratingsDistribution.count > 1 else {
                     throw NineAnimatorError.responseError("No rating distribution found.")
@@ -43,14 +46,15 @@ extension Anilist {
             }
         }
         var relatedReferences: NineAnimatorPromise<[ListingAnimeReference]> {
-            return .firstly { [_relations] in _relations }
+            .firstly { [_relations] in _relations }
         }
-        var reviews: NineAnimatorPromise<[ListingAnimeReview]> { return .fail(.unknownError) }
+        var reviews: NineAnimatorPromise<[ListingAnimeReview]> { .fail(.unknownError) }
         
         // For now, all optional properties are fetched with other values
         var _characters: [ListingAnimeCharacter]
         var _statistics: ListingAnimeStatistics
         var _relations: [ListingAnimeReference]
+        var _airingEpisodes: [ListingAiringEpisode]
         
         // swiftlint:disable cyclomatic_complexity
         init(_ reference: ListingAnimeReference, mediaEntry: NSDictionary) throws {
@@ -73,12 +77,12 @@ extension Anilist {
             formatter.timeStyle = .none
             
             self.reference = reference
-            self.name = .init(
+            self.name = Anilist.processListingAnimeName(.init(
                 default: try mediaEntry.value(at: "title.userPreferred", type: String.self),
                 english: mediaEntry.value(forKeyPath: "title.english") as? String ?? "",
                 romaji: mediaEntry.value(forKeyPath: "title.romaji") as? String ?? "",
                 native: mediaEntry.value(forKeyPath: "title.native") as? String ?? ""
-            )
+            ))
             self.artwork = try some(
                 URL(string: try mediaEntry.value(at: "coverImage.extraLarge", type: String.self)),
                 or: .urlError
@@ -90,6 +94,11 @@ extension Anilist {
             self.description = try SwiftSoup
                 .parse(try mediaEntry.value(at: "description", type: String.self))
                 .text()
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            if self.description.isEmpty {
+                self.description = "No synopsis found for this title."
+            }
             
             self.wallpapers = []
             if let bannerImageString = mediaEntry.valueIfPresent(at: "bannerImage", type: String.self),
@@ -109,6 +118,22 @@ extension Anilist {
             
             // Statistics
             _statistics = try ListingAnimeStatistics(mediaEntry: mediaEntry)
+            
+            // Airing Schedules
+            _airingEpisodes = try mediaEntry.value(
+                at: "airingSchedule.nodes",
+                type: [NSDictionary].self
+            ).map {
+                ListingAiringEpisode(
+                    scheduled: Date(
+                        timeIntervalSince1970: .init(try $0.value(
+                            at: "airingAt",
+                            type: Int.self
+                        ))
+                    ),
+                    episodeNumber: try $0.value(at: "episode", type: Int.self)
+                )
+            }
             
             // Extra information
             var information = [String: String]()
@@ -180,7 +205,7 @@ extension Anilist {
     }
     
     func listingAnime(from reference: ListingAnimeReference) -> NineAnimatorPromise<ListingAnimeInformation> {
-        return graphQL(fileQuery: "AniListListingAnimeInformation", variables: [
+        graphQL(fileQuery: "AniListListingAnimeInformation", variables: [
             "mediaId": reference.uniqueIdentifier
         ]) .then {
             responseDictionary in
@@ -233,6 +258,23 @@ private extension ListingAnimeCharacter {
         self.image = try some(
             URL(string: try characterEdgeEntry.value(at: "node.image.large", type: String.self)),
             or: .urlError
+        )
+    }
+}
+
+// MARK: - Helpers
+private extension Anilist {
+    /// Process the raw anime title variants returned from Anilist
+    static func processListingAnimeName(_ raw: ListingAnimeName) -> ListingAnimeName {
+        .init(
+            default: raw.default,
+            english: raw // Remove romaji prefix
+                .english
+                .replacingOccurrences(of: "\(raw.romaji): ", with: ""),
+            romaji: raw // Remove english suffix
+                .romaji
+                .replacingOccurrences(of: ": \(raw.english)", with: ""),
+            native: raw.native
         )
     }
 }

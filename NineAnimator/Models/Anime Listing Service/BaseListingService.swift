@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ import Alamofire
 import Foundation
 
 class BaseListingService: SessionDelegate {
-    var identifier: String { return "" }
+    var identifier: String { "" }
     
     /// An internal structure that stores and maps the `ListingAnimeReference` to the `ListingAnimeTracking`
     private var referenceToTrackingMap = [ListingAnimeReference: ListingAnimeTracking]()
@@ -80,11 +80,11 @@ class BaseListingService: SessionDelegate {
     
     unowned var parent: NineAnimator
     
-    private(set) lazy var session: Alamofire.SessionManager = {
+    private(set) lazy var session: Alamofire.Session = {
         let configuration = URLSessionConfiguration.default
         configuration.httpShouldSetCookies = true
         configuration.httpCookieAcceptPolicy = .always
-        return SessionManager(configuration: configuration, delegate: self)
+        return Session(configuration: configuration, delegate: self)
     }()
     
     required init(_ parent: NineAnimator) {
@@ -94,10 +94,14 @@ class BaseListingService: SessionDelegate {
     
     /// Making a promisified request
     func request(_ url: URL, method: HTTPMethod = .get, data: Data? = nil, headers: HTTPHeaders = [:]) -> NineAnimatorPromise<Data> {
-        return NineAnimatorPromise.firstly {
+        NineAnimatorPromise.firstly {
             var request = try URLRequest(url: url, method: method)
-            headers.forEach { request.setValue($0.value, forHTTPHeaderField: $0.key) }
+            // Copy headers from HTTPHeaders to URLRequest
+            headers.dictionary.forEach {
+                request.setValue($0.value, forHTTPHeaderField: $0.key)
+            }
             request.httpBody = data
+            request.cachePolicy = .reloadRevalidatingCacheData
             return request
         } .thenPromise {
             request in
@@ -133,7 +137,7 @@ class BaseListingService: SessionDelegate {
     
     /// Retrieve the corresponding `ListingAnimeTracking` for the reference
     func progressTracking(for reference: ListingAnimeReference) -> ListingAnimeTracking? {
-        return referenceToTrackingMap[reference]
+        referenceToTrackingMap[reference]
     }
     
     /// Obtain the corresponding `ListingAnimeTracking` for the reference with an updated progress.
@@ -141,7 +145,7 @@ class BaseListingService: SessionDelegate {
     /// - Note: If no previous `ListingAnimeTracking` is found, a new one is created with only the progress.
     /// - Important: Calling this method does not update the `ListingAnimeTracking` in the internal map.
     func progressTracking(for reference: ListingAnimeReference, withUpdatedEpisodeProgress newProgress: Int) -> ListingAnimeTracking {
-        return progressTracking(for: reference)?.newTracking(withUpdatedProgress: newProgress)
+        progressTracking(for: reference)?.newTracking(withUpdatedProgress: newProgress)
             ?? ListingAnimeTracking(currentProgress: newProgress, episodes: nil)
     }
     

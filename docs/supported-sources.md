@@ -15,9 +15,10 @@ Currently only a selection of video streaming hosts is supported by NineAnimator
 - F5 Beta a.k.a. PrettyFast.to (unavailable for Google Cast)
 - Tiwi.Kiwi (may not be available for Google Cast)
 - FastStream (unavailable for Google Cast)
-- OpenLoad (contributed by [Awsomedude](https://github.com/SuperMarcus/NineAnimator/commit/8d1c0fc196c04c0ca30c6d3b8281ea88b54ab08a))
+- OpenLoad (contributed by [Awsomedude](https://github.com/SuperMarcus/NineAnimator/pull/10))
+- MixDrop (contributed by [Awsomedude](https://github.com/SuperMarcus/NineAnimator/pull/95))
 - HydraX (and replay.watch)
-- Self-hosted Streaming Services ([masterani.me](//masterani.me), [4anime](//4anime.to), [Anime Twist](//twist.moe)), as well as [Wonderful Subs](//wonderfulsubs.com)
+- Self-hosted Streaming Services ([4anime](//4anime.to), [Anime Twist](//twist.moe), Beta and Beta4 on Kissanime)
 
 All of the sources above support downloading. More hosts may be added later.
 Feel free to open an issue to request additional hosts.
@@ -33,12 +34,6 @@ of features:
     - [x] Anime synopsis
     - [ ] Detailed anime attributes (Only Air Date is available)
     - [x] Detailed episode synopsis (Air Date and Episode Name are available; no episode synopsis available)
-- [WonderfulSubs](//wonderfulsubs.com)
-    - [x] Basic features (featured list, notifications, search, and playback)
-    - [x] Open arbitrary links
-    - [x] Anime synopsis
-    - [ ] Detailed anime attributes (Ratings and Air Date)
-    - [x] Detailed episode synopsis
 - [gogoanime.io](//gogoanime.io)
     - [x] Basic features (featured list, notifications, search, and playback)
     - [x] Open arbitrary links
@@ -57,7 +52,7 @@ of features:
     - [ ] Anime synopsis
     - [ ] Detailed anime attributes (Air Date is found but not displayed)
     - [ ] Detailed episode synopsis
-- [9anime.ru](//9anime.ru) (be careful when using this website -- 9anime has been known to ban users for using third party applications)
+- [9anime.ru](//9anime.ru)
     - [x] Basic features (featured list, notifications, search, and playback)
     - [x] Open arbitrary links
     - [x] Anime synopsis
@@ -76,6 +71,18 @@ of features:
     - [ ] Detailed anime attributes
     - [ ] Detailed episode synopsis
 - [4anime](//4anime.to)
+    - [x] Basic features (featured list, notifications, search, and playback)
+    - [ ] Open arbitrary links
+    - [x] Anime synopsis
+    - [ ] Detailed anime attributes (Only Air Date is available)
+    - [ ] Detailed episode synopsis
+- [AnimeDao](//animedao.com)
+    - [x] Basic features (featured list, notifications, search, and playback)
+    - [ ] Open arbitrary links
+    - [x] Anime synopsis
+    - [ ] Detailed anime attributes (No Ratings)
+    - [x] Detailed episode synopsis (Air Date and Episode Name are available; no episode synopsis available)
+- [AnimeUnity](//animeunity.it)
     - [x] Basic features (featured list, notifications, search, and playback)
     - [ ] Open arbitrary links
     - [x] Anime synopsis

@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,12 +23,12 @@ import Foundation
 
 class StreamangoParser: VideoProviderParser {
     var aliases: [String] {
-        return [ "Streamango" ]
+        [ "Streamango" ]
     }
     
     static let obscuredVideoSourceRegex = try! NSRegularExpression(pattern: "src:\\s*d\\('([^']+)',\\s*([^)]+)\\)", options: .caseInsensitive)
     
-    func parse(episode: Episode, with session: SessionManager, forPurpose _: Purpose, onCompletion handler: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask {
+    func parse(episode: Episode, with session: Session, forPurpose _: Purpose, onCompletion handler: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask {
         let additionalHeaders: HTTPHeaders = [
             "Referer": episode.parentLink.link.absoluteString
         ]
@@ -76,7 +76,7 @@ class StreamangoParser: VideoProviderParser {
                 url: sourceURL,
                 parent: episode,
                 contentType: "video/mp4",
-                headers: additionalHeaders,
+                headers: additionalHeaders.dictionary,
                 isAggregated: false), nil)
         }
     }
@@ -88,7 +88,7 @@ class StreamangoParser: VideoProviderParser {
         }
         
         func chr(_ c: Int) -> Character {
-            return Character(UnicodeScalar(c)!)
+            Character(UnicodeScalar(c)!)
         }
         
         var _0x59b81a = ""

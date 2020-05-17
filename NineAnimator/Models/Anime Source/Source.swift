@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -50,7 +50,10 @@ protocol Source: AnyObject {
     
     /// The Alamofire session manager for retriving contents
     /// from the represented website.
-    var retriverSession: SessionManager { get }
+    var retriverSession: Session { get }
+    
+    /// The preferred anime title variant to be used to perform search in this source
+    var preferredAnimeNameVariant: KeyPath<ListingAnimeName, String> { get }
     
     func featured(_ handler: @escaping NineAnimatorCallback<FeaturedContainer>) -> NineAnimatorAsyncTask?
     

@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -24,14 +24,14 @@ import SwiftSoup
 
 class RapidVideoParser: VideoProviderParser {
     var aliases: [String] {
-        return [ "RapidVideo", "Rapid Video" ]
+        [ "RapidVideo", "Rapid Video" ]
     }
     
-    func parse(episode: Episode, with session: SessionManager, forPurpose _: Purpose, onCompletion handler: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask {
-        let additionalHeaders: HTTPHeaders = [
+    func parse(episode: Episode, with session: Session, forPurpose _: Purpose, onCompletion handler: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask {
+        let additionalHeaders = [
             "Referer": episode.target.absoluteString
         ]
-        return session.request(episode.target, headers: additionalHeaders).responseString {
+        return session.request(episode.target, headers: HTTPHeaders(additionalHeaders)).responseString {
             response in
             guard let value = response.value else {
                 Log.error(response.error)

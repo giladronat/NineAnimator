@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ public protocol HalfFillViewControllerProtocol { }
 
 extension HalfFillViewControllerProtocol where Self: UIViewController {
     var transitionController: HalfFillPresentationController? {
-        return presentationController as? HalfFillPresentationController
+        presentationController as? HalfFillPresentationController
     }
 }
 

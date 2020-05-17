@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,17 +21,14 @@ import Foundation
 
 extension NASourceAnimeKisa {
     static let knownServers = [
-        "vidcdn": "VidStreaming",
+        "vidstreaming": "VidStreaming",
         "fembed": "Fembed",
-        "rapidvideo": "RapidVideo",
-        "mp4upload": "Mp4Upload",
-        "openload": "OpenLoad",
-        "streamango": "Streamango",
-        "adless": "AnimeKisa - Adless"
+        "hydrax": "HydraX",
+        "mp4upload": "Mp4Upload"
     ]
     
     func episode(from link: EpisodeLink, with anime: Anime) -> NineAnimatorPromise<Episode> {
-        return NineAnimatorPromise.firstly {
+        NineAnimatorPromise.firstly {
             URL(string: link.identifier, relativeTo: link.parent.link)
         } .thenPromise {
             url in self.request(browseUrl: url).then { (url, $0) }
@@ -48,7 +45,20 @@ extension NASourceAnimeKisa {
                     referer: episodeUrl.absoluteString,
                     userInfo: [:]
                 )
-            } else { throw NineAnimatorError.responseError("This episode does not exist on the selected server") }
+            } else {
+                throw NineAnimatorError.EpisodeServerNotAvailableError(
+                    unavailableEpisode: link,
+                    alternativeEpisodes: resourceMap.map {
+                        server, _ in EpisodeLink(
+                            identifier: link.identifier,
+                            name: link.name,
+                            server: server,
+                            parent: link.parent
+                        )
+                    },
+                    updatedServerMap: NASourceAnimeKisa.knownServers
+                )
+            }
         }
     }
     
@@ -64,7 +74,8 @@ extension NASourceAnimeKisa {
             "mp4upload": try buildExp("MP4Upload"),
             "openload": try buildExp("Openload"),
             "streamango": try buildExp("Streamango"),
-            "vidcdn": try buildExp("VidStreaming")
+            "vidstreaming": try buildExp("VidStreaming"),
+            "hydrax": try buildExp("Hydrax")
         ] .compactMapValues { $0.firstMatch(in: episodePage)?.firstMatchingGroup }
           .compactMapValues { $0.isEmpty ? nil : $0 }
         

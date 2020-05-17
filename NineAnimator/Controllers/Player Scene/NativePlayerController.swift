@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ class NativePlayerController: NSObject, AVPlayerViewControllerDelegate, NSUserAc
     
     private var playerPeriodicObservation: Any?
     
-    var currentPlaybackTime: CMTime { return player.currentTime() }
+    var currentPlaybackTime: CMTime { player.currentTime() }
     
     var currentPlaybackPercentage: Double {
         guard let item = currentItem else { return 0 }
@@ -65,9 +65,9 @@ class NativePlayerController: NSObject, AVPlayerViewControllerDelegate, NSUserAc
     
     private var mediaItemsObervations = [AVPlayerItem: NSKeyValueObservation]()
     
-    var currentMedia: PlaybackMedia? { return mediaQueue.first }
+    var currentMedia: PlaybackMedia? { mediaQueue.first }
     
-    var currentItem: AVPlayerItem? { return player.currentItem }
+    var currentItem: AVPlayerItem? { player.currentItem }
     
     // State of the player
     private(set) var state: State = .idle
@@ -129,6 +129,18 @@ extension NativePlayerController {
     
     /// Reset the player view controller
     func reset() {
+        Log.debug("[NativePlayerController] Forcefully resetting the player. Current state is %@.", self.state)
+        
+        // Send playback end notification if there are still items in the queue.
+        if let firstMedia = mediaQueue.first {
+            Log.debug("[NativePlayerController] Resetting player while still having media in queue. Sending playback end notification...")
+            NotificationCenter.default.post(
+                name: .playbackDidEnd,
+                object: self,
+                userInfo: [ "media": firstMedia ]
+            )
+        }
+        
         // Clear the queue and dismiss the old player view controller
         clearQueue()
         playerViewController.dismiss(animated: true, completion: nil)
@@ -165,6 +177,8 @@ extension NativePlayerController {
         player.insert(item, after: nil)
         // This needs to be changed
         mediaQueue.append(media)
+        
+        Log.debug("[NativePlayerController] New item \"%@\" added to queue.", media.name)
     }
     
     func clearQueue() {
@@ -189,20 +203,38 @@ extension NativePlayerController {
 extension NativePlayerController {
     // Check if picture in picture is supported and enabled
     private var shouldUsePictureInPicture: Bool {
-        return AVPictureInPictureController.isPictureInPictureSupported() && NineAnimator.default.user.allowPictureInPicturePlayback
+        AVPictureInPictureController.isPictureInPictureSupported() && NineAnimator.default.user.allowPictureInPicturePlayback
     }
     
     func playerViewController(_ playerViewController: AVPlayerViewController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
+        Log.debug("[NativePlayerController] Restoring from PiP playbacck...")
         RootViewController.shared?.presentOnTop(playerViewController, animated: true) { completionHandler(true) }
         state = .fullscreen
     }
     
     func playerViewControllerDidStartPictureInPicture(_ playerViewController: AVPlayerViewController) {
+        Log.debug("[NativePlayerController] PiP playback did start. Previous state is %@", self.state)
         state = .pictureInPicture
     }
     
     func playerViewControllerWillStopPictureInPicture(_ playerViewController: AVPlayerViewController) {
-        if state == .pictureInPicture { state = .idle }
+        Log.debug("[NativePlayerController] PiP playback will end. Previous state is %@", self.state)
+        if state == .pictureInPicture {
+            state = .idle
+        }
+    }
+}
+
+// MARK: - Interactive Dismissal
+extension NativePlayerController {
+    func playerViewController(_ playerViewController: AVPlayerViewController, willEndFullScreenPresentationWithAnimationCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+        coordinator.animate(alongsideTransition: nil) {
+            context in
+            if !context.isCancelled, case .fullscreen = self.state {
+                Log.debug("[NativePlayerController] Player interactive dismissal detected. Resetting...")
+                self.reset()
+            }
+        }
     }
 }
 
@@ -233,13 +265,18 @@ extension NativePlayerController {
                 (!self.playerViewController.isFirstResponder && self.state == .fullscreen) || // Fullscreen dismiss
                     (self.state == .idle) // PiP dismiss
                 ) {
+                Log.debug("[NativePlayerController] Recognized a playback end pattern. Current state is %@", self.state)
                 self.state = .idle
+                
                 guard !self.mediaQueue.isEmpty else {
-                    return Log.error("A playback end action was detected, but there are no media in the queue.")
+                    // This is now an expected behavior due to resetting
+                    // in the interactive dismissal
+                    return
                 }
                 
                 // Post playback did end notification
                 let media = self.mediaQueue.removeFirst()
+                Log.debug("[NativePlayerController] Removing media \"%@\" from the playback queue.", media.name)
                 NotificationCenter.default.post(
                     name: .playbackDidEnd,
                     object: self,

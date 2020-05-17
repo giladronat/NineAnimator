@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -75,14 +75,14 @@ class CastController: CastDeviceScannerDelegate, CastClientDelegate {
 
 // MARK: - Accessing CastController
 extension CastController {
-    var isReady: Bool { return client?.isConnected ?? false }
+    var isReady: Bool { client?.isConnected ?? false }
     
-    var isAttached: Bool { return isReady && currentApp != nil }
+    var isAttached: Bool { isReady && currentApp != nil }
     
-    var isPaused: Bool { return client?.currentMediaStatus?.playerState == .paused }
+    var isPaused: Bool { client?.currentMediaStatus?.playerState == .paused }
     
     func isAttached(to link: EpisodeLink) -> Bool {
-        return isAttached && currentEpisode?.link == link
+        isAttached && currentEpisode?.link == link
     }
     
     /**
@@ -178,16 +178,30 @@ extension CastController {
         client = CastClient(device: device)
         client?.delegate = self
         client?.connect()
-        viewController.deviceListUpdated()
+        
+        DispatchQueue.main.async {
+            [weak viewController] in
+            viewController?.deviceListUpdated()
+        }
     }
     
     func disconnect() {
-        if isAttached { viewController.playback(didEnd: content!) }
+        if isAttached, let content = content {
+            DispatchQueue.main.async {
+                [weak viewController] in
+                viewController?.playback(didEnd: content)
+            }
+        }
+        
         client?.disconnect()
         client = nil
         content = nil
         currentApp = nil
-        viewController.deviceListUpdated()
+        
+        DispatchQueue.main.async {
+            [weak viewController] in
+            viewController?.deviceListUpdated()
+        }
     }
     
     func start() { scanner.startScanning() }
@@ -197,8 +211,7 @@ extension CastController {
 
 // MARK: - Media State Delegate
 extension CastController {
-    var timerUpdateProgressTask: ((Timer) -> Void) {
-        return {
+    var timerUpdateProgressTask: ((Timer) -> Void) { {
             [weak self] timer in
             guard let self = self else {
                 return timer.invalidate()
@@ -215,7 +228,11 @@ extension CastController {
     
     func castClient(_ client: CastClient, didConnectTo device: CastDevice) {
         Log.info("Connected to %@", device)
-        viewController.deviceListUpdated()
+        
+        DispatchQueue.main.async {
+            [weak viewController] in
+            viewController?.deviceListUpdated()
+        }
     }
     
     func castClient(_ client: CastClient, didDisconnectFrom device: CastDevice) {
@@ -227,9 +244,17 @@ extension CastController {
             self.client = nil
             updateTimer?.invalidate()
             updateTimer = nil
-            viewController.playback(didEnd: content)
+            
+            DispatchQueue.main.async {
+                [weak viewController] in
+                viewController?.playback(didEnd: content)
+            }
         }
-        viewController.deviceListUpdated()
+        
+        DispatchQueue.main.async {
+            [weak viewController] in
+            viewController?.deviceListUpdated()
+        }
         
         // Notify tracking context
         if let trackingContext = trackingContext {
@@ -240,7 +265,11 @@ extension CastController {
     
     func castClient(_ client: CastClient, mediaStatusDidChange status: CastMediaStatus) {
         guard let content = content else { return }
-        viewController.playback(update: content, mediaStatus: status)
+        
+        DispatchQueue.main.async {
+            [weak viewController] in
+            viewController?.playback(update: content, mediaStatus: status)
+        }
         
         if let episode = currentEpisode, let duration = contentDuration {
             let playbackProgress = Float(status.currentTime / duration)
@@ -257,7 +286,10 @@ extension CastController {
     
     func castClient(_ client: CastClient, deviceStatusDidChange status: CastStatus) {
         guard let content = content else { return }
-        viewController.playback(update: content, deviceStatus: status)
+        DispatchQueue.main.async {
+            [weak viewController] in
+            viewController?.playback(update: content, deviceStatus: status)
+        }
     }
 }
 
@@ -265,15 +297,25 @@ extension CastController {
 extension CastController {
     func deviceDidComeOnline(_ device: CastDevice) {
         devices.append(device)
-        viewController.deviceListUpdated()
+        DispatchQueue.main.async {
+            [weak viewController] in
+            viewController?.deviceListUpdated()
+        }
     }
     
     func deviceDidChange(_ device: CastDevice) {
-        viewController.deviceListUpdated()
+        DispatchQueue.main.async {
+            [weak viewController] in
+            viewController?.deviceListUpdated()
+        }
     }
     
     func deviceDidGoOffline(_ device: CastDevice) {
         devices.removeAll { $0.id == device.id }
-        viewController.deviceListUpdated()
+        
+        DispatchQueue.main.async {
+            [weak viewController] in
+            viewController?.deviceListUpdated()
+        }
     }
 }

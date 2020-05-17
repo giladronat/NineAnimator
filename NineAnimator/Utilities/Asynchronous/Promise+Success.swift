@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ import Foundation
 extension NineAnimatorPromise {
     /// Return directly upon success
     static func success(queue: DispatchQueue = .global(), _ value: ResultType) -> NineAnimatorPromise<ResultType> {
-        return NineAnimatorPromise(queue: queue) {
+        NineAnimatorPromise(queue: queue) {
             $0(value, nil)
             return nil
         }

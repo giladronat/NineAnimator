@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -33,10 +33,10 @@ public class HalfFillTransitionDelegate: NSObject, UIViewControllerTransitioning
     }
     
     public func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return HalfFillTransitionAnimator()
+        HalfFillTransitionAnimator()
     }
     
     public func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
-        return HalfFillPresentationController(presentedViewController: presented, presenting: presenting)
+        HalfFillPresentationController(presentedViewController: presented, presenting: presenting)
     }
 }

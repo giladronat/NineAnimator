@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -26,28 +26,34 @@ import AppKit
 #endif
 
 class NASourceAnimeUltima: BaseSource, Source, PromiseSource {
-    var name: String { return "animeultima.eu" }
+    var name: String { "animeultima.eu" }
     
-    var aliases: [String] { return [] }
+    var aliases: [String] {
+        [ "animeultima.to" ]
+    }
     
 #if canImport(UIKit)
-    var siteLogo: UIImage { return #imageLiteral(resourceName: "AnimeUltima Site Logo") }
+    var siteLogo: UIImage { #imageLiteral(resourceName: "AnimeUltima Site Logo") }
 #elseif canImport(AppKit)
-    var siteLogo: NSImage { return #imageLiteral(resourceName: "AnimeUltima Site Logo") }
+    var siteLogo: NSImage { #imageLiteral(resourceName: "AnimeUltima Site Logo") }
 #endif
     
     var siteDescription: String {
-        return "AnimeUltima is a free anime streaming website with many self-hosted servers. This website is guarded by Cloudflare; you may be require to verify your identity manually."
+        "AnimeUltima is a free anime streaming website with many self-hosted servers. This website is guarded by Cloudflare; you may be require to verify your identity manually."
     }
     
-    override var endpoint: String { return "https://www16.animeultima.eu" }
+    var preferredAnimeNameVariant: KeyPath<ListingAnimeName, String> {
+        \.romaji
+    }
+    
+    override var endpoint: String { "https://www1.animeultima.to" }
     
     func link(from url: URL) -> NineAnimatorPromise<AnyLink> {
-        return .fail(.unknownError)
+        .fail(.unknownError)
     }
     
     override func canHandle(url: URL) -> Bool {
-        return false
+        false
     }
     
     override func recommendServer(for anime: Anime) -> Anime.ServerIdentifier? {

@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ import Foundation
 
 extension UserDefaults {
     /// Return a value with type T, use typedDefault if not found
-    func typedValue<T>(forKey key: String, default defaultValue: T) -> T {
-        return (value(forKey: key) as? T) ?? defaultValue
+    func typedValue<T>(forKey key: String, default defaultValue: @autoclosure () -> T) -> T {
+        (value(forKey: key) as? T) ?? defaultValue()
     }
 }

@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -24,50 +24,53 @@ import Kingfisher
 class NineAnimator: SessionDelegate {
     static var `default` = NineAnimator()
     
+    /// NineAnimator runtime properties
+    static var runtime = NineAnimatorRuntime()
+    
     /// A dummy artwork url
     class var placeholderArtworkUrl: URL {
-        return URL(string: "https://nineanimator-api.marcuszhou.com/static/resources/artwork_not_available.jpg")!
+        URL(string: "https://nineanimator-api.marcuszhou.com/static/resources/artwork_not_available.jpg")!
     }
     
     /// Join NineAnimator community on Discord
     class var discordServerInvitationUrl: URL {
-        return URL(string: "https://discord.gg/dzTVzeW")!
+        URL(string: "https://discord.gg/dzTVzeW")!
     }
     
     /// Specify how long the retrieved anime cache stays in the memory
     ///
     /// By default this is set to 30 minutes
     class var animeCacheExpirationInterval: TimeInterval {
-        return 60 * 30
+        60 * 30
     }
     
     /// Reachability manager
     private(set) var reachability: NetworkReachabilityManager?
     
     private let mainAdditionalHeaders: HTTPHeaders = {
-        var headers = SessionManager.defaultHTTPHeaders
+        var headers = HTTPHeaders.default
         headers["User-Agent"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0.1 Safari/605.1.15"
         return headers
     }()
     
-    private(set) lazy var session: SessionManager = {
-        let configuration = URLSessionConfiguration.default
+    private(set) lazy var session: Session = {
+        let configuration = URLSessionConfiguration.af.default
         configuration.httpShouldSetCookies = true
         configuration.httpCookieAcceptPolicy = .always
-        configuration.httpAdditionalHeaders = mainAdditionalHeaders
-        return SessionManager(configuration: configuration, delegate: self)
+        configuration.httpAdditionalHeaders = mainAdditionalHeaders.dictionary
+        return Session(configuration: configuration, delegate: self)
     }()
     
-    private(set) lazy var ajaxSession: SessionManager = {
+    private(set) lazy var ajaxSession: Session = {
         var ajaxAdditionalHeaders = mainAdditionalHeaders
         ajaxAdditionalHeaders["X-Requested-With"] = "XMLHttpRequest"
         ajaxAdditionalHeaders["Accept"] = "application/json, text/javascript, */*; q=0.01"
         
-        let configuration = URLSessionConfiguration.default
+        let configuration = URLSessionConfiguration.af.default
         configuration.httpShouldSetCookies = true
         configuration.httpCookieAcceptPolicy = .always
-        configuration.httpAdditionalHeaders = ajaxAdditionalHeaders
-        return SessionManager(configuration: configuration, delegate: self)
+        configuration.httpAdditionalHeaders = ajaxAdditionalHeaders.dictionary
+        return Session(configuration: configuration, delegate: self)
     }()
     
     private(set) var user = NineAnimatorUser()
@@ -96,8 +99,8 @@ class NineAnimator: SessionDelegate {
     /// Chained image modifiers
     var _imageResourceModifiers = [Kingfisher.ImageDownloadRequestModifier]()
     
-    override init() {
-        super.init()
+    init() {
+        super.init(fileManager: .default)
         
         // Init reachability manager
         reachability = NetworkReachabilityManager()
@@ -133,22 +136,26 @@ extension NineAnimator {
     
     /// Find the source with name
     func source(with name: String) -> Source? {
-        return sources.first {
+        sources.first {
             $0.name == name || $0.aliases.contains(name)
         }
     }
     
     /// Register the default set of sources
     private func registerDefaultSources() {
-        register(source: NASourceNineAnime(with: self))
         register(source: NASourceAnimePahe(with: self))
-        register(source: NASourceWonderfulSubs(with: self))
-        register(source: NASourceAnimeUltima(with: self))
-        register(source: NASourceAnimeKisa(with: self))
         register(source: NASourceFourAnime(with: self))
         register(source: NASourceGogoAnime(with: self))
+        register(source: NASourceNineAnime(with: self))
+        register(source: NASourceAnimeUltima(with: self))
+        register(source: NASourceAnimeKisa(with: self))
+        register(source: NASourceAnimeDao(with: self))
         register(source: NASourceAnimeTwist(with: self))
         register(source: NASourceKissanime(with: self))
+        register(source: NASourceAnimeUnity(with: self))
+        
+        // Disabled sources
+        register(source: NASourceWonderfulSubs(with: self))
         register(source: NASourceMasterAnime(with: self))
     }
 }
@@ -168,7 +175,7 @@ extension NineAnimator {
     
     /// Retrieve the service with name
     func service(with name: String) -> ListingService? {
-        return trackingServices.first { $0.name == name }
+        trackingServices.first { $0.name == name }
     }
     
     /// Retrieve the service with the specific type
@@ -256,7 +263,7 @@ extension NineAnimator {
     }
     
     func canHandle(link: URL) -> Bool {
-        return sources.contains { $0.canHandle(url: link) }
+        sources.contains { $0.canHandle(url: link) }
     }
 }
 
@@ -264,7 +271,7 @@ extension NineAnimator {
 extension NineAnimator {
     /// The current verision string of NineAnimator
     var version: String {
-        return (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ?? "Unknown Version"
+        (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ?? "Unknown Version"
     }
     
     /// The current build number of NineAnimator
@@ -323,6 +330,6 @@ extension NineAnimator {
     
     /// Return a promise that would retrieve the `Anime` object for the `AnimeLink`
     func anime(with link: AnimeLink) -> NineAnimatorPromise<Anime> {
-        return .init { self.anime(with: link, onCompletion: $0) }
+        .init { self.anime(with: link, onCompletion: $0) }
     }
 }

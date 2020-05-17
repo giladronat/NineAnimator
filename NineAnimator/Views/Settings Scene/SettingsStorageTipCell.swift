@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -53,9 +53,9 @@ class SettingsStorageTipCell: UITableViewCell {
     }
     
     // Icons corresponding to the states
-    private var saturatedStateIcon: UIImage { return #imageLiteral(resourceName: "Yellow Warning") }
-    private var normalStateIcon: UIImage { return #imageLiteral(resourceName: "Green Checkmark") }
-    private var unknownStateIcon: UIImage { return #imageLiteral(resourceName: "Green Checkmark") }
+    private var saturatedStateIcon: UIImage { #imageLiteral(resourceName: "Yellow Warning") }
+    private var normalStateIcon: UIImage { #imageLiteral(resourceName: "Green Checkmark") }
+    private var unknownStateIcon: UIImage { #imageLiteral(resourceName: "Green Checkmark") }
     
     enum StorageState {
         case saturated

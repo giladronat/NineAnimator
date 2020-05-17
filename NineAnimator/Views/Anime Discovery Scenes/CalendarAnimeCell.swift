@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ class CalendarAnimeCell: UICollectionViewCell, Themable {
     private(set) weak var delegate: AnimeScheduleCollectionViewController?
     
     override var isHighlighted: Bool {
-        get { return super.isHighlighted }
+        get { super.isHighlighted }
         set {
             super.isHighlighted = newValue
             
@@ -63,7 +63,8 @@ class CalendarAnimeCell: UICollectionViewCell, Themable {
         let formatter = DateFormatter()
         formatter.dateStyle = .none
         formatter.timeStyle = .long
-        timeLabel.text = formatter.string(from: item.broadcastDate)
+        self.timeLabel.text = formatter.string(from: item.broadcastDate)
+        self.pointerEffect.hover(scale: true)
     }
     
     func theme(didUpdate theme: Theme) {

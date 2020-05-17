@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ enum CastDeviceState {
     case connecting
 }
 
-class GoogleCastMediaPlaybackViewController: UIViewController, HalfFillViewControllerProtocol, UITableViewDataSource, UIGestureRecognizerDelegate {
+class GoogleCastMediaPlaybackViewController: UIViewController, HalfFillViewControllerProtocol, UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate {
     // swiftlint:disable:next implicitly_unwrapped_optional
     weak var castController: CastController!
     
@@ -83,6 +83,7 @@ class GoogleCastMediaPlaybackViewController: UIViewController, HalfFillViewContr
         }
         
         deviceListTableView.dataSource = self
+        deviceListTableView.delegate = self
         deviceListTableView.rowHeight = 48
         deviceListTableView.tableFooterView = UIView()
         
@@ -116,7 +117,7 @@ class GoogleCastMediaPlaybackViewController: UIViewController, HalfFillViewContr
 
 // MARK: - User Interface
 extension GoogleCastMediaPlaybackViewController {
-    var needsTopInset: Bool { return false }
+    var needsTopInset: Bool { false }
     
     func circle(ofSideLength length: CGFloat, color: UIColor) -> UIImage {
         let size = CGSize(width: length, height: length)
@@ -131,11 +132,11 @@ extension GoogleCastMediaPlaybackViewController {
     }
     
     var normalThumbImage: UIImage? {
-        return circle(ofSideLength: 8, color: .gray)
+        circle(ofSideLength: 8, color: .gray)
     }
     
     var highlightedThumbImage: UIImage? {
-        return circle(ofSideLength: 12, color: .gray)
+        circle(ofSideLength: 12, color: .gray)
     }
     
     func format(seconds input: Int) -> String {
@@ -201,7 +202,7 @@ extension GoogleCastMediaPlaybackViewController {
     }
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        return touch.view == self.view
+        touch.view == self.view
     }
     
     @IBAction private func onBackgroundTapGestureRecognizer(sender: UITapGestureRecognizer) {
@@ -334,8 +335,7 @@ extension GoogleCastMediaPlaybackViewController {
         deviceListTableView.reloadSections([0], with: .automatic)
     }
     
-    func device(selected: Bool, from device: CastDevice, with cell: GoogleCastDeviceTableViewCell) {
-        guard selected else { return }
+    func device(selecting device: CastDevice, with cell: GoogleCastDeviceTableViewCell) {
         if device == castController.client?.device {
             castController.disconnect()
         } else {
@@ -344,12 +344,12 @@ extension GoogleCastMediaPlaybackViewController {
     }
 }
 
-// MARK: - Table view data source
+// MARK: - Data Source & Delegate
 extension GoogleCastMediaPlaybackViewController {
-    func numberOfSections(in tableView: UITableView) -> Int { return 1 }
+    func numberOfSections(in tableView: UITableView) -> Int { 1 }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return castController.devices.count
+        castController.devices.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -362,6 +362,15 @@ extension GoogleCastMediaPlaybackViewController {
             : .idle
         cell.delegate = self
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let cell = tableView.cellForRow(at: indexPath) as? GoogleCastDeviceTableViewCell,
+            let device = cell.device else {
+            return
+        }
+        
+        self.device(selecting: device, with: cell)
     }
 }
 

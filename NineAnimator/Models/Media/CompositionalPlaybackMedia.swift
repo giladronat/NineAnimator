@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ class CompositionalPlaybackMedia: NSObject, PlaybackMedia, AVAssetResourceLoader
     let url: URL
     let parent: Episode
     let contentType: String
-    let headers: HTTPHeaders
+    let headers: [String: String]
     let subtitles: [SubtitleComposition]
     
     /// Strong references to the loading tasks/promises
@@ -42,7 +42,7 @@ class CompositionalPlaybackMedia: NSObject, PlaybackMedia, AVAssetResourceLoader
     /// The delegate queue
     private let delegateQueue: DispatchQueue = .global()
     
-    init(url: URL, parent: Episode, contentType: String, headers: HTTPHeaders, subtitles: [SubtitleComposition]) {
+    init(url: URL, parent: Episode, contentType: String, headers: [String: String], subtitles: [SubtitleComposition]) {
         self.url = url
         self.parent = parent
         self.contentType = contentType
@@ -205,10 +205,10 @@ extension CompositionalPlaybackMedia {
         
         // Master playlist
         if originalUrl == url {
-            loadingTasks[loadingRequest] = Alamofire.request(
+            loadingTasks[loadingRequest] = AF.request(
                 originalUrl,
                 method: .get,
-                headers: headers
+                headers: HTTPHeaders(headers)
             ) .responseData {
                 [subtitleCompositionGroupId, injectionSubtitlePlaylistScheme, subtitles] response in
                 do {
@@ -255,7 +255,7 @@ extension CompositionalPlaybackMedia {
             loadingRequest.redirect = try URLRequest(
                 url: originalUrl,
                 method: .get,
-                headers: loadingRequest.request.allHTTPHeaderFields
+                headers: loadingRequest.request.allHTTPHeaderFields ?? [:]
             )
             loadingRequest.finishLoading()
         }
@@ -275,7 +275,7 @@ extension CompositionalPlaybackMedia {
             
             // Request and cached the vtt
             return NineAnimatorPromise(queue: delegateQueue) {
-                callback in Alamofire.request(vttUrl).responseData {
+                callback in AF.request(vttUrl).responseData {
                     response in
                     switch response.result {
                     case let .success(vttData): callback(vttData, nil)
@@ -306,12 +306,12 @@ extension CompositionalPlaybackMedia {
         return AVPlayerItem(asset: asset)
     }
     
-    var link: EpisodeLink { return parent.link }
+    var link: EpisodeLink { parent.link }
     
-    var name: String { return parent.name }
+    var name: String { parent.name }
     
     var castMedia: CastMedia? {
-        return CastMedia(
+        CastMedia(
             title: parent.name,
             url: url,
             poster: parent.link.parent.image,
@@ -323,23 +323,23 @@ extension CompositionalPlaybackMedia {
     }
     
     // SubtitledPlaybackMedia only works with HLS contents
-    var isAggregated: Bool { return true }
-    var urlRequest: URLRequest? { return nil }
+    var isAggregated: Bool { true }
+    var urlRequest: URLRequest? { nil }
     
     private var interceptResourceScheme: String {
-        return "na-compositional-media"
+        "na-compositional-media"
     }
     
     private var injectionSubtitlePlaylistScheme: String {
-        return "na-inject-subtitle"
+        "na-inject-subtitle"
     }
     
     private var injectionCachedVttScheme: String {
-        return "na-inject-cached-vtt"
+        "na-inject-cached-vtt"
     }
     
     private var subtitleCompositionGroupId: String {
-        return "nasub1"
+        "nasub1"
     }
     
     private func swapScheme(forUrl originalUrl: URL, withNewScheme newScheme: String) throws -> URL {

@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ class AnimeViewController: UITableViewController, AVPlayerViewControllerDelegate
     private var anime: Anime?
     
     var server: Anime.ServerIdentifier? {
-        get { return anime?.currentServer }
+        get { anime?.currentServer }
         set {
             guard let server = newValue else { return }
             anime?.select(server: server)
@@ -85,6 +85,8 @@ class AnimeViewController: UITableViewController, AVPlayerViewControllerDelegate
     private var episodeRequestTask: NineAnimatorAsyncTask?
     
     private var animeRequestTask: NineAnimatorAsyncTask?
+    
+    private var previousEpisodeRetrivalError: Error?
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -155,13 +157,15 @@ extension AnimeViewController {
         animeRequestTask = NineAnimator.default.anime(with: link) {
             [weak self] anime, error in
             guard let anime = anime else {
+                guard let error = error else { return }
                 Log.error(error)
+                
                 return DispatchQueue.main.async {
                     // Allow the user to recover the anime by searching in another source
                     if let error = error as? NineAnimatorError.ContentUnavailableError {
-                        self?.presentError(error) {
+                        self?.presentError(error, allowRetry: "Recover") {
                             if $0 {
-                                self?.presentRecoveryOptions(for: link)
+                                self?.presentRecoveryOptions(for: link, error: error)
                             } else if let navigationController = self?.navigationController {
                                 _ = navigationController.popViewController(animated: true)
                             } else { self?.dismiss(animated: true, completion: nil) }
@@ -169,13 +173,20 @@ extension AnimeViewController {
                         return
                     }
                     
-                    self?.presentError(error!) {
+                    self?.presentError(error, allowRetry: "More Options") {
                         // If not allowed to retry, dismiss the view controller
                         guard let self = self else { return }
                         
                         // Retry loading the anime
                         if $0 {
-                            self.retrieveAnime()
+                            if let error = error as? NineAnimatorError.AuthenticationRequiredError,
+                                error.authenticationUrl != nil {
+                                // That is, if the user completed an authentication
+                                self.retrieveAnime()
+                            } else {
+                                // That is, if the user tapped on the "More Options" buttoon
+                                self.presentRecoveryOptions(for: link, error: error)
+                            }
                         } else {
                             DispatchQueue.main.async {
                                 if let navigationController = self.navigationController {
@@ -197,7 +208,7 @@ extension AnimeViewController {
                     // an attached cast device
                     if CastController.default.isAttached(to: episodeLink) {
                         CastController.default.presentPlaybackController()
-                    } else { self.retriveAndPlay() }
+                    } else { self.retrieveAndPlay() }
                 }
             }
         }
@@ -298,7 +309,7 @@ extension AnimeViewController {
 // MARK: - Table view data source
 extension AnimeViewController {
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return [Section].all.count
+        [Section].all.count
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -384,20 +395,21 @@ extension AnimeViewController {
         selectedEpisodeCell = cell
         self.episodeLink = episodeLink
         
-        retriveAndPlay()
+        retrieveAndPlay()
     }
 }
 
 // MARK: - Initiate playback
 extension AnimeViewController {
-    private func retriveAndPlay() {
+    /// Retrieve the `Episode` and `PlaybackMedia` and attempt to initiate playback
+    private func retrieveAndPlay() {
+        // Always uses self.episodeLink since it may be different from the selected cell
         guard let episodeLink = episodeLink else { return }
         
         episodeRequestTask?.cancel()
         NotificationCenter.default.removeObserver(self)
         
         let content = OfflineContentManager.shared.content(for: episodeLink)
-        let trackingContext = anime?.trackingContext
         
         let clearSelection = {
             [weak self] in
@@ -420,15 +432,16 @@ extension AnimeViewController {
         }
         
         episodeRequestTask = anime!.episode(with: episodeLink) {
-            [weak self, weak trackingContext] episode, error in
+            [weak self] episode, error in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 guard let episode = episode else {
-                    // Present the error in main loop
-                    self.presentError(error!) {
-                        [weak self] _ in
-                        self?.selectedEpisodeCell = nil
-                        self?.tableView.deselectSelectedRows()
+                    if let error = error {
+                        // `onEpisodeRetrivalStall` will make sure to unselect cell and release reference to selected cell
+                        self.onEpisodeRetrivalStall(error, episodeLink: episodeLink)
+                    } else {
+                        self.selectedEpisodeCell = nil
+                        self.tableView.deselectSelectedRows()
                     }
                     return Log.error(error)
                 }
@@ -455,8 +468,9 @@ extension AnimeViewController {
                             self.episodeRequestTask = nil
                             
                             guard let media = media else {
-                                Log.error("Item not retrived: \"%@\"", error!)
-                                self.onPlaybackMediaStall(episode.target)
+                                guard let error = error else { return }
+                                Log.error("Item not retrived: \"%@\"", error)
+                                self.onPlaybackMediaStall(episode.target, error: error)
                                 return
                             }
                             
@@ -466,25 +480,170 @@ extension AnimeViewController {
                     }
                 } else {
                     // Always stall unsupported episodes and update the progress to 1.0
-                    self.onPlaybackMediaStall(episode.target)
-                    episode.update(progress: 1.0)
-                    // Update tracking state
-                    trackingContext?.endWatching(episode: episode.link)
-                    clearSelection()
+                    self.onPlaybackMediaStall(
+                        episode.target,
+                        error: NineAnimatorError.providerError(
+                            "NineAnimator does not support playing back from the selected server"
+                        )
+                    )
                 }
             }
         }
     }
     
-    // Handle when the link to the episode has been retrieved but no streamable link was found
-    private func onPlaybackMediaStall(_ fallbackURL: URL) {
-        Log.info("Playback media retrival stalled. Falling back to web access.")
-        let playbackController = SFSafariViewController(url: fallbackURL)
-        present(playbackController, animated: true)
+    /// Handles an episode retrival failiure
+    private func onEpisodeRetrivalStall(_ error: Error, episodeLink: EpisodeLink) {
+        let restoreInterfaceElements = {
+            [weak self] in
+            self?.tableView.deselectSelectedRows()
+            self?.selectedEpisodeCell = nil
+        }
+        
+        let scrollToSelectedCell = {
+            [weak self] in
+            guard let self = self else { return }
+            if let episodeLink = self.episodeLink,
+                let indexPath = self.indexPath(for: episodeLink) {
+                self.tableView.selectRow(
+                    at: indexPath,
+                    animated: true,
+                    scrollPosition: .middle
+                )
+            }
+        }
+        
+        // Let presentError handles the AuthenticationRequiredError
+        if error is NineAnimatorError.AuthenticationRequiredError {
+            presentError(error)
+            return restoreInterfaceElements()
+        }
+        
+        guard let selectedCell = self.selectedEpisodeCell,
+            let anime = anime else {
+            return restoreInterfaceElements()
+        }
+        
+        // Only present as action sheet if the cell is visible
+        let selectedEpisodeIsVisible: Bool
+        
+        if let visibleIndexPaths = tableView.indexPathsForVisibleRows,
+            let episodeIndexPath = indexPath(for: episodeLink),
+            visibleIndexPaths.contains(episodeIndexPath) {
+            selectedEpisodeIsVisible = true
+        } else { selectedEpisodeIsVisible = false }
+        
+        let alternativeEpisodeLinks: [EpisodeLink]
+        var serverMap = anime.servers
+        var alertTitle = "Error Retrieving Episode"
+        var alertMessage = String.localizedStringWithFormat(
+            "Unable to retrieve the episode because of an error: %@ You may want to try one of the following alternatives.",
+            error.localizedDescription
+        )
+        
+        // If the error is an EpisodeServerNotAvailableError, then present the list
+        // of alternative options
+        if let episodeNotOnServerError = error as? NineAnimatorError.EpisodeServerNotAvailableError,
+            let alternativeEpisodes = episodeNotOnServerError.alternativeEpisodes {
+            // Set updated serverMap
+            serverMap = episodeNotOnServerError.updatedServerMap ?? serverMap
+            alternativeEpisodeLinks = alternativeEpisodes
+            alertTitle = "Alternative Servers"
+            alertMessage = "This episode is not available on the selected server. Please choose from one of the following alternatives."
+        } else {
+            alternativeEpisodeLinks = Array(anime.equivalentEpisodeLinks(of: episodeLink))
+        }
+        
+        // Present the list of alternatives
+        let alert = UIAlertController(
+            title: alertTitle,
+            message: alertMessage,
+            preferredStyle: selectedEpisodeIsVisible ? .actionSheet : .alert
+        )
+        
+        if let popoverController = alert.popoverPresentationController {
+            popoverController.sourceView = selectedCell
+        }
+        
+        for alternativeEpisodeLink in alternativeEpisodeLinks {
+            alert.addAction(UIAlertAction(
+                title: serverMap[
+                    alternativeEpisodeLink.server,
+                    typedDefault: alternativeEpisodeLink.server
+                ],
+                style: .default
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                // Update episodeLink and reattempts retrival, without
+                // resetting selected items.
+                scrollToSelectedCell()
+                self.episodeLink = alternativeEpisodeLink
+                self.retrieveAndPlay()
+            })
+        }
+        
+        // Prompt the user to search in a different source if there are no alternative episodes
+        if alternativeEpisodeLinks.isEmpty || previousEpisodeRetrivalError != nil {
+            alert.addAction(UIAlertAction(
+                title: "Alternative Sources",
+                style: .default
+            ) { [weak self] _ in
+                restoreInterfaceElements()
+                ServerSelectionViewController.presentSelectionDialog(from: self) {
+                    _ in
+                    guard let navigationController = self?.navigationController else {
+                        return
+                    }
+                    navigationController.popViewController(animated: true)
+                    
+                    // Search in the new source
+                    DispatchQueue.main.async {
+                        // Preform the search in the current source
+                        let searchProvider = NineAnimator.default.user.source.search(
+                            keyword: episodeLink.parent.title
+                        )
+                        let searchVc = ContentListViewController.create(
+                            withProvider: searchProvider
+                        )
+                        
+                        // Present the search view controller
+                        if let vc = searchVc {
+                            navigationController.pushViewController(vc, animated: true)
+                        }
+                    }
+                }
+            })
+        }
+        
+        alert.addAction(UIAlertAction(
+            title: "Cancel",
+            style: .cancel
+        ) { _ in restoreInterfaceElements() })
+        
+        previousEpisodeRetrivalError = error
+        present(alert, animated: true)
     }
     
-    // Handle the playback media
+    /// Handle when the link to the episode has been retrieved but no streamable link was found
+    private func onPlaybackMediaStall(_ fallbackURL: URL, error: Error) {
+        Log.info("[PlayerViewController] Playback media retrival stalled with error: %@", error)
+        
+        if NineAnimator.default.user.playbackFallbackToBrowser {
+            // Cleanup selections
+            self.tableView.deselectSelectedRows()
+            self.selectedEpisodeCell = nil
+            let playbackController = SFSafariViewController(url: fallbackURL)
+            present(playbackController, animated: true)
+        } else if let episodeLink = episodeLink {
+            // Let onEpisodeRetrivalStall prompt the user for alternative options
+            onEpisodeRetrivalStall(error, episodeLink: episodeLink)
+        }
+    }
+    
+    /// Handle the playback media
     private func onPlaybackMediaRetrieved(_ media: PlaybackMedia, episode: Episode? = nil) {
+        // Clear previous episode error
+        defer { previousEpisodeRetrivalError = nil }
+        
         // Use Google Cast if it is setup and ready
         if let episode = episode, CastController.default.isReady {
             CastController.default.initiate(playbackMedia: media, with: episode)
@@ -515,7 +674,7 @@ extension AnimeViewController {
             return
         }
         
-        let quickJumpSheet = UIAlertController(title: "Qucik Jump", message: nil, preferredStyle: .actionSheet)
+        let quickJumpSheet = UIAlertController(title: "Quick Jump", message: nil, preferredStyle: .actionSheet)
         
         if let popoverController = quickJumpSheet.popoverPresentationController {
             popoverController.sourceView = sender
@@ -576,6 +735,10 @@ extension AnimeViewController {
         
         quickJumpSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         
+        // Cancel the current loading task if there are any
+        // This prevents the 'NSGenericException' runtime exception
+        cancelEpisodeRetrival()
+        
         present(quickJumpSheet, animated: true, completion: nil)
     }
     
@@ -633,7 +796,12 @@ extension AnimeViewController {
     
     // Update suggestion when playback did end
     @objc private func onPlaybackDidEnd(_ notification: Notification) {
-        tableView.reloadSections(Section.indexSet(.suggestion), with: .automatic)
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(200)) {
+            [weak self] in self?.tableView?.reloadSections(
+                Section.indexSet(.suggestion),
+                with: .automatic
+            )
+        }
     }
 }
 
@@ -882,6 +1050,7 @@ extension AnimeViewController {
     @objc private func contextMenu(markAsWatched sender: UIMenuController) {
         if let episodeLink = contextMenuSelectedEpisode, let tracker = anime?.trackingContext {
             tracker.update(progress: 1.0, forEpisodeLink: episodeLink)
+            tracker.endWatching(episode: episodeLink)
         }
         DispatchQueue.main.async { self.concludeContextMenu() }
     }
@@ -906,7 +1075,7 @@ extension AnimeViewController {
     }
     
     override var canBecomeFirstResponder: Bool {
-        return true
+        true
     }
     
     func offlineAccessButton(
@@ -1009,12 +1178,28 @@ extension AnimeViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // If we are presenting a reference
         if let informationViewController = segue.destination as? AnimeInformationTableViewController {
-            guard let reference = anime?.trackingContext.availableReferences.first(where: { $0.parentService.isCapableOfListingAnimeInformation }) else {
-                return Log.error("Attempting to present a information page without any references")
+            guard let availableReferences = anime?.trackingContext.availableReferences else { return Log.error("[AnimeViewController] Cannot prepare for a Show Information segue without a capable reference.") }
+            
+            let selectedReference: ListingAnimeReference
+            
+            if let preferredService = NineAnimator.default.user.preferredAnimeInformationService,
+                let preferredReference = availableReferences.first(where: {
+                    $0.parentService.name == preferredService.name
+                }) {
+                selectedReference = preferredReference
+            } else if let firstCapableReference = availableReferences.first(where: {
+                $0.parentService.isCapableOfListingAnimeInformation
+            }) {
+                selectedReference = firstCapableReference
+            } else {
+                return Log.error(
+                    "[AnimeViewController] No reference from list service that supports anime information was found."
+                )
             }
+            
             // Set reference and mark the parent view controller as matching the anime
             informationViewController.setPresenting(
-                reference: reference,
+                reference: selectedReference,
                 isPreviousViewControllerMatchingAnime: true
             )
         }
@@ -1033,15 +1218,16 @@ extension AnimeViewController {
 extension AnimeViewController {
     /// Present error
     ///
-    /// - parameter error: The error to present
+    /// - parameter error: The error to present.
+    /// - parameter allowRetry: Pass any non-nil String to show an retry option.
     /// - parameter completionHandler: Called when the user selected an option.
     ///             `true` if the user wants to proceed.
     ///
-    private func presentError(_ error: Error, completionHandler: ((Bool) -> Void)? = nil) {
+    private func presentError(_ error: Error, allowRetry retryActionName: String? = nil, completionHandler: ((Bool) -> Void)? = nil) {
         let alert = UIAlertController(
             error: error,
-            allowRetry: error is NineAnimatorError.ContentUnavailableError, // Allow recover on ContentUnavailableError
-            retryActionName: "Recover",
+            allowRetry: retryActionName != nil,
+            retryActionName: retryActionName ?? "Recover",
             source: self,
             completionHandler: completionHandler
         )
@@ -1050,15 +1236,38 @@ extension AnimeViewController {
     
     /// Present a list of recovery options if the anime is no longer available
     /// from this source
-    private func presentRecoveryOptions(for link: AnimeLink) {
+    private func presentRecoveryOptions(for link: AnimeLink, error: Error) {
         // This may only work with the context of an navigation controller
         guard let navigationController = navigationController else {
             return dismiss(animated: true, completion: nil)
         }
         
+        // Search the link's title in the currently selected source
+        // (for recovery method 2 and 3)
+        let presentSearchDialog = {
+            // Preform the search in the current source
+            let searchProvider = NineAnimator.default.user.source.search(keyword: link.title)
+            let searchVc = ContentListViewController.create(withProvider: searchProvider)
+            
+            // Present the search view controller
+            if let vc = searchVc {
+                navigationController.pushViewController(vc, animated: true)
+            }
+        }
+        
+        // Message to be displayed
+        let recoveryMessage: String
+        
+        switch error {
+        case _ as NineAnimatorError.ContentUnavailableError:
+            recoveryMessage = "This anime is no longer available on \(link.source.name) from NineAnimator. You may be able to recover the item by access the web page or search in a different source."
+        default:
+            recoveryMessage = "NineAnimator encountered an error while trying to fetch this content on \(link.source.name). You may be able to access this content on a different source."
+        }
+        
         let alert = UIAlertController(
             title: "Recovery Options",
-            message: "This anime is no longer available on \(link.source.name) from NineAnimator. You may be able to recover the item by access the web page or search on your currently selected source.",
+            message: recoveryMessage,
             preferredStyle: .actionSheet
         )
         
@@ -1081,20 +1290,35 @@ extension AnimeViewController {
             }
         })
         
-        // Method 2: Search on the currently selected source
+        // Method 2: Select a different source
         alert.addAction(UIAlertAction(
-            title: "Search on \(NineAnimator.default.user.source.name)",
+            title: "Alternative Sources",
             style: .default
-        ) { _ in
-            let searchProvider = NineAnimator.default.user.source.search(keyword: link.title)
-            let searchVc = ContentListViewController.create(withProvider: searchProvider)
-            navigationController.popViewController(animated: true)
-            
-            // Present the search view controller
-            if let vc = searchVc {
-                navigationController.pushViewController(vc, animated: true)
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            ServerSelectionViewController.presentSelectionDialog(from: self) {
+                _ in
+                // Pop the current view controller
+                navigationController.popViewController(animated: true)
+                
+                // Search in the new source
+                DispatchQueue.main.async(execute: presentSearchDialog)
             }
         })
+        
+        if NineAnimator.default.user.source.name != link.source.name {
+            // Method 3: Search on the currently selected source
+            alert.addAction(UIAlertAction(
+                title: "Search in \(NineAnimator.default.user.source.name)",
+                style: .default
+            ) { _ in
+                // Pop the current view controller
+                navigationController.popViewController(animated: true)
+                
+                // Search in the new source
+                DispatchQueue.main.async(execute: presentSearchDialog)
+            })
+        }
         
         // Cancel action
         alert.addAction(UIAlertAction(
@@ -1152,27 +1376,27 @@ fileprivate extension AnimeViewController {
         case episodes = 2
         
         subscript(_ item: Int) -> IndexPath {
-            return IndexPath(item: item, section: self.rawValue)
+            IndexPath(item: item, section: self.rawValue)
         }
         
         static func indexSet(_ sections: [Section]) -> IndexSet {
-            return IndexSet(sections.map { $0.rawValue })
+            IndexSet(sections.map { $0.rawValue })
         }
         
         static func indexSet(_ sections: Section...) -> IndexSet {
-            return IndexSet(sections.map { $0.rawValue })
+            IndexSet(sections.map { $0.rawValue })
         }
         
         static func == (_ lhs: Section, _ rhs: Section) -> Bool {
-            return lhs.rawValue == rhs.rawValue
+            lhs.rawValue == rhs.rawValue
         }
         
         static func == (_ lhs: Int, _ rhs: Section) -> Bool {
-            return lhs == rhs.rawValue
+            lhs == rhs.rawValue
         }
         
         static func == (_ lhs: Section, _ rhs: Int) -> Bool {
-            return lhs.rawValue == rhs
+            lhs.rawValue == rhs
         }
     }
 }

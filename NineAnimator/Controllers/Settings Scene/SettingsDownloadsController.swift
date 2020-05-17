@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ class SettingsDownloadsController: UITableViewController {
     private var usageLoadingTask: NineAnimatorAsyncTask?
     private var statistics: UsageStatistics?
     private var criticalStorageThreshold: Int {
-        return 3_221_225_472 // 3 Gigabytes
+        3_221_225_472 // 3 Gigabytes
     }
     
     override func viewDidLoad() {
@@ -121,9 +121,10 @@ class SettingsDownloadsController: UITableViewController {
             let otherPct = (1.0 - Double(statistics.availableSpace)
                 / Double(statistics.totalSpace)) - totalAccountedPct
             
-            // Scale NineAnimator's usage to 80% of the bar
-            let componentStretchFactor = 0.8 / totalAccountedPct
-            let componentCompressFactor = 0.2 / (1 - totalAccountedPct)
+            // Scale NineAnimator's usage to a minimal of 60% of the bar
+            let stretchToPct = max(totalAccountedPct, 0.6)
+            let componentStretchFactor = stretchToPct / totalAccountedPct
+            let componentCompressFactor = (1.0 - stretchToPct) / (1.0 - totalAccountedPct)
             
             storageUsageGraphCell.setPresenting(
                 [
@@ -160,13 +161,13 @@ class SettingsDownloadsController: UITableViewController {
                 storageUsageTipCell.updateMessages(
                     .normal,
                     title: "You have enough storage left.",
-                    message: "The system may delete downloaded contents when disk space is low."
+                    message: "The system may delete downloaded contents when storage space is low."
                 )
             } else {
                 storageUsageTipCell.updateMessages(
                     .saturated,
                     title: "Your storage is almost full.",
-                    message: "The system may delete downloaded contents when disk space is low."
+                    message: "The system may delete downloaded contents when storage space is low."
                 )
             }
         } else { // Set every compoennt to updating state
@@ -225,7 +226,7 @@ extension SettingsDownloadsController {
     }
     
     fileprivate func fetchStorageUsage() -> NineAnimatorPromise<UsageStatistics> {
-        return OfflineContentManager.shared.fetchDownloadStorageStatistics().thenPromise {
+        OfflineContentManager.shared.fetchDownloadStorageStatistics().thenPromise {
             [unowned self] stats in self.fetchImageCacheUsage().then {
                 (stats, $0)
             }

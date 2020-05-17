@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ import UIKit
     var textInsets = UIEdgeInsets(top: 0, left: 2, bottom: 0, right: 6)
     
     var drawingTextAttributes: [NSAttributedString.Key: Any] {
-        return [
+        [
             .foregroundColor: Theme.current.primaryText,
             .font: textFont
         ]

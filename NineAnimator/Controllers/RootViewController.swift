@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -76,7 +76,7 @@ class RootViewController: UITabBarController, Themable {
         super.viewDidAppear(animated)
         
         // Show setup wizard
-        if !NineAnimator.default.user.didSetupLatestVersion {
+        if !NineAnimator.runtime.isSetupSceneDisabled && !NineAnimator.default.user.didSetupLatestVersion {
             let storyboard = UIStoryboard(name: "Setup", bundle: Bundle.main)
             if let viewController = storyboard.instantiateInitialViewController() {
                 viewController.modalPresentationStyle = .fullScreen

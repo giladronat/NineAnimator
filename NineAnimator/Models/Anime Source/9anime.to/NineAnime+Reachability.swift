@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import Foundation
 // Implementations for 9anime endpoint switching
 extension NASourceNineAnime/*: Alamofire.RequestAdapter*/ {
     var possibleHosts: [String] {
-        return [
+        [
             // A list of hosts that 9anime uses
             "9anime.ru",
             "www2.9anime.to",

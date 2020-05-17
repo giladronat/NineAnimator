@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -42,6 +42,9 @@ class LibraryRecentlyWatchedCell: UICollectionViewCell {
         if let record = context.mostRecentRecord {
             progressLabel.text = "Ep. \(record.episodeNumber)"
         } else { progressLabel.text = "???" }
+        
+        self.updatePointerEffects()
+        self.makeThemable()
     }
     
     override var isHighlighted: Bool {
@@ -55,5 +58,10 @@ class LibraryRecentlyWatchedCell: UICollectionViewCell {
     private func updateTouchReactionTint() {
         let shouldTint = isHighlighted || isSelected
         alpha = shouldTint ? 0.4 : 1
+    }
+    
+    private func updatePointerEffects() {
+        // Update pointer effect
+        pointerEffect.hover(scale: true)
     }
 }

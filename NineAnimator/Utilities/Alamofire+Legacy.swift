@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,22 +20,9 @@
 import Alamofire
 import Foundation
 
-extension NASourceNineAnime {
-    class func _verificationDetectionMiddleware(
-        request: URLRequest?,
-        response: HTTPURLResponse,
-        body: Data?
-        ) -> Alamofire.DataRequest.ValidationResult {
-        if let url = request?.url,
-            let body = body,
-            let bodyString = String(data: body, encoding: .utf8),
-            bodyString.contains("Please complete the security check to continue") {
-            return .failure(
-                NineAnimatorError.authenticationRequiredError(
-                    "An authentication is required by 9anime for you to continute.",
-                    url
-                )
-            )
-        } else { return .success }
+public extension URLRequest {
+    /// Legacy constructor that accepts a dictionary for custom headers
+    init(url: Alamofire.URLConvertible, method: Alamofire.HTTPMethod, headers: [String: String]) throws {
+        try self.init(url: url, method: method, headers: HTTPHeaders(headers))
     }
 }

@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -35,10 +35,10 @@ class OfflineContentManager: NSObject, AVAssetDownloadDelegate, URLSessionDownlo
     private(set) var taskQueue = DispatchQueue(label: "com.marcuszhou.nineanimator.OfflineContent")
     
     /// The maximal number of concurrent tasks
-    fileprivate var maximalConcurrentTasks: Int { return 3 }
+    fileprivate var maximalConcurrentTasks: Int { 3 }
     
     /// The time between each download attempts
-    fileprivate var minimalRetryInterval: TimeInterval { return 30 }
+    fileprivate var minimalRetryInterval: TimeInterval { 30 }
     
     /// A delay timer used for delaying download retries
     fileprivate var dequeueDelayTimer: Timer?
@@ -48,7 +48,7 @@ class OfflineContentManager: NSObject, AVAssetDownloadDelegate, URLSessionDownlo
     fileprivate var backgroundSessionCompletionHandler: (() -> Void)?
     
     fileprivate var persistedContentIndexURL: URL {
-        return persistentDirectory
+        persistentDirectory
             .appendingPathComponent("com.marcuszhou.nineanimator.offlinecontents.index.plist")
     }
     
@@ -131,7 +131,7 @@ class OfflineContentManager: NSObject, AVAssetDownloadDelegate, URLSessionDownlo
     
     /// User home directory, for `AVAssetDownloadURLSession` downloaded contents
     fileprivate var homeDirectory: URL {
-        return URL(fileURLWithPath: NSHomeDirectory())
+        URL(fileURLWithPath: NSHomeDirectory())
     }
     
     private lazy var registeredContentTypes: [String: ([String: Any], OfflineState) -> OfflineContent?] = {
@@ -161,7 +161,7 @@ class OfflineContentManager: NSObject, AVAssetDownloadDelegate, URLSessionDownlo
 extension OfflineContentManager {
     /// Retrieve a list of preserved contents
     var preservedContents: [OfflineContent] {
-        return contentPool.filter {
+        contentPool.filter {
             $0.updateResourceAvailability()
             if case .preserved = $0.state { return true }
             return false
@@ -170,7 +170,7 @@ extension OfflineContentManager {
     
     /// Retrieve a list of preserved or preserving contents
     var statefulContents: [OfflineContent] {
-        return contentPool.filter {
+        contentPool.filter {
             if case .interrupted = $0.state { return true }
             if case .preserving = $0.state { return true }
             if case .preservationInitiated = $0.state { return true }
@@ -199,7 +199,7 @@ extension OfflineContentManager {
     
     /// Obtain the list of episode content under the anime
     func contents(for anime: AnimeLink) -> [OfflineEpisodeContent] {
-        return statefulContents
+        statefulContents
             .compactMap { $0 as? OfflineEpisodeContent }
             .filter { $0.episodeLink.parent == anime }
     }
@@ -220,7 +220,7 @@ extension OfflineContentManager {
     
     /// Obtain the state of the EpisodeLink object
     func state(for episodeLink: EpisodeLink) -> OfflineState {
-        return content(for: episodeLink).state
+        content(for: episodeLink).state
     }
     
     /// Cancel all preservations of episodes under this anime link
@@ -245,7 +245,7 @@ extension OfflineContentManager {
 extension OfflineContentManager {
     /// The number of downloading tasks that is currently running
     var numberOfPreservingTasks: Int {
-        return contentPool.reduce(0) {
+        contentPool.reduce(0) {
             if case .preserving = $1.state {
                 return $0 + 1
             } else { return $0 }
@@ -263,6 +263,7 @@ extension OfflineContentManager {
         // Remove from queue
         preservationContentQueue.removeAll { $0 == content }
         content.delete()
+        content.counter.resetCounter() // Reset retry counter
         preserveContentIfNeeded()
     }
     
@@ -331,7 +332,7 @@ extension OfflineContentManager {
                     continue
                 }
                 
-                taskQueue.asyncAfter(deadline: startDelay) {
+                taskQueue.asyncAfter(deadline: startDelay, flags: [ .barrier ]) {
                     content.resumeInterruption()
                     content.lastDownloadAttempt = Date()
                 }
@@ -356,12 +357,11 @@ extension OfflineContentManager {
                 // Schedule the retry timer
                 DispatchQueue.main.async {
                     [weak self] in
+                    self?.dequeueDelayTimer?.invalidate()
                     self?.dequeueDelayTimer = Timer.scheduledTimer(withTimeInterval: delayInterval, repeats: false) {
                         _ in
                         Log.debug("[OfflineContentManager] Dequeue delay timer fired.")
-                        self?.taskQueue.async {
-                            self?.preserveContentIfNeeded()
-                        }
+                        self?.preserveContentIfNeeded()
                     }
                     Log.debug("[OfflineContentManager] Scheduling a delay timer for an interval of %@ seconds for the next dequeue.", delayInterval)
                 }
@@ -371,7 +371,7 @@ extension OfflineContentManager {
     
     /// Preserve the next queued contents if the number of tasks drop to below the threshold
     func preserveContentIfNeeded() {
-        taskQueue.async {
+        taskQueue.async(flags: [ .barrier ]) {
             guard NineAnimator.default.reachability?.isReachable == true else {
                 return Log.info("[OfflineContentManager] Network currently unreachable. Contents will be preserved later.")
             }
@@ -631,6 +631,8 @@ extension OfflineContentManager {
                     Log.info("[OfflineContentManager] URLSession download task with identifeir %@ is found", task.taskIdentifier)
                     content.isPendingRestoration = true
                     content.task = task
+                    // Suspend the task so it doesn't resume until we wants it to
+                    task.suspend()
                 } else {
                     Log.info("[OfflineContentManager] URLSession download task with identifeir %@ is found, but no content is availble to hanlde it. Cancelling task.", task.taskIdentifier)
                     task.cancel()
@@ -677,7 +679,7 @@ extension OfflineContentManager {
             // Trying to resume the tasks
             if NineAnimator.default.user.autoRestartInterruptedDownloads {
                 // Wait for 3 seconds until restoring the tasks
-                self.taskQueue.asyncAfter(deadline: .now() + .milliseconds(3000)) {
+                self.taskQueue.asyncAfter(deadline: .now() + .milliseconds(3000), flags: [ .barrier ]) {
                     Log.info("[OfflineContentManager] Automatically resuming any unfinished downloads for the shared asset session")
                     for content in contents where content.isPendingRestoration {
                         content.isPendingRestoration = false
@@ -700,7 +702,7 @@ extension OfflineContentManager {
 extension OfflineContentManager {
     /// Parse OfflineContent from file system
     private var persistedContentPool: [OfflineContent] {
-        return persistedContentList.compactMap {
+        persistedContentList.compactMap {
             item -> OfflineContent? in
             let dict = item.value
             guard let type = dict["type"] as? String,
@@ -836,9 +838,9 @@ extension OfflineContentManager {
 
 // MARK: - Exposed to Assets
 extension OfflineContent {
-    var assetDownloadingSession: AVAssetDownloadURLSession { return parent.sharedAssetSession }
+    var assetDownloadingSession: AVAssetDownloadURLSession { parent.sharedAssetSession }
     
-    var downloadingSession: URLSession { return parent.sharedSession }
+    var downloadingSession: URLSession { parent.sharedSession }
     
     /// The url on the file system to where the offline content is stored
     ///
@@ -860,17 +862,17 @@ extension OfflineContent {
     
     /// The persisted task identifier
     var persistedTaskIdentifier: Int? {
-        return parent.persistedContentList[identifier]?["taskIdentifier"] as? Int
+        parent.persistedContentList[identifier]?["taskIdentifier"] as? Int
     }
     
     /// The persisted session type
     var persistedDownloadSessionType: String? {
-        return parent.persistedContentList[identifier]?["session"] as? String
+        parent.persistedContentList[identifier]?["session"] as? String
     }
     
     /// Specify if minimal retry interval should be ignored for this content
     fileprivate var shouldIgnoreMinimalRetryInterval: Bool {
-        return task?.state == .suspended
+        task?.state == .suspended
     }
     
     /// Remove the persisted task identifier

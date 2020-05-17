@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,15 +23,20 @@ import Foundation
 
 class KiwikParser: VideoProviderParser {
     var aliases: [String] {
-        return [ "Kiwik", "kwik" ]
+        [ "Kiwik", "kwik" ]
     }
     
     static let playerSourceRegex = try! NSRegularExpression(
+        pattern: "'src\\\\':\\\\'([^\\\\']+)",
+        options: []
+    )
+    
+    static let playerSourceRegex2 = try! NSRegularExpression(
         pattern: "source=\\\\'([^\\\\]+)",
         options: []
     )
     
-    func parse(episode: Episode, with session: SessionManager, forPurpose _: Purpose, onCompletion handler: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask {
+    func parse(episode: Episode, with session: Session, forPurpose _: Purpose, onCompletion handler: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask {
         let additionalResourceRequestHeaders: HTTPHeaders = [
             "Referer": episode.parent.link.link.absoluteString
         ]
@@ -51,20 +56,25 @@ class KiwikParser: VideoProviderParser {
                 let decodedPackerScript = try PackerDecoder().decode(responseContent)
                 
                 // Find the source URL
-                let sourceUrl = try (KiwikParser
-                    .playerSourceRegex
-                    .firstMatch(in: decodedPackerScript)?
-                    .firstMatchingGroup).tryUnwrap(.providerError("Unable to find the streaming resource"))
+                let sourceUrl = try (
+                    KiwikParser.playerSourceRegex.firstMatch(in: decodedPackerScript)?.firstMatchingGroup
+                    ?? KiwikParser.playerSourceRegex2.firstMatch(in: decodedPackerScript)?.firstMatchingGroup
+                ).tryUnwrap(
+                    .providerError("Cannot find a streambale resource in the selected page")
+                )
+                
                 let sourceURL = try URL(string: sourceUrl).tryUnwrap(.urlError)
                 
-                Log.info("(Kiwik Parser) found asset at %@", sourceURL.absoluteString)
+                let aggregated = sourceURL.pathExtension.lowercased().components(separatedBy: "?")[0] == "m3u8"
+                
+                Log.info("(Kiwik Parser) found asset at %@ (HLS: %@)", sourceURL.absoluteString, aggregated)
                 
                 handler(BasicPlaybackMedia(
                     url: sourceURL,
                     parent: episode,
-                    contentType: "application/vnd.apple.mpegurl",
-                    headers: [:],
-                    isAggregated: true
+                    contentType: aggregated ? "application/vnd.apple.mpegurl" : "video/mp4",
+                    headers: [ "Referer": episode.target.absoluteString ],
+                    isAggregated: aggregated
                 ), nil)
             } catch { handler(nil, error) }
         }

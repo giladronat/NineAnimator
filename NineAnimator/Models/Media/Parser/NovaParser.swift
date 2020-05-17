@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import Foundation
 
 class NovaParser: VideoProviderParser {
     var aliases: [String] {
-        return [ "Nova", "Nova Server" ]
+        [ "Nova", "Nova Server" ]
     }
     
     private struct SourcesAPIResponse: Codable {
@@ -37,7 +37,7 @@ class NovaParser: VideoProviderParser {
         var type: String
     }
     
-    func parse(episode: Episode, with session: SessionManager, forPurpose _: Purpose, onCompletion callback: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask {
+    func parse(episode: Episode, with session: Session, forPurpose _: Purpose, onCompletion callback: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask {
         let videoIdentifier = episode.target.lastPathComponent
         guard let sourceInfoUrl = URL(string: "https://www.novelplanet.me/api/source/\(videoIdentifier)")
             else { return NineAnimatorPromise.fail(NineAnimatorError.urlError).handle(callback) }
@@ -74,6 +74,6 @@ class NovaParser: VideoProviderParser {
     }
     
     func isParserRecommended(forPurpose purpose: Purpose) -> Bool {
-        return true
+        true
     }
 }

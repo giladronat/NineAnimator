@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,8 +23,18 @@ import UIKit
 class ThemedSolidButton: UIButton, Themable {
     @IBInspectable var inverted: Bool = false
     
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        commonInit()
+    }
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        commonInit()
+    }
+    
     override var isHighlighted: Bool {
-        get { return super.isHighlighted }
+        get { super.isHighlighted }
         set {
             super.isHighlighted = newValue
             if newValue {
@@ -51,5 +61,9 @@ class ThemedSolidButton: UIButton, Themable {
             setTitleColor(theme.primaryText, for: .normal)
             setTitleColor(theme.primaryText.withAlphaComponent(0.6), for: .highlighted)
         }
+    }
+    
+    private func commonInit() {
+        pointerEffect.highlight()
     }
 }

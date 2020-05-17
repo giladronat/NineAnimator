@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -27,15 +27,15 @@ import JavaScriptCore
 /// Contributed by [Awsomedude](https://github.com/Awsomedude)
 class OpenLoadParser: VideoProviderParser {
     var aliases: [String] {
-        return [ "OpenLoad", "Open Load", "Oload", "OpenUpload", "Open Upload" ]
+        [ "OpenLoad", "Open Load", "Oload", "OpenUpload", "Open Upload" ]
     }
     
     static let longStringRegex = try! NSRegularExpression(pattern: "<p style=\"\" id=[^>]*>([^<]*)<\\/p>", options: .caseInsensitive)
     static let key1Regex = try! NSRegularExpression(pattern: "_0x45ae41\\[_0x5949\\('0xf'\\)\\]\\(_0x30725e,(.+)\\),_1x4bfb36", options: .caseInsensitive)
     static let key2Regex = try! NSRegularExpression(pattern: "_1x4bfb36=(parseInt\\(.+,\\d+\\)(-\\d+));", options: .caseInsensitive)
     
-    func parse(episode: Episode, with session: SessionManager, forPurpose _: Purpose, onCompletion handler: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask {
-        return session.request(episode.target).responseString {
+    func parse(episode: Episode, with session: Session, forPurpose _: Purpose, onCompletion handler: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask {
+        session.request(episode.target).responseString {
             response in
             guard let text = response.value else {
                 Log.error(response.error)
@@ -141,6 +141,6 @@ class OpenLoadParser: VideoProviderParser {
     }
     
     func isParserRecommended(forPurpose purpose: Purpose) -> Bool {
-        return false // No longer available
+        false // No longer available
     }
 }

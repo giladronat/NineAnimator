@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,16 +23,16 @@ import Foundation
 
 class Mp4UploadParser: VideoProviderParser {
     var aliases: [String] {
-        return [ "Mp4Upload", "Mp4 Upload" ]
+        [ "Mp4Upload", "Mp4 Upload" ]
     }
     
     static let playerSourceRegex = try! NSRegularExpression(
-        pattern: "player\\.src\\(\"([^\"]+)",
+        pattern: "src:\"([^\"]+)",
         options: []
     )
     
-    func parse(episode: Episode, with session: SessionManager, forPurpose _: Purpose, onCompletion handler: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask {
-        return session.request(episode.target).responseString {
+    func parse(episode: Episode, with session: Session, forPurpose _: Purpose, onCompletion handler: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask {
+        session.request(episode.target).responseString {
             response in
             do {
                 let responseContent: String
@@ -67,6 +67,6 @@ class Mp4UploadParser: VideoProviderParser {
     }
     
     func isParserRecommended(forPurpose purpose: Purpose) -> Bool {
-        return true // Mp4Upload seems to work for all purposes
+        true // Mp4Upload seems to work for all purposes
     }
 }

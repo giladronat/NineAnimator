@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ extension String {
     }
     
     subscript (_ matchResult: NSTextCheckingResult, at group: Int) -> String {
-        return self[matchResult.range(at: group)]
+        self[matchResult.range(at: group)]
     }
     
     subscript (range: PartialRangeFrom<Int>) -> String {
@@ -47,6 +47,6 @@ extension String {
     }
     
     var matchingRange: NSRange {
-        return NSRange(location: 0, length: utf16.count)
+        NSRange(location: 0, length: utf16.count)
     }
 }

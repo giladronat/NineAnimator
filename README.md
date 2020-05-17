@@ -8,11 +8,14 @@
     <a href="https://travis-ci.org/SuperMarcus/NineAnimator">
         <img src="https://travis-ci.org/SuperMarcus/NineAnimator.svg?branch=master" alt="Travis Build status"/>
     </a>
+    <a href="https://testflight.apple.com/join/SzIVhF6w">
+        <img src="https://img.shields.io/badge/join-TestFlight-blue.svg" alt="Join TestFlight"/>
+    </a>
     <a href="https://discord.gg/dzTVzeW">
         <img src="https://img.shields.io/discord/545740643247456267.svg?logo=discord&color=blue" alt="Discord Server"/>
     </a>
-    <a href="https://testflight.apple.com/join/SzIVhF6w">
-        <img src="https://img.shields.io/badge/join-TestFlight-blue.svg" alt="Join TestFlight"/>
+    <a href="https://www.reddit.com/r/NineAnimator/">
+        <img src="https://img.shields.io/reddit/subreddit-subscribers/NineAnimator?style=social" alt="NineAnimator Subreddit"/>
     </a>
 </p>
 <p align="center">
@@ -33,7 +36,7 @@ A simple yet elegant way of waching anime on your favorite anime websites.
 NineAnimator is a free and open source anime watching app for iOS. GPLv3 Licensed.
 
     
-    Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+    Copyright © 2018-2020 Marcus Zhou. All rights reserved.
     
     NineAnimator is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -65,7 +68,9 @@ NineAnimator is a free and open source anime watching app for iOS. GPLv3 License
 - [Download Episodes](#download-episodes)
 - [Screenshots](#screenshots)
 - [Credits](docs/credits.md)
+- [Contributing](docs/CONTRIBUTING.md)
 - [Privacy Statements & Policy](docs/privacy-policy.md)
+- [Advanced Configurations](docs/runtime.md)
 
 ## Features
 

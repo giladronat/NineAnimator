@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -33,17 +33,17 @@ struct OfflinePlaybackMedia: PlaybackMedia {
     
     // All of the followings are generated from the above content
     
-    var name: String { return link.name }
+    var name: String { link.name }
     
     // AVPlayerItem
     var avPlayerItem: AVPlayerItem
     
     // Google Cast is not supported by offline playback media
     // May be implemented later
-    var castMedia: CastMedia? { return nil }
+    var castMedia: CastMedia? { nil }
     
     // Do not re-download OfflinePlaybackMedia
-    var urlRequest: URLRequest? { return nil }
+    var urlRequest: URLRequest? { nil }
     
     /// Initialize the offline playback media with url
     init(link: EpisodeLink, isAggregated: Bool, url: URL) {

@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -43,16 +43,16 @@ class ThisWeekTableViewCell: UITableViewCell, UICollectionViewDataSource, UIColl
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
+        1
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let cellParentBounds = collectionView.bounds
-        let inset = collectionView.adjustedContentInset
-        let height = cellParentBounds.height - inset.top - inset.bottom - scrollBarHeightInset
-        let maxWidth = cellParentBounds.width - inset.left - inset.right
-        
-        return CGSize(width: min(maxWidth, maxItemWidth), height: height)
+        var cellSize = collectionView.bounds
+            .inset(by: collectionView.layoutMargins)
+            .size
+//        cellSize.height -= scrollBarHeightInset
+        cellSize.width = min(maxItemWidth, cellSize.width)
+        return cellSize
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {

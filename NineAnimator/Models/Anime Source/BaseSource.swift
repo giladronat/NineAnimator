@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,46 +23,52 @@ import Foundation
 /**
  Class BaseSource: all the network functions that the subclasses will ever need
  */
-class BaseSource: SessionDelegate {
+class BaseSource {
     let parent: NineAnimator
     
-    var endpoint: String { return "" }
+    var endpoint: String { "" }
     
-    var endpointURL: URL { return URL(string: endpoint)! }
+    var endpointURL: URL { URL(string: endpoint)! }
     
     // Default to enabled
-    var isEnabled: Bool { return true }
+    var isEnabled: Bool { true }
     
     var _cfResolverTimer: Timer?
-    var _cfPausedTasks = [Alamofire.RequestRetryCompletion]()
+    var _cfPausedTasks = [Alamofire.RetryHandler]()
     var _internalUAIdentity = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Safari/605.1.15"
     
+    var _internalAdapterChain = [WeakRef<AnyObject>]()
+    var _internalRetrierChain = [WeakRef<AnyObject>]()
+    var _internalRetryPolicy = Alamofire.RetryPolicy(retryLimit: 3)
+    
+    @AtomicProperty private var _internalTaskReferences
+        = [ObjectIdentifier: NineAnimatorAsyncTask]()
+    
     /// The session used to create ajax requests
-    lazy var retriverSession: SessionManager = createRetriverSession()
+    lazy var retriverSession: Session = createRetriverSession()
     
     /// The session used to create browsing requests
-    lazy var browseSession: SessionManager = createBrowseSession()
+    lazy var browseSession: Session = createBrowseSession()
     
     /// The user agent that should be used with requests
-    var sessionUserAgent: String { return _internalUAIdentity }
+    var sessionUserAgent: String { _internalUAIdentity }
     
     /// Middlewares for verification
     private var verificationMiddlewares = [Alamofire.DataRequest.Validation]()
     
+    /// Chain of adapters
+    private var adaptorEvaluationChain = [Alamofire.RequestAdapter]()
+    
+    /// Chain of retriers
+    private var retrierEvaluationChain = [Alamofire.RequestRetrier]()
+    
+    private var cloudflareChallengeResolver: CloudflareWAFResolver?
+    
     init(with parent: NineAnimator) {
         self.parent = parent
         
-        super.init()
-        
-        // Prevent cloudflare check redirection
-        self.taskWillPerformHTTPRedirection = {
-            _, _, response, newRequest in
-            if response.url?.path == "/cdn-cgi/l/chk_jschl" {
-                return nil
-            } else { return newRequest }
-        }
         // Add cloudflare middleware
-        self.addMiddleware(BaseSource._cloudflareWAFVerificationMiddleware)
+        self.cloudflareChallengeResolver = CloudflareWAFResolver(self)
     }
     
     /**
@@ -110,54 +116,75 @@ class BaseSource: SessionDelegate {
     }
     
     func request(browse url: URL, headers: [String: String], completion handler: @escaping NineAnimatorCallback<String>) -> NineAnimatorAsyncTask? {
-        return applyMiddlewares(
-                to: browseSession.request(url, headers: headers)
-            ).responseString {
-                switch $0.result {
-                case .failure(let error):
-                    Log.error("request to %@ failed - %@", url, error)
-                    handler(nil, error)
-                case .success(let value):
-                    handler(value, nil)
+        applyMiddlewares(
+            to: browseSession.request(url, headers: HTTPHeaders(headers))
+        ).responseString {
+            switch $0.result {
+            case .failure(let error):
+                Log.error("[BaseSource] Request to %@ failed - %@", url, error)
+                
+                // Set source of error
+                if let naError = (error.underlyingError as? NineAnimatorError)
+                    ?? error as? NineAnimatorError {
+                    naError.sourceOfError = self
                 }
+                
+                handler(nil, (error.underlyingError as? NineAnimatorError) ?? error)
+            case .success(let value):
+                handler(value, nil)
             }
+        }
     }
     
     func request(ajax url: URL, headers: [String: String], completion handler: @escaping NineAnimatorCallback<NSDictionary>) -> NineAnimatorAsyncTask? {
-        return applyMiddlewares(
-                to: retriverSession.request(url, headers: headers)
-            ) .responseJSON {
-                response in
-                switch response.result {
-                case .failure(let error):
-                    Log.error("request to %@ failed - %@", url, error)
-                    handler(nil, error)
-                case .success(let value as NSDictionary):
-                    handler(value, nil)
-                default:
-                    Log.error("Unable to convert response value to NSDictionary")
-                    handler(nil, NineAnimatorError.responseError("Invalid Response"))
+        applyMiddlewares(
+            to: retriverSession.request(url, headers: HTTPHeaders(headers))
+        ) .responseJSON {
+            response in
+            switch response.result {
+            case .failure(let error):
+                Log.error("[BaseSource] Request to %@ failed - %@", url, error)
+                
+                // Set source of error
+                if let naError = (error.underlyingError as? NineAnimatorError)
+                    ?? error as? NineAnimatorError {
+                    naError.sourceOfError = self
                 }
+                
+                handler(nil, (error.underlyingError as? NineAnimatorError) ?? error)
+            case .success(let value as NSDictionary):
+                handler(value, nil)
+            default:
+                Log.error("[BaseSource] Unable to convert response value to NSDictionary")
+                handler(nil, NineAnimatorError.responseError("Invalid Response"))
             }
+        }
     }
     
     func request(ajaxString url: URL, headers: [String: String], completion handler: @escaping NineAnimatorCallback<String>) -> NineAnimatorAsyncTask? {
-        return applyMiddlewares(
-                to: retriverSession.request(url, headers: headers)
-            ) .responseString {
-                response in
-                switch response.result {
-                case .failure(let error):
-                    Log.error("request to %@ failed - %@", url, error)
-                    handler(nil, error)
-                case .success(let value):
-                    handler(value, nil)
+        applyMiddlewares(
+            to: retriverSession.request(url, headers: HTTPHeaders(headers))
+        ) .responseString {
+            response in
+            switch response.result {
+            case .failure(let error):
+                Log.error("[BaseSource] Request to %@ failed - %@", url, error)
+                
+                // Set source of error
+                if let naError = (error.underlyingError as? NineAnimatorError)
+                    ?? error as? NineAnimatorError {
+                    naError.sourceOfError = self
                 }
+                
+                handler(nil, (error.underlyingError as? NineAnimatorError) ?? error)
+            case .success(let value):
+                handler(value, nil)
             }
+        }
     }
     
     func request(browse path: String, completion handler: @escaping NineAnimatorCallback<String>) -> NineAnimatorAsyncTask? {
-        return request(browse: path, with: [:], completion: handler)
+        request(browse: path, with: [:], completion: handler)
     }
     
     func request(browse path: String, with headers: [String: String], completion handler: @escaping NineAnimatorCallback<String>) -> NineAnimatorAsyncTask? {
@@ -170,7 +197,7 @@ class BaseSource: SessionDelegate {
     }
     
     func request(ajax path: String, completion handler: @escaping NineAnimatorCallback<NSDictionary>) -> NineAnimatorAsyncTask? {
-        return request(ajax: path, with: [:], completion: handler)
+        request(ajax: path, with: [:], completion: handler)
     }
     
     func request(ajax path: String, with headers: [String: String], completion handler: @escaping NineAnimatorCallback<NSDictionary>) -> NineAnimatorAsyncTask? {
@@ -183,7 +210,7 @@ class BaseSource: SessionDelegate {
     }
     
     func request(ajaxString path: String, completion handler: @escaping NineAnimatorCallback<String>) -> NineAnimatorAsyncTask? {
-        return request(ajaxString: path, with: [:], completion: handler)
+        request(ajaxString: path, with: [:], completion: handler)
     }
     
     func request(ajaxString path: String, with headers: [String: String], completion handler: @escaping NineAnimatorCallback<String>) -> NineAnimatorAsyncTask? {
@@ -203,12 +230,12 @@ extension BaseSource {
     }
     
     func applyMiddlewares(to request: Alamofire.DataRequest) -> Alamofire.DataRequest {
-        return verificationMiddlewares.reduce(request) { $0.validate($1) }
+        verificationMiddlewares.reduce(request) { $0.validate($1) }
     }
 }
 
 extension BaseSource {
-    fileprivate func createRetriverSession() -> SessionManager {
+    fileprivate func createRetriverSession() -> Session {
         let configuration = URLSessionConfiguration.default
         configuration.httpShouldSetCookies = true
         configuration.httpCookieAcceptPolicy = .always
@@ -217,12 +244,15 @@ extension BaseSource {
             "User-Agent": sessionUserAgent,
             "X-Requested-With": "XMLHttpRequest"
         ]
-        let manager = SessionManager(configuration: configuration, delegate: self)
-        manager.retrier = self
+        let manager = Session(
+            configuration: configuration,
+            interceptor: self,
+            redirectHandler: self // Doesn't care about reference looping here b/c Source objects never get destroyed
+        )
         return manager
     }
     
-    fileprivate func createBrowseSession() -> SessionManager {
+    fileprivate func createBrowseSession() -> Session {
         let configuration = URLSessionConfiguration.default
         configuration.httpShouldSetCookies = true
         configuration.httpCookieAcceptPolicy = .always
@@ -231,8 +261,11 @@ extension BaseSource {
             "User-Agent": sessionUserAgent,
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
         ]
-        let manager = SessionManager(configuration: configuration, delegate: self)
-        manager.retrier = self
+        let manager = Session(
+            configuration: configuration,
+            interceptor: self,
+            redirectHandler: self
+        )
         return manager
     }
     
@@ -250,8 +283,37 @@ extension BaseSource {
         let randomUA = pool[Int.random(in: 0..<pool.count)]
         _internalUAIdentity = randomUA
         
+        // Hold references to old sessions
+        var oldBrowseSession: Session? = browseSession
+        var oldRetriverSession: Session? = retriverSession
+        
+        oldBrowseSession?.cancelAllRequests {
+            oldBrowseSession = nil
+        }
+        
+        oldRetriverSession?.cancelAllRequests {
+            oldRetriverSession = nil
+        }
+        
         // Recreate the sessions
         browseSession = createBrowseSession()
         retriverSession = createRetriverSession()
+    }
+}
+
+// MARK: - Internal Task Management
+extension BaseSource {
+    /// Keep a reference to an internal task
+    func retainInternalTask(_ task: NineAnimatorAsyncTask) {
+        __internalTaskReferences.mutate {
+            $0[ObjectIdentifier(task)] = task
+        }
+    }
+    
+    /// Release a reference to an internal task
+    func releaseInternalTask(_ task: NineAnimatorAsyncTask) {
+        _ = __internalTaskReferences.mutate {
+            $0.removeValue(forKey: ObjectIdentifier(task))
+        }
     }
 }

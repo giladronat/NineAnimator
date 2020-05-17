@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ class InformationSceneHeadingView: UIView, Themable {
     /// Suggested navigation bar transitioning height in the parent view's
     /// coordinate system
     var suggestedTransitionHeight: CGFloat {
-        return frame.origin.y + (topImageView.frame.height / 2)
+        frame.origin.y + (topImageView.frame.height / 2)
     }
     
     /// A negative value indicating how much the user had scrolled passed
@@ -126,7 +126,7 @@ class InformationSceneHeadingView: UIView, Themable {
     }
     
     override func sizeThatFits(_ size: CGSize) -> CGSize {
-        return systemLayoutSizeFitting(size)
+        systemLayoutSizeFitting(size)
     }
     
     override func layoutSubviews() {

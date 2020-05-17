@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ extension NASourceAnimeTwist {
         private var results: [AnimeLink]?
         
         func links(on page: Int) -> [AnyLink] {
-            return results?.map { .anime($0) } ?? []
+            results?.map { .anime($0) } ?? []
         }
         
         // swiftlint:disable closure_end_indentation
@@ -48,7 +48,7 @@ extension NASourceAnimeTwist {
                 [weak self] list -> [AnimeLink]? in
                 guard let self = self else { return nil }
                 return list
-                    .filter { $0.title.contains(self.title) }
+                    .filter { $0.title.localizedCaseInsensitiveContains(self.title) }
                     .map(self.parent.anime)
             } .then {
                 [weak self] list -> [AnimeLink]? in
@@ -77,6 +77,6 @@ extension NASourceAnimeTwist {
     }
     
     func search(keyword: String) -> ContentProvider {
-        return TwistContentProvider(keyword, parent: self)
+        TwistContentProvider(keyword, parent: self)
     }
 }

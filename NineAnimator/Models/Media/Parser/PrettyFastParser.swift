@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,12 +23,12 @@ import Foundation
 
 class PrettyFastParser: VideoProviderParser {
     var aliases: [String] {
-        return [ "PrettyFast.io", "F5 - HQ", "F5 Beta" ]
+        [ "PrettyFast.io", "F5 - HQ", "F5 Beta" ]
     }
     
     static let videoSourceRegex = try! NSRegularExpression(pattern: "hlsUrl\\s=\\s'([^\']+)", options: .caseInsensitive)
     
-    func parse(episode: Episode, with session: SessionManager, forPurpose _: Purpose, onCompletion handler: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask {
+    func parse(episode: Episode, with session: Session, forPurpose _: Purpose, onCompletion handler: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask {
         let userAgent = (episode.source as? BaseSource)?.sessionUserAgent ?? defaultUserAgent
         let episodeLinkPath = episode.link.identifier.split(separator: "|").last!
         
@@ -80,7 +80,7 @@ class PrettyFastParser: VideoProviderParser {
                 url: sourceURL,
                 parent: episode,
                 contentType: "application/x-mpegURL",
-                headers: playerAdditionalHeaders,
+                headers: playerAdditionalHeaders.dictionary,
                 isAggregated: true), nil)
         }
     }

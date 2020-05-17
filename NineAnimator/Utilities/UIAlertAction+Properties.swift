@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -27,17 +27,17 @@ extension UIAlertAction {
     }
     
     var image: UIImage? {
-        get { return self.value(forKey: "image") as? UIImage }
-        set { return self.setValue(newValue, forKey: "image") }
+        get { self.value(forKey: "image") as? UIImage }
+        set { self.setValue(newValue, forKey: "image") }
     }
     
     var textAlignment: CATextLayerAlignmentMode {
-        get { return self.value(forKey: "titleTextAlignment") as? CATextLayerAlignmentMode ?? .center }
+        get { self.value(forKey: "titleTextAlignment") as? CATextLayerAlignmentMode ?? .center }
         set { self.setValue(newValue, forKey: "titleTextAlignment") }
     }
     
     var isChecked: Bool {
-        get { return self.value(forKey: "checked") as? Bool ?? false }
+        get { self.value(forKey: "checked") as? Bool ?? false }
         set { self.setValue(newValue, forKey: "checked") }
     }
 }

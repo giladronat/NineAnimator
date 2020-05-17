@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,8 +23,7 @@ import Kingfisher
 extension NASourceKissanime: Kingfisher.ImageDownloadRequestModifier {
     /// Setup Kingfisher modifier for verified requests to resources
     func setupGlobalRequestModifier() {
-        KingfisherManager.shared.downloader.sessionConfiguration = URLSessionConfiguration.default
-        KingfisherManager.shared.defaultOptions.append(.requestModifier(self))
+        parent.registerAdditionalImageModifier(self)
     }
     
     func modified(for request: URLRequest) -> URLRequest? {

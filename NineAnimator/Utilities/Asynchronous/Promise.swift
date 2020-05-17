@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -38,17 +38,16 @@ protocol NineAnimatorPromiseProtocol {
 /// code, and that Marcus couldn't come up with which promise
 /// framework to use, I am just going to write one myself.
 class NineAnimatorPromise<ResultType>: NineAnimatorAsyncTask, NineAnimatorPromiseProtocol, Hashable {
-    // Hold reference to the task
+    /// Hold reference to the task
     private var referenceTask: NineAnimatorAsyncTask?
     
-    // A promise can only be resolved once. This is a flag
-    // to make sure of that.
+    /// Mark the promise as being resolved (success or failiure). A promise can only be resolved once.
     private(set) var isResolved = false
     
-    // A flag to mark if this promise has been rejected
+    /// A flag to mark if this promise has been rejected
     private(set) var isRejected = true
     
-    // Storing the result
+    /// Storing the result
     private(set) var result: Result<ResultType, Error>?
     
     private var chainedPromiseCallback: ((ResultType) -> Void)? {
@@ -68,23 +67,30 @@ class NineAnimatorPromise<ResultType>: NineAnimatorAsyncTask, NineAnimatorPromis
         }
     }
     
-    // Keep a reference to the previous promise
+    private var deferBlock: ((NineAnimatorPromise<ResultType>) -> Void)? {
+        didSet {
+            // Run the defer block immedietly if the promise has been resolved
+            if isResolved { deferBlock?(self) }
+        }
+    }
+    
+    /// Keep a reference to the previous promise
     private var chainedReference: (NineAnimatorAsyncTask & NineAnimatorPromiseProtocol)?
     
-    // The DispatchQueue in which the task and the subsequent
-    // promises will run in
+    /// The DispatchQueue in which the task and the subsequent
+    /// promises will run in
     private var queue: DispatchQueue
     
-    // Additional flags to be passed to the execusion of blocks
+    /// Additional flags to be passed to the execusion of blocks
     private var queueFlags: DispatchWorkItemFlags
     
-    // The latest DispatchTime that the resolvers can be set
+    /// The latest DispatchTime that the resolvers can be set
     private var creationDate: DispatchTime = .now()
     
-    // The task to perform when the promise concludes setup
+    /// The task to perform when the promise concludes setup
     private var task: NineAnimatorPromiseInitialTask?
     
-    // Thread safety
+    /// Thread safety
     private var semaphore: DispatchSemaphore
     
     typealias NineAnimatorPromiseCallback = NineAnimatorCallback<ResultType>
@@ -92,7 +98,7 @@ class NineAnimatorPromise<ResultType>: NineAnimatorAsyncTask, NineAnimatorPromis
     
     /// Create a new promise in the DispatchQueue with a
     /// classic NineAnimator callback task
-    init(queue: DispatchQueue = .global(), _ task: NineAnimatorPromiseInitialTask?) {
+    init(queue: DispatchQueue = .global(qos: .utility), _ task: NineAnimatorPromiseInitialTask?) {
         // Execute the promise task in the DispatchQueue if there is one
         self.queue = queue
         self.task = task
@@ -114,18 +120,25 @@ class NineAnimatorPromise<ResultType>: NineAnimatorAsyncTask, NineAnimatorPromis
         
         // Check if the promise has been resolved
         guard !isResolved || result != nil else {
-            Log.error("Attempting to resolve a promise twice.")
+            Log.error("[NineAnimatorPromise] Attempting to resolve a promise twice.")
             return
         }
         
         // Store the result
         result = .success(value)
-        defer { isResolved = true }
+        
+        defer {
+            isResolved = true
+            isRejected = false
+        }
+        
+        // Run the defer block
+        deferBlock?(self)
         
         if let resolver = chainedPromiseCallback {
             // Runs the handler in another tick
             queue.async(flags: queueFlags) { resolver(value) }
-        } else { Log.error("Promise has no resolver") }
+        } else { Log.error("[NineAnimatorPromise] Promise has no resolver") }
     }
     
     /// Reject the promise with error
@@ -141,20 +154,26 @@ class NineAnimatorPromise<ResultType>: NineAnimatorAsyncTask, NineAnimatorPromis
         
         // Check if the promise has been resolved
         guard !isResolved || result != nil else {
-            Log.error("Attempting to resolve a promise twice.")
+            Log.error("[NineAnimatorPromise] Attempting to resolve a promise twice.")
             return
         }
         
         // Store the error
         result = .failure(error)
+        
         defer {
             isResolved = true
             isRejected = true
         }
         
+        // Run the defer block
+        deferBlock?(self)
+        
         if let handler = chainedErrorCallback {
             // Runs the handler in another tick
-            queue.async(flags: queueFlags) { handler(error) }
+            queue.async(flags: queueFlags) {
+                handler(error)
+            }
         } else {
             Log.error("[NineAnimatorPromise] Promise is resolved with an error before an error handler is set.")
             Log.error(error)
@@ -235,6 +254,17 @@ class NineAnimatorPromise<ResultType>: NineAnimatorAsyncTask, NineAnimatorPromis
         return untilThenPromise
     }
     
+    /// Add a statement to the promise that is guarenteed to be executed after this promise concludes
+    ///
+    /// The defer block is invoked by the `resolve(_:)` or `reject(_:)` function
+    func `defer`(_ deferBlock: @escaping (NineAnimatorPromise<ResultType>) -> Void) -> NineAnimatorPromise<ResultType> {
+        if self.deferBlock != nil {
+            Log.error("[NineAnimatorPromise] Attempting to add multiple defer blocks. Only the last added block will be executed.")
+        }
+        self.deferBlock = deferBlock
+        return self
+    }
+    
     /// Concludes the promise
     ///
     /// Promise is not executed until finally is called
@@ -280,6 +310,7 @@ class NineAnimatorPromise<ResultType>: NineAnimatorAsyncTask, NineAnimatorPromis
         chainedPromiseCallback = nil
         chainedErrorCallback = nil
         chainedReference = nil
+        deferBlock = nil
         isResolved = true
     }
     
@@ -312,7 +343,7 @@ class NineAnimatorPromise<ResultType>: NineAnimatorAsyncTask, NineAnimatorPromis
     /// Make a promise with a closure that will be executed asynchronously
     /// in the speicified queue
     static func firstly(queue: DispatchQueue = .global(), _ executingFunction: @escaping () throws -> ResultType?) -> NineAnimatorPromise {
-        return NineAnimatorPromise(queue: queue) {
+        NineAnimatorPromise(queue: queue) {
             callback in
             do {
                 if let result = try executingFunction() {

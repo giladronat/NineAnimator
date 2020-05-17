@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -37,18 +37,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     /// Number of objects that has requested to disable the screen idle timer
     private(set) var screenOnRequestCount = 0
     
+    fileprivate var taskPool = Set<HashingTaskWrapper>()
+    
+    var backgroundTaskContainer: StatefulAsyncTaskContainer?
+    
     func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         // Shared AppDelegate reference
         AppDelegate.shared = self
+        
+        // Register background refresh tasks
+        self.registerBackgroundUpdateTasks()
+        self.configureEnvironment()
+        
         return true
     }
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        // Fetch for generating episode update notifications once in two hours
-        UIApplication.shared.setMinimumBackgroundFetchInterval(
-            UserNotificationManager.default.suggestedFetchInterval
-        )
-        
         // Update UserNotification delegate
         UNUserNotificationCenter.current().delegate = UserNotificationManager.default
         
@@ -119,7 +123,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     RootViewController.open(whenReady: link)
                 }
             }
-            taskPool = [task]
+            
+            // Hold reference
+            self.submitTask(task)
             
             return true
         default: return false
@@ -127,12 +133,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func applicationDidEnterBackground(_ application: UIApplication) {
-        // swiftlint:disable implicitly_unwrapped_optional
-        var identifier: UIBackgroundTaskIdentifier!
+        var identifier: UIBackgroundTaskIdentifier = .invalid
+        
         backgroundTaskContainer = StatefulAsyncTaskContainer {
-            state in
-            Log.info("[AppDelegate] Background task ended with state %@", state)
+            container in
+            Log.info("[AppDelegate] Background task ended with state %@", container.state)
             UIApplication.shared.endBackgroundTask(identifier)
+            identifier = .invalid
         }
         
         identifier = UIApplication.shared.beginBackgroundTask {
@@ -140,6 +147,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             self.backgroundTaskContainer?.cancel()
             self.backgroundTaskContainer = nil
             UIApplication.shared.endBackgroundTask(identifier)
+            identifier = .invalid
         }
         
         Log.info("[AppDelegate] Beginning background tasks with identifier %@...", identifier.rawValue)
@@ -149,6 +157,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Update quick actions
         updateHomescreenQuickActions(application)
+        
+        // Schedule the next background refresh tasks
+        scheduleBackgroundUpdateTasks()
         
         // Mark the task container as ready for collection
         backgroundTaskContainer?.collect()
@@ -182,27 +193,42 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Update quick actions
         updateHomescreenQuickActions(application)
     }
-    
-    var taskPool: [NineAnimatorAsyncTask?]?
-    var backgroundTaskContainer: StatefulAsyncTaskContainer?
-    
-    func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        Log.info("[AppDelegate] Beginning background fetching activities...")
+}
+
+// MARK: - Task Pool Management
+extension AppDelegate {
+    fileprivate struct HashingTaskWrapper: Hashable {
+        private let wrappedObject: NineAnimatorAsyncTask
+        private let identifier: ObjectIdentifier
         
-        backgroundTaskContainer = StatefulAsyncTaskContainer {
-            let finishedState = $0.state
-            Log.error("[AppDelegate] Background fetching activities completed (%@)", finishedState)
-            switch finishedState {
-            case .failed: completionHandler(.failed)
-            case .succeeded: completionHandler(.newData)
-            case .unknown: completionHandler(.noData)
-            }
+        init(wrapped: NineAnimatorAsyncTask) {
+            self.wrappedObject = wrapped
+            self.identifier = ObjectIdentifier(wrapped)
         }
         
-        UserNotificationManager.default.performFetch(within: backgroundTaskContainer!)
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(identifier)
+        }
         
-        // Mark as ready for collection
-        backgroundTaskContainer?.collect()
+        static func == (lhs: AppDelegate.HashingTaskWrapper, rhs: AppDelegate.HashingTaskWrapper) -> Bool {
+            lhs.identifier == rhs.identifier
+        }
+    }
+    
+    /// Submit the task to the AppDelegate's internal task pool
+    func submitTask(_ task: NineAnimatorAsyncTask?) {
+        if let task = task {
+            let wrapper = HashingTaskWrapper(wrapped: task)
+            taskPool.insert(wrapper)
+        }
+    }
+    
+    /// Remove the task from the AppDelegate's internal task pool
+    func removeTask(_ task: NineAnimatorAsyncTask?) {
+        if let task = task {
+            let wrapper = HashingTaskWrapper(wrapped: task)
+            taskPool.remove(wrapper)
+        }
     }
 }
 
@@ -216,8 +242,7 @@ extension AppDelegate {
             
             var pasteboardUrl: URL?
             
-            if pasteboard.hasStrings {
-                let pasteboardContent = pasteboard.string!
+            if pasteboard.hasStrings, let pasteboardContent = pasteboard.string {
                 if let urlFromString = URL(string: pasteboardContent) {
                     pasteboardUrl = urlFromString
                 }
@@ -253,7 +278,9 @@ extension AppDelegate {
                                 RootViewController.open(whenReady: link)
                             }
                         }
-                        self.taskPool = [task]
+                        
+                        // Save reference to task
+                        self.submitTask(task)
                     }
                     
                     let noOption = UIAlertAction(title: "No", style: .cancel, handler: nil)
@@ -282,12 +309,14 @@ extension AppDelegate {
                 return false
             }
             RootViewController.open(whenReady: .anime(link))
+            return true
         case Continuity.activityTypeResumePlayback: // Resume last watched episode
             guard let episodeLink = NineAnimator.default.user.lastEpisode else {
                 Log.info("Will not resume anime playback because no last watched anime record was found.")
                 return false
             }
             RootViewController.open(whenReady: .episode(episodeLink))
+            return true
         case Continuity.activityTypeContinueEpisode: // Handoff episode progress
             guard let info = userActivity.userInfo, let linkData = info["link"] as? Data,
                 let progress = info["progress"] as? Float,
@@ -298,6 +327,26 @@ extension AppDelegate {
             // Save progress so it will resume once we starts it
             NineAnimator.default.user.update(progress: progress, for: link)
             RootViewController.open(whenReady: .episode(link))
+            return true
+        case NSUserActivityTypeBrowsingWeb:
+            // Handle Universal Links
+            if let redirectionUrl = userActivity.webpageURL {
+                let task = AnyLink.create(fromCloudRedirectionLink: redirectionUrl).dispatch(on: .main).error {
+                    error in
+                    let alert = UIAlertController(
+                        title: "Cannot open link",
+                        message: error.localizedDescription,
+                        preferredStyle: .alert
+                    )
+                    alert.addAction(UIAlertAction(title: "Done", style: .default, handler: nil))
+                    RootViewController.shared?.presentOnTop(alert)
+                    return Log.error(error)
+                } .finally {
+                    link in RootViewController.open(whenReady: link)
+                }
+                self.submitTask(task)
+                return true
+            }
         default: Log.error("Trying to restore unkown activity type %@. Aborting.", userActivity.activityType)
         }
         

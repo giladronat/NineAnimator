@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ extension PromiseSource where Self: BaseSource {
     func request(browseUrl: URL,
                  query: [String: CustomStringConvertible] = [:],
                  headers: [String: String] = [:]) -> NineAnimatorPromise<String> {
-        return NineAnimatorPromise {
+        NineAnimatorPromise {
             callback in self.request(
                 browse: self.assembleQuery(query, for: browseUrl),
                 headers: headers,
@@ -39,14 +39,14 @@ extension PromiseSource where Self: BaseSource {
     func request(browsePath path: String,
                  query: [String: CustomStringConvertible] = [:],
                  headers: [String: String] = [:]) -> NineAnimatorPromise<String> {
-        return request(browseUrl: URL(string: "\(endpoint)\(path)")!, query: query, headers: headers)
+        request(browseUrl: URL(string: "\(endpoint)\(path)")!, query: query, headers: headers)
     }
     
     /// Request a string content with URL using the ajax URLSesion
     func request(ajaxUrlString: URL,
                  query: [String: CustomStringConvertible] = [:],
                  headers: [String: String] = [:]) -> NineAnimatorPromise<String> {
-        return NineAnimatorPromise {
+        NineAnimatorPromise {
             callback in self.request(
                 ajaxString: self.assembleQuery(query, for: ajaxUrlString),
                 headers: headers,
@@ -59,7 +59,7 @@ extension PromiseSource where Self: BaseSource {
     func request(ajaxUrlDictionary: URL,
                  query: [String: CustomStringConvertible] = [:],
                  headers: [String: String] = [:]) -> NineAnimatorPromise<NSDictionary> {
-        return NineAnimatorPromise {
+        NineAnimatorPromise {
             callback in self.request(
                 ajax: self.assembleQuery(query, for: ajaxUrlDictionary),
                 headers: headers,
@@ -72,14 +72,14 @@ extension PromiseSource where Self: BaseSource {
     func request(ajaxPathString path: String,
                  query: [String: CustomStringConvertible] = [:],
                  headers: [String: String] = [:]) -> NineAnimatorPromise<String> {
-        return request(ajaxUrlString: URL(string: "\(endpoint)\(path)")!, headers: headers)
+        request(ajaxUrlString: URL(string: "\(endpoint)\(path)")!, headers: headers)
     }
     
     /// Request a JSON-encoded dictionary with path related to endpoint using the ajax URLSesion
     func request(ajaxPathDictionary path: String,
                  query: [String: CustomStringConvertible] = [:],
                  headers: [String: String] = [:]) -> NineAnimatorPromise<NSDictionary> {
-        return request(ajaxUrlDictionary: URL(string: "\(endpoint)\(path)")!, query: query, headers: headers)
+        request(ajaxUrlDictionary: URL(string: "\(endpoint)\(path)")!, query: query, headers: headers)
     }
     
     private func assembleQuery(_ query: [String: CustomStringConvertible], for url: URL) -> URL {

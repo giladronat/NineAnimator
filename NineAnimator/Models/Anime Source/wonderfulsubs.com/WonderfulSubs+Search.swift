@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -31,11 +31,11 @@ extension NASourceWonderfulSubs {
         var totalPages: Int? = 1
         var availablePages: Int = 1
         var results: [AnimeLink]?
-        var moreAvailable: Bool { return results == nil }
-        var title: String { return query }
+        var moreAvailable: Bool { results == nil }
+        var title: String { query }
         
         func links(on page: Int) -> [AnyLink] {
-            return results?.map { .anime($0) } ?? []
+            results?.map { .anime($0) } ?? []
         }
         
         func more() {
@@ -76,6 +76,6 @@ extension NASourceWonderfulSubs {
     }
     
     func search(keyword: String) -> ContentProvider {
-        return SearchAgent(keyword, parent: self)
+        SearchAgent(keyword, parent: self)
     }
 }

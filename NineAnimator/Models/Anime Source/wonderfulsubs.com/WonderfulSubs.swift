@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -26,23 +26,30 @@ import AppKit
 #endif
 
 class NASourceWonderfulSubs: BaseSource, Source, PromiseSource {
-    var name: String { return "wonderfulsubs.com" }
+    var name: String { "wonderfulsubs.com" }
     
 #if canImport(UIKit)
-    var siteLogo: UIImage { return #imageLiteral(resourceName: "WonderfulSubs Site Logo") }
+    var siteLogo: UIImage { #imageLiteral(resourceName: "WonderfulSubs Site Logo") }
 #elseif canImport(AppKit)
-    var siteLogo: NSImage { return #imageLiteral(resourceName: "WonderfulSubs Site Logo") }
+    var siteLogo: NSImage { #imageLiteral(resourceName: "WonderfulSubs Site Logo") }
 #endif
     
-    var aliases: [String] { return [
+    var aliases: [String] { [
         "Wonderful Subs", "WonderfulSubs"
     ] }
     
     var siteDescription: String {
-        return "WonderfulSubs is a free anime streaming website with numerous dubs and subs of anime. NineAnimator has fairly well-rounded support for this website."
+        "WonderfulSubs is a free anime streaming website with numerous dubs and subs of anime. NineAnimator has fairly well-rounded support for this website."
     }
     
-    override var endpoint: String { return "https://www.wonderfulsubs.com" }
+    var preferredAnimeNameVariant: KeyPath<ListingAnimeName, String> {
+        \.default
+    }
+    
+    /// Disabled due to requests from the website's owner
+    override var isEnabled: Bool { false }
+    
+    override var endpoint: String { "https://www.wonderfulsubs.com" }
     
     func suggestProvider(episode: Episode, forServer server: Anime.ServerIdentifier, withServerName name: String) -> VideoProviderParser? {
         if (episode.userInfo["custom.isPassthrough"] as? Bool) == true {
@@ -65,10 +72,10 @@ class NASourceWonderfulSubs: BaseSource, Source, PromiseSource {
     }
     
     override func recommendServer(for anime: Anime) -> Anime.ServerIdentifier? {
-        return _recommendServer(for: anime)
+        _recommendServer(for: anime)
     }
     
     override func recommendServers(for anime: Anime, ofPurpose purpose: VideoProviderParserParsingPurpose) -> [Anime.ServerIdentifier] {
-        return _recommendServer(for: anime, ofPurpose: purpose)
+        _recommendServer(for: anime, ofPurpose: purpose)
     }
 }

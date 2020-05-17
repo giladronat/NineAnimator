@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ class AnimeSynopsisCellTableViewCell: UITableViewCell {
     
     /// The synopsis itself
     var synopsisText: String? {
-        get { return synopsisContainerTextView.text }
+        get { synopsisContainerTextView.text }
         set {
             guard let text = newValue?.trimmingCharacters(in: .whitespacesAndNewlines) else { return }
             synopsisContainerTextView.text = text.isEmpty ? "No synopsis found for this anime" : text

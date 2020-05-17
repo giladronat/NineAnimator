@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,13 +22,13 @@ import Foundation
 extension NineAnimatorUser {
     /// Store the version of NineAnimator that has been setup
     var setupVersion: String? {
-        get { return _freezer.string(forKey: Keys.version) }
+        get { _freezer.string(forKey: Keys.version) }
         set { _freezer.set(newValue, forKey: Keys.version) }
     }
     
     /// Check if the setup wizard was shown
     var didSetupLatestVersion: Bool {
-        return setupVersion == "\(NineAnimator.default.version) (\(NineAnimator.default.buildNumber))"
+        setupVersion == "\(NineAnimator.default.version) (\(NineAnimator.default.buildNumber))"
     }
     
     /// Mark setup as completed

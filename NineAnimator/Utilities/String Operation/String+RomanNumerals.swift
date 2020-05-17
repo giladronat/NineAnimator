@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -60,10 +60,10 @@ extension String {
     ]
     
     var withUnicodeRomanNumerals: String {
-        return String.romanNumeralMap.reduce(self) { $0.replacingOccurrences(of: $1.letters, with: $1.unicode) }
+        String.romanNumeralMap.reduce(self) { $0.replacingOccurrences(of: $1.letters, with: $1.unicode) }
     }
     
     var withoutUnicodeRomanNumerals: String {
-        return String.romanNumeralMap.reduce(self) { $0.replacingOccurrences(of: $1.unicode, with: $1.letters) }
+        String.romanNumeralMap.reduce(self) { $0.replacingOccurrences(of: $1.unicode, with: $1.letters) }
     }
 }

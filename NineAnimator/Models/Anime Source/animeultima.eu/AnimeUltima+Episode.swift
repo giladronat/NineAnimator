@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ extension NASourceAnimeUltima {
     
     /// Request the information listed on the specified episode page
     func pageInformation(for episodeUrl: URL) -> NineAnimatorPromise<EpisodePageInformation> {
-        return request(browseUrl: episodeUrl)
+        request(browseUrl: episodeUrl)
             .then {
                 responseContent in
                 let bowl = try SwiftSoup.parse(responseContent)
@@ -118,7 +118,7 @@ extension NASourceAnimeUltima {
     }
     
     func episode(from link: EpisodeLink, with anime: Anime) -> NineAnimatorPromise<Episode> {
-        return pageInformation(for: anime.link.link.appendingPathComponent(link.identifier))
+        pageInformation(for: anime.link.link.appendingPathComponent(link.identifier))
             .thenPromise {
                 initialEpisodePage -> NineAnimatorPromise<EpisodePageInformation> in
                 // Obtain the url for the selected page

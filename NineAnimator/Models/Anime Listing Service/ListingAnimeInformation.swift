@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -78,6 +78,15 @@ struct ListingAnimeReview {
     let content: String
 }
 
+/// Representing an airing episode
+struct ListingAiringEpisode {
+    /// Scheduled date of airing
+    var scheduled: Date
+    
+    /// Episode number
+    var episodeNumber: Int
+}
+
 /// Representing the detailed information of an listed anime
 protocol ListingAnimeInformation {
     // Immedietly available information
@@ -119,4 +128,8 @@ protocol ListingAnimeInformation {
     
     /// Retrieve the list of related anime
     var relatedReferences: NineAnimatorPromise<[ListingAnimeReference]> { get }
+    
+    /// Retrieve the airing schedules for future episodes
+    /// - Returns: A promise that resolves into a list of `ListingAiringEpisode` or an error. If an error or an empty list is received, the future airing schedules section will not be presented.
+    var futureAiringSchedules: NineAnimatorPromise<[ListingAiringEpisode]> { get }
 }

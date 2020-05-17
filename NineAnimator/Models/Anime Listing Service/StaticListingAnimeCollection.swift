@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -47,17 +47,17 @@ struct StaticListingAnimeCollection: ListingAnimeCollection {
 }
 
 extension StaticListingAnimeCollection {
-    var totalPages: Int? { return 1 }
-    var availablePages: Int { return 1 }
-    var moreAvailable: Bool { return false }
+    var totalPages: Int? { 1 }
+    var availablePages: Int { 1 }
+    var moreAvailable: Bool { false }
     
     var delegate: ContentProviderDelegate? {
-        get { return nil }
+        get { nil }
         set { newValue?.pageIncoming(0, from: self) }
     }
     
     func links(on page: Int) -> [AnyLink] {
-        return collection.map { .listingReference($0) }
+        collection.map { .listingReference($0) }
     }
     
     func more() { }

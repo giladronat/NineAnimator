@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -43,11 +43,11 @@ class InformationSceneCharactersTableViewCell: UITableViewCell, UICollectionView
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
+        1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return characters.count
+        characters.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -61,7 +61,7 @@ class InformationSceneCharactersTableViewCell: UITableViewCell, UICollectionView
     }
     
     override func sizeThatFits(_ size: CGSize) -> CGSize {
-        return CGSize(
+        CGSize(
             width: size.width,
             height: 170
         )

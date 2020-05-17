@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -27,19 +27,19 @@ struct BasicPlaybackMedia: PlaybackMedia {
     let url: URL
     let parent: Episode
     let contentType: String
-    let headers: HTTPHeaders
+    let headers: [String: String]
     let isAggregated: Bool
     
     var avPlayerItem: AVPlayerItem {
-        return AVPlayerItem(url: url, headers: headers)
+        AVPlayerItem(url: url, headers: headers)
     }
     
-    var link: EpisodeLink { return parent.link }
+    var link: EpisodeLink { parent.link }
     
-    var name: String { return parent.name }
+    var name: String { parent.name }
     
     var castMedia: CastMedia? {
-        return CastMedia(
+        CastMedia(
             title: parent.name,
             url: url,
             poster: parent.link.parent.image,

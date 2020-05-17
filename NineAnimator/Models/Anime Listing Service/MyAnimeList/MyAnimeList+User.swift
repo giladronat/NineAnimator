@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ extension MyAnimeList {
     }
     
     func currentUser() -> NineAnimatorPromise<User> {
-        return apiRequest("/users/@me").then {
+        apiRequest("/users/@me").then {
             response in
             guard let firstObject = response.data.first else {
                 throw NineAnimatorError.responseError("User object not found")

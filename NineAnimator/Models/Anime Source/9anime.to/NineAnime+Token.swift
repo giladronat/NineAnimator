@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -36,13 +36,13 @@ extension NASourceNineAnime {
     ///
     /// - Returns: The request signature (`_`) value
     private func sign(_ dict: [String: CustomStringConvertible]) -> Int {
-        return 636 + (dict.count * 48)
+        684 + (dict.count * 48)
     }
     
     /// Retrieve the current timestamp `ts` value that should be
     /// included in the request
     private var currentNATimestamp: Int {
-        return Int(Date().timeIntervalSince1970 / 3600 + 12) * 3600
+        Int(Date().timeIntervalSince1970 / 3600 - 12) * 3600
     }
     
     /// Sign the request url with parameters
@@ -52,8 +52,8 @@ extension NASourceNineAnime {
     ) -> URL {
         // Construct signed request parameters
         var requestParameters = parameters
-        requestParameters["ts"] = currentNATimestamp
         requestParameters["_"] = sign(requestParameters)
+        requestParameters["ts"] = currentNATimestamp
         
         // Reconstruct the URL
         // swiftlint:disable redundant_nil_coalescing

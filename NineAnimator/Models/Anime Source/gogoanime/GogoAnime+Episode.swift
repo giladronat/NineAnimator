@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -26,13 +26,13 @@ struct NAGogoAnimeEpisodeInformation {
     
     /// Retrieve the streaming source URL
     func target(on name: String) -> URL? {
-        return sources[name]
+        sources[name]
     }
 }
 
 extension NASourceGogoAnime {
     func episode(from link: EpisodeLink, with anime: Anime) -> NineAnimatorPromise<Episode> {
-        return episodeInformation(for: link.identifier)
+        episodeInformation(for: link.identifier)
             .then { information in
                 guard let targetURL = information.target(on: link.server) else {
                     throw NineAnimatorError.providerError("This episode is not available on \(link.server)")
@@ -50,7 +50,7 @@ extension NASourceGogoAnime {
     
     /// Retrieve the episode information struct for the episode at the particular path
     func episodeInformation(for episodePath: String) -> NineAnimatorPromise<NAGogoAnimeEpisodeInformation> {
-        return request(browsePath: episodePath)
+        request(browsePath: episodePath)
             .then { content in
                 let bowl = try SwiftSoup.parse(content)
                 

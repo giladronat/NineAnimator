@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ extension Anilist {
         private let initialDate: Date
         
         func links(on page: Int) -> [AnyLink] {
-            return loadedItems[page].map { .listingReference($0.reference) }
+            loadedItems[page].map { .listingReference($0.reference) }
         }
         
         func more() {
@@ -55,7 +55,7 @@ extension Anilist {
                 let results = try scheduleItems.compactMap {
                     scheduleItem -> CalendarItem? in
                     let media = try scheduleItem.media.tryUnwrap(.decodeError)
-                    return media.isAdult == true ? nil : CalendarItem(
+                    return !NineAnimator.default.user.allowNSFWContent && media.isAdult == true ? nil : CalendarItem(
                         date: Anilist.date(fromAnilistTimestamp: try scheduleItem.airingAt.tryUnwrap(.decodeError)),
                         episode: try scheduleItem.episode.tryUnwrap(.decodeError),
                         totalEpisodes: media.episodes,
@@ -130,12 +130,12 @@ extension Anilist {
     }
     
     static func date(fromAnilistTimestamp timestamp: Int) -> Date {
-        return Date(timeIntervalSince1970: TimeInterval(timestamp))
+        Date(timeIntervalSince1970: TimeInterval(timestamp))
     }
 }
 
 extension Anilist.WeeklyCalendar {
-    var availablePages: Int { return loadedItems.count }
-    var moreAvailable: Bool { return totalPages == nil }
-    var title: String { return "This Week" }
+    var availablePages: Int { loadedItems.count }
+    var moreAvailable: Bool { totalPages == nil }
+    var title: String { "This Week" }
 }

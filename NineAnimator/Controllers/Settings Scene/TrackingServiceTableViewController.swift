@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -118,7 +118,7 @@ class TrackingServiceTableViewController: UITableViewController {
 
 // MARK: - MAL specifics
 extension TrackingServiceTableViewController {
-    private var mal: MyAnimeList { return NineAnimator.default.service(type: MyAnimeList.self) }
+    private var mal: MyAnimeList { NineAnimator.default.service(type: MyAnimeList.self) }
     
     private func malPresentAuthenticationPage() {
         let alert = UIAlertController(
@@ -156,15 +156,20 @@ extension TrackingServiceTableViewController {
                 .dispatch(on: .main)
                 .error {
                     [weak self] error in
-                    let message: String = error.localizedDescription
+                    guard let self = self else { return }
                     
                     // Present the error message
-                    let errorAlert = UIAlertController(title: "Authentication Error", message: message, preferredStyle: .alert)
-                    errorAlert.addAction(UIAlertAction(title: "Ok", style: .cancel))
+                    let errorAlert = UIAlertController(
+                        error: error,
+                        customTitle: "Authentication Error",
+                        allowRetry: false,
+                        source: self,
+                        completionHandler: nil
+                    )
                     
-                    self?.malAuthenticationTask = nil
-                    self?.present(errorAlert, animated: true)
-                    self?.malUpdateStatus()
+                    self.malAuthenticationTask = nil
+                    self.present(errorAlert, animated: true)
+                    self.malUpdateStatus()
                 } .finally {
                     [weak self] in
                     Log.info("Successfully logged in to MyAnimeList.net")
@@ -217,7 +222,7 @@ extension TrackingServiceTableViewController {
 
 // MARK: - Kitsu specifics
 extension TrackingServiceTableViewController {
-    private var kitsu: Kitsu { return NineAnimator.default.service(type: Kitsu.self) }
+    private var kitsu: Kitsu { NineAnimator.default.service(type: Kitsu.self) }
     
     private func kitsuPresentAuthenticationPage() {
         let alert = UIAlertController(
@@ -252,11 +257,14 @@ extension TrackingServiceTableViewController {
             // Authenticate with the provided username and password
             self.kitsuAuthenticationTask = kitsu.authenticate(user: user, password: password).error {
                 [weak self] error in
-                let message = error.localizedDescription
-                
                 // Present the error message
-                let errorAlert = UIAlertController(title: "Authentication Error", message: message, preferredStyle: .alert)
-                errorAlert.addAction(UIAlertAction(title: "Ok", style: .cancel))
+                let errorAlert = UIAlertController(
+                    error: error,
+                    customTitle: "Authentication Error",
+                    allowRetry: false,
+                    source: self,
+                    completionHandler: nil
+                )
                 self?.kitsuAuthenticationTask = nil
                 
                 DispatchQueue.main.async {
@@ -317,7 +325,7 @@ extension TrackingServiceTableViewController {
 
 // MARK: - AniList.co specifics
 extension TrackingServiceTableViewController {
-    private var anilist: Anilist { return NineAnimator.default.service(type: Anilist.self) }
+    private var anilist: Anilist { NineAnimator.default.service(type: Anilist.self) }
     
     private func anilistUpdateStatus() {
         // Disable switch by default
@@ -390,7 +398,7 @@ extension TrackingServiceTableViewController {
 
 // MARK: - Simkl.com specifics
 extension TrackingServiceTableViewController {
-    private var simkl: Simkl { return NineAnimator.default.service(type: Simkl.self) }
+    private var simkl: Simkl { NineAnimator.default.service(type: Simkl.self) }
     
     private func simklUpdateStatus() {
         if simkl.didSetup {
@@ -485,6 +493,6 @@ extension TrackingServiceTableViewController {
 @available(iOS 12.0, *)
 extension TrackingServiceTableViewController: ASWebAuthenticationPresentationContextProviding {
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        return view.window!
+        view.window!
     }
 }

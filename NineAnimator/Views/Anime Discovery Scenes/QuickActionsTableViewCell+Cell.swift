@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ class QuickActionCollectionViewCell: UICollectionViewCell {
         self.action = action
         actionButton.setTitle(action.title, for: .normal)
         actionButton.setImage(action.icon, for: .normal)
+        pointerEffect.hover()
     }
     
     @IBAction private func onAction(_ sender: Any) {

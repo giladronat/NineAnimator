@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -93,15 +93,17 @@ class AsyncTaskContainer: NineAnimatorAsyncTask {
 ///         asynchronous promises in the container instead.
 class StatefulAsyncTaskContainer: AsyncTaskContainer {
     /// Indicates whether all the tasks have been added to the container
-    @AtomicProperty private(set) var isReadyForCollection = false
+    @AtomicProperty var isReadyForCollection = false
     
     /// The final state of task executions
-    @AtomicProperty private(set) var state: TaskState = .unknown
+    @AtomicProperty var state: TaskState = .unknown
     
     @AtomicProperty private var numberOfStatesContributed: Int = 0
     
     private var didFinishCollectingStates: (StatefulAsyncTaskContainer) -> Void
     
+    /// Initiate the `StatefulAsyncTaskContainer` with a state collector closure
+    /// - Note: The closure is not called when the task is cancelled
     init(onFinishCollectingStates: @escaping (StatefulAsyncTaskContainer) -> Void) {
         self.didFinishCollectingStates = onFinishCollectingStates
         super.init()

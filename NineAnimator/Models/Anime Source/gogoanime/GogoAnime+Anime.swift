@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -26,11 +26,11 @@ extension NASourceGogoAnime {
         try! NSRegularExpression(pattern: "id\\s+=\\s+(\\d+)", options: [])
     
     func anime(from link: AnimeLink) -> NineAnimatorPromise<Anime> {
-        return anime(url: link.link)
+        anime(url: link.link)
     }
     
     func anime(url: URL) -> NineAnimatorPromise<Anime> {
-        return request(browseUrl: url)
+        request(browseUrl: url)
             .thenPromise { content -> NineAnimatorPromise<(String, String)> in
                 guard let animeIdentifier = NASourceGogoAnime
                     .animeIdentifierRegex

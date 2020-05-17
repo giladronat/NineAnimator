@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -32,12 +32,14 @@ class SettingsSceneController: UITableViewController, Themable, UIAdaptivePresen
     @IBOutlet private weak var pictureInPictureSwitch: UISwitch!
     @IBOutlet private weak var subscriptionStatsLabel: UILabel!
     @IBOutlet private weak var subscriptionStatusLabel: UILabel!
+    @IBOutlet private weak var preferredAnimeDetailsSourceLabel: UILabel!
     @IBOutlet private weak var subscriptionShowStreamsSwitch: UISwitch!
     @IBOutlet private weak var appearanceSegmentControl: UISegmentedControl!
     @IBOutlet private weak var dynamicAppearanceSwitchLabel: UILabel!
     @IBOutlet private weak var dynamicAppearanceSwitch: UISwitch!
     @IBOutlet private weak var animeShowEpisodeDetailsSwitch: UISwitch!
     @IBOutlet private weak var allowNSFWContentSwitch: UISwitch!
+    @IBOutlet private weak var fallbackToBrowserSwitch: UISwitch!
     
     /// The path that the Settings view controller will be navigating to
     private var navigatingTo: EntryPath?
@@ -109,6 +111,10 @@ class SettingsSceneController: UITableViewController, Themable, UIAdaptivePresen
         NineAnimator.default.user.allowBackgroundPlayback = sender.isOn
     }
     
+    @IBAction private func onPlaybackFallbackToBrowserDidChange(_ sender: UISwitch) {
+        NineAnimator.default.user.playbackFallbackToBrowser = sender.isOn
+    }
+    
     @IBAction private func onShowStreamsInNotificationDidChange(_ sender: UISwitch) {
         NineAnimator.default.user.notificationShowStreams = sender.isOn
     }
@@ -175,7 +181,7 @@ class SettingsSceneController: UITableViewController, Themable, UIAdaptivePresen
             RootViewController.shared?.showCastController()
         case "settings.history.recents":
             askForConfirmation(title: "Clear Recent Anime",
-                               message: "This action is irreversible. All anime history under the Recents tab will be cleared.",
+                               message: "This action is irreversible. All anime history under Recents will be cleared.",
                                continueActionName: "Clear Recents"
             ) { [weak self] in
                 NineAnimator.default.user.clearRecents()
@@ -183,6 +189,11 @@ class SettingsSceneController: UITableViewController, Themable, UIAdaptivePresen
             }
         case "settings.history.cache":
             clearCache()
+        case "settings.history.search":
+            askForConfirmation(title: "Clear Search History",
+                               message: "This action is irreversible. All of your search history will be removed. Your recent anime list will not be affected.",
+                               continueActionName: "Clear Search History"
+            ) { NineAnimator.default.user.clearSearchHistory() }
         case "settings.history.download":
             askForConfirmation(title: "Remove all Downloads",
                                message: "This action is irreversible. All downloaded episodes and contents will be removed.",
@@ -258,6 +269,11 @@ class SettingsSceneController: UITableViewController, Themable, UIAdaptivePresen
         backgroundPlaybackSwitch.isEnabled = !pictureInPictureSwitch.isOn
         backgroundPlaybackSwitch.setOn(NineAnimator.default.user.allowBackgroundPlayback || (AVPictureInPictureController.isPictureInPictureSupported() && NineAnimator.default.user.allowPictureInPicturePlayback), animated: true)
         
+        fallbackToBrowserSwitch.setOn(
+            NineAnimator.default.user.playbackFallbackToBrowser,
+            animated: true
+        )
+        
         // Appearance settings
         appearanceSegmentControl.selectedSegmentIndex = Theme.current.name == "dark" ? 0 : 1
         appearanceSegmentControl.isEnabled = !NineAnimator.default.user.dynamicAppearance
@@ -269,12 +285,16 @@ class SettingsSceneController: UITableViewController, Themable, UIAdaptivePresen
         
         // To be gramatically correct :D
         let recentAnimeCount = NineAnimator.default.user.recentAnimes.count
-        viewingHistoryStatsLabel.text = "\(recentAnimeCount) \(recentAnimeCount > 1 ? "Items" : "Item")"
+        viewingHistoryStatsLabel.text = "\(recentAnimeCount) \(recentAnimeCount == 1 ? "Item" : "Items")"
         
         let subscribedAnimeCount = NineAnimator.default.user.subscribedAnimes.count
-        subscriptionStatsLabel.text = "\(subscribedAnimeCount) \(subscribedAnimeCount > 1 ? "Items" : "Item")"
+        subscriptionStatsLabel.text = "\(subscribedAnimeCount) \(subscribedAnimeCount == 1 ? "Item" : "Items")"
         
         subscriptionShowStreamsSwitch.setOn(NineAnimator.default.user.notificationShowStreams, animated: true)
+        
+        preferredAnimeDetailsSourceLabel.text =
+            NineAnimator.default.user.preferredAnimeInformationService?.name
+            ?? "Automatic"
         
         // Notification and fetch status
         var subscriptionEngineStatus = [String]()
@@ -302,6 +322,13 @@ class SettingsSceneController: UITableViewController, Themable, UIAdaptivePresen
     
     // Register this class as themable to update the segment control value when theme changes
     func theme(didUpdate _: Theme) {
+        updatePreferencesUI()
+    }
+}
+
+// MARK: - Navigations & Segues
+extension SettingsSceneController {
+    @IBAction private func onUnwindingFromPreferredAnimeDetailsSource(segue: UIStoryboardSegue) {
         updatePreferencesUI()
     }
 }
@@ -340,22 +367,22 @@ extension SettingsSceneController {
     struct EntryPath {
         /// Navigating to the `About` entry
         static var about: EntryPath {
-            return EntryPath(segueIdentifier: "about", itemIndex: nil)
+            EntryPath(segueIdentifier: "about", itemIndex: nil)
         }
         
         /// Navigating to the `Home` entry
         static var home: EntryPath {
-            return EntryPath(segueIdentifier: "homekit", itemIndex: nil)
+            EntryPath(segueIdentifier: "homekit", itemIndex: nil)
         }
         
         /// Navigating to the `Tracking Service` entry
         static var trackingService: EntryPath {
-            return EntryPath(segueIdentifier: "trackingService", itemIndex: nil)
+            EntryPath(segueIdentifier: "trackingService", itemIndex: nil)
         }
         
         /// Navigating to the `Storage` entry
         static var storage: EntryPath {
-            return EntryPath(segueIdentifier: "storage", itemIndex: nil)
+            EntryPath(segueIdentifier: "storage", itemIndex: nil)
         }
         
         fileprivate let segueIdentifier: String?

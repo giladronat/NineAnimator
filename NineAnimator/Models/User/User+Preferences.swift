@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ extension NineAnimatorUser {
     
     /// The listing order of episodes in an anime
     var episodeListingOrder: EpisodeListingOrder {
-        get { return EpisodeListingOrder(from: _freezer.string(forKey: Keys.episodeListingOrder)) }
+        get { EpisodeListingOrder(from: _freezer.string(forKey: Keys.episodeListingOrder)) }
         set {
             _freezer.set(newValue.rawValue, forKey: Keys.episodeListingOrder)
         }
@@ -45,7 +45,7 @@ extension NineAnimatorUser {
     
     /// Show the synopsis of each episode (if available)
     var showEpisodeDetails: Bool {
-        get { return (_freezer.value(forKey: Keys.episodeDetails) as? Bool) ?? true }
+        get { (_freezer.value(forKey: Keys.episodeDetails) as? Bool) ?? true }
         set { _freezer.set(newValue, forKey: Keys.episodeDetails) }
     }
     
@@ -54,7 +54,7 @@ extension NineAnimatorUser {
     /// This prevents `AVPlayerViewController` from pausing the video when the
     /// app enters background
     var allowBackgroundPlayback: Bool {
-        get { return _freezer.bool(forKey: Keys.backgroundPlayback) }
+        get { _freezer.bool(forKey: Keys.backgroundPlayback) }
         set {
             _freezer.set(newValue, forKey: Keys.backgroundPlayback)
         }
@@ -64,22 +64,28 @@ extension NineAnimatorUser {
     ///
     /// This setting is only available on iPads
     var allowPictureInPicturePlayback: Bool {
-        get { return _freezer.value(forKey: Keys.pictureInPicturePlayback) as? Bool ?? true }
+        get { _freezer.value(forKey: Keys.pictureInPicturePlayback) as? Bool ?? true }
         set {
             _freezer.set(newValue, forKey: Keys.pictureInPicturePlayback)
         }
     }
     
+    /// Directs the app to open the episode page in the in-app browser when fails to retrieve it
+    var playbackFallbackToBrowser: Bool {
+        get { _freezer.bool(forKey: Keys.playbackFallbackToBrowser) }
+        set { _freezer.set(newValue, forKey: Keys.playbackFallbackToBrowser) }
+    }
+    
     /// Detects any possible links to anime when the app becomes active
     var detectsPasteboardLinks: Bool {
-        get { return _freezer.bool(forKey: Keys.detectClipboardAnimeLinks) }
+        get { _freezer.bool(forKey: Keys.detectClipboardAnimeLinks) }
         set { _freezer.set(newValue, forKey: Keys.detectClipboardAnimeLinks) }
     }
     
     /// Attempt to resume downloading tasks from URLSessions after the app launches
     var autoRestartInterruptedDownloads: Bool {
         get {
-            return _freezer.typedValue(
+            _freezer.typedValue(
                 forKey: Keys.autoRestartInterruptedDownloadTasks,
                 default: true
             )
@@ -90,7 +96,7 @@ extension NineAnimatorUser {
     /// Preventing the system from purging downloaded episodes by marking each episodes as important
     var preventAVAssetPurge: Bool {
         get {
-            return _freezer.typedValue(
+            _freezer.typedValue(
                 forKey: Keys.preventAVAssetPurge,
                 default: false
             )
@@ -101,7 +107,7 @@ extension NineAnimatorUser {
     /// If NineAnimator should send a user notification when a download completes
     var sendDownloadsNotifications: Bool {
         get {
-            return _freezer.typedValue(
+            _freezer.typedValue(
                 forKey: Keys.sendDownloadNotifications,
                 default: false
             )
@@ -111,21 +117,40 @@ extension NineAnimatorUser {
     
     /// The name of the current theme
     var theme: String {
-        get { return _freezer.string(forKey: Keys.theme) ?? "light" }
+        get { _freezer.string(forKey: Keys.theme) ?? "light" }
         set { _freezer.set(newValue, forKey: Keys.theme) }
     }
     
     /// Adjust brightness based on current screen brightness
     var dynamicAppearance: Bool {
-        get { return _freezer.bool(forKey: Keys.brightnessBasedTheme) }
+        get {
+            _freezer.typedValue(
+                forKey: Keys.brightnessBasedTheme,
+                default: true
+            )
+        }
         set { _freezer.set(newValue, forKey: Keys.brightnessBasedTheme) }
     }
     
     /// Show what streaming services that the new episode of a subscribed anime
     /// is available on in an notification.
     var notificationShowStreams: Bool {
-        get { return _freezer.bool(forKey: Keys.notificationShowStream) }
+        get { _freezer.bool(forKey: Keys.notificationShowStream) }
         set { _freezer.set(newValue, forKey: Keys.notificationShowStream) }
+    }
+    
+    /// The default source to present anime information
+    var preferredAnimeInformationService: ListingService? {
+        get {
+            if let serviceName = _freezer.string(forKey: Keys.animeInformationSource),
+                let listingService = NineAnimator.default.service(with: serviceName),
+                listingService.isCapableOfListingAnimeInformation {
+                return listingService
+            }
+            
+            return nil
+        }
+        set { _freezer.set(newValue?.name, forKey: Keys.animeInformationSource) }
     }
     
     /// Allow NineAnimator to solve WAF challenges (e.g. Cloudflare's I'm Under
@@ -138,13 +163,13 @@ extension NineAnimatorUser {
     ///
     /// Re-enabled on 1.1b8 thanks to [Awsomedude](https://github.com/Awsomedude)
     var solveFirewallChalleges: Bool {
-        get { return _freezer.value(forKey: Keys.sourceSolveChallenges) as? Bool ?? true }
+        get { _freezer.value(forKey: Keys.sourceSolveChallenges) as? Bool ?? true }
         set { _freezer.set(newValue, forKey: Keys.sourceSolveChallenges) }
     }
     
     /// Allow sources to provide NSFW contents
     var allowNSFWContent: Bool {
-        get { return _freezer.bool(forKey: Keys.allowNSFWContent) }
+        get { _freezer.bool(forKey: Keys.allowNSFWContent) }
         set { _freezer.set(newValue, forKey: Keys.allowNSFWContent) }
     }
     
@@ -157,6 +182,6 @@ extension NineAnimatorUser {
     
     /// Check if a warning realted to a specific purpose on a server should be silenced
     func shouldSilenceUnrecommendedWarnings(forServer server: Anime.ServerIdentifier, ofPurpose purpose: VideoProviderParser.Purpose) -> Bool {
-        return _silencedUnrecommendedServerPurposes[server]?.contains(purpose) == true
+        _silencedUnrecommendedServerPurposes[server]?.contains(purpose) == true
     }
 }

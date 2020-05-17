@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import Foundation
 /// Parser for animeultima's AUEngine server
 class AUEngineParser: VideoProviderParser {
     var aliases: [String] {
-        return [ "AUEngine" ]
+        [ "AUEngine" ]
     }
     
     private var source: NASourceAnimeUltima
@@ -33,10 +33,10 @@ class AUEngineParser: VideoProviderParser {
     }
     
     func parse(episode: Episode,
-               with session: SessionManager,
+               with session: Session,
                forPurpose _: Purpose,
                onCompletion handler: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask {
-        return source
+        source
             .request(browseUrl: episode.target)
             .then {
                 responseContent in
@@ -76,6 +76,6 @@ class AUEngineParser: VideoProviderParser {
     }
     
     func isParserRecommended(forPurpose purpose: Purpose) -> Bool {
-        return true
+        true
     }
 }

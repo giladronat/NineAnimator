@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -30,19 +30,23 @@ import AppKit
 class NASourceAnimeTwist: BaseSource, Source, PromiseSource {
     var name = "twist.moe"
     
-    var aliases: [String] { return [] }
+    var aliases: [String] { [] }
     
 #if canImport(UIKit)
-    var siteLogo: UIImage { return #imageLiteral(resourceName: "AnimeTwist Site Icon") }
+    var siteLogo: UIImage { #imageLiteral(resourceName: "AnimeTwist Site Icon") }
 #elseif canImport(AppKit)
-    var siteLogo: NSImage { return #imageLiteral(resourceName: "AnimeTwist Site Icon") }
+    var siteLogo: NSImage { #imageLiteral(resourceName: "AnimeTwist Site Icon") }
 #endif
     
     var siteDescription: String {
-        return "AnimeTwist is a free & ads free anime streaming website. Anime artworks may not be displayed correctly for this website."
+        "AnimeTwist is a free & ads free anime streaming website. Anime artworks may not be displayed correctly for this website."
     }
     
-    override var endpoint: String { return "https://twist.moe" }
+    var preferredAnimeNameVariant: KeyPath<ListingAnimeName, String> {
+        \.romaji
+    }
+    
+    override var endpoint: String { "https://twist.moe" }
     
     fileprivate var _listedAnime: [AnimeTwistListedAnime]?
     
@@ -191,7 +195,7 @@ class NASourceAnimeTwist: BaseSource, Source, PromiseSource {
     fileprivate let animeListMatchingRegex = try! NSRegularExpression(pattern: "window\\.__NUXT__=([^<]+)", options: [])
     
     override func canHandle(url: URL) -> Bool {
-        return false
+        false
     }
     
     func reloadAnimeList() -> NineAnimatorPromise<[AnimeTwistListedAnime]> {

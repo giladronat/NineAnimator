@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -27,21 +27,25 @@ import AppKit
 #endif
 
 class NASourceKissanime: BaseSource, Source, PromiseSource {
-    var name: String { return "kissanime.ru" }
+    var name: String { "kissanime.ru" }
     
-    var aliases: [String] { return [] }
+    var aliases: [String] { [] }
     
     #if canImport(UIKit)
-    var siteLogo: UIImage { return #imageLiteral(resourceName: "Kissanime Site Icon") }
+    var siteLogo: UIImage { #imageLiteral(resourceName: "Kissanime Site Icon") }
     #elseif canImport(AppKit)
-    var siteLogo: NSImage { return #imageLiteral(resourceName: "Kissanime Site Icon") }
+    var siteLogo: NSImage { #imageLiteral(resourceName: "Kissanime Site Icon") }
     #endif
     
     var siteDescription: String {
-        return "Kissanime is a free anime streaming website. NineAnimator has experimental support for this website."
+        "Kissanime is a free anime streaming website. NineAnimator has experimental support for this website."
     }
     
-    override var endpoint: String { return "https://kissanime.ru" }
+    var preferredAnimeNameVariant: KeyPath<ListingAnimeName, String> {
+        \.english
+    }
+    
+    override var endpoint: String { "https://kissanime.ru" }
     
     override init(with parent: NineAnimator) {
         super.init(with: parent)
@@ -51,15 +55,17 @@ class NASourceKissanime: BaseSource, Source, PromiseSource {
     }
     
     func suggestProvider(episode: Episode, forServer server: Anime.ServerIdentifier, withServerName name: String) -> VideoProviderParser? {
+        if (episode.userInfo["kissanime.dummy"] as? Bool) == true {
+            return DummyParser.registeredInstance
+        }
         return VideoProviderRegistry.default.provider(for: name)
     }
     
     func link(from url: URL) -> NineAnimatorPromise<AnyLink> {
-        return .fail()
+        .fail()
     }
     
     override func recommendServer(for anime: Anime) -> Anime.ServerIdentifier? {
-        // HydraX doesn't require verification
-        return "hydrax"
+        "beta"
     }
 }

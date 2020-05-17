@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -32,18 +32,18 @@ protocol PromiseSource {
 // Implement the Source methods
 extension PromiseSource {
     func featured(_ handler: @escaping NineAnimatorCallback<FeaturedContainer>) -> NineAnimatorAsyncTask? {
-        return featured().handle(handler)
+        featured().handle(handler)
     }
     
     func anime(from link: AnimeLink, _ handler: @escaping NineAnimatorCallback<Anime>) -> NineAnimatorAsyncTask? {
-        return anime(from: link).handle(handler)
+        anime(from: link).handle(handler)
     }
     
     func episode(from link: EpisodeLink, with anime: Anime, _ handler: @escaping NineAnimatorCallback<Episode>) -> NineAnimatorAsyncTask? {
-        return episode(from: link, with: anime).handle(handler)
+        episode(from: link, with: anime).handle(handler)
     }
     
     func link(from url: URL, _ handler: @escaping NineAnimatorCallback<AnyLink>) -> NineAnimatorAsyncTask? {
-        return link(from: url).handle(handler)
+        link(from: url).handle(handler)
     }
 }

@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -26,11 +26,11 @@ extension UIView {
         set {
             if newValue { makeThemable() }
         }
-        get { return false }
+        get { false }
     }
     
     var themableOptionsStore: [String: Any] {
-        get { return layer.style?["themable.options"] as? [String: Any] ?? [:] }
+        get { layer.style?["themable.options"] as? [String: Any] ?? [:] }
         set {
             var layerStyles = layer.style ?? [:]
             layerStyles["themable.options"] = newValue
@@ -39,7 +39,7 @@ extension UIView {
     }
     
     var disableTheming: Bool {
-        get { return layer.style?["themable.disabled"] as? Bool == true }
+        get { layer.style?["themable.disabled"] as? Bool == true }
         set {
             var layerStyles = layer.style ?? [:]
             layerStyles["themable.disabled"] = newValue

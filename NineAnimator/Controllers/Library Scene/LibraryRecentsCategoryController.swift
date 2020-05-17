@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ class LibraryRecentsCategoryController: MinFilledCollectionViewController, Libra
     private var menuIndexPath: IndexPath?
     
     /// Needs to be able to become the first responder
-    override var canBecomeFirstResponder: Bool { return true }
+    override var canBecomeFirstResponder: Bool { true }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -75,11 +75,11 @@ extension LibraryRecentsCategoryController {
 // MARK: - Data Source & Delegate
 extension LibraryRecentsCategoryController {
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
+        1
     }
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return section == 0 ? cachedRecentAnime.count : 0
+        section == 0 ? cachedRecentAnime.count : 0
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

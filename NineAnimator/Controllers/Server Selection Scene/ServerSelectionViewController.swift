@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -24,13 +24,22 @@ class ServerSelectionViewController: UIViewController {
     private var completionHandler: ((ServerSelectionViewController) -> Void)?
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return Theme.current.preferredStatusBarStyle
+        Theme.current.preferredStatusBarStyle
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         preferredContentSize = .init(width: 360, height: 500)
         selectionView.makeThemable()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        selectionView.scrollToCurrentSource()
     }
     
     @IBAction private func onDoneButtonTapped(_ sender: Any) {

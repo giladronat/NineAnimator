@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ class LibrarySubscriptionCell: UICollectionViewCell {
         self.representingLink = link
         self.titleLabel.text = link.name
         self.artworkImageView.kf.setImage(with: link.artwork ?? NineAnimator.placeholderArtworkUrl)
+        self.pointerEffect.hover(scale: true)
         
         // Set the source label to the approperiate value
         switch link {
@@ -54,20 +55,25 @@ class LibrarySubscriptionCell: UICollectionViewCell {
         switch link {
         case let .anime(animeLink):
             let context = NineAnimator.default.trackingContext(for: animeLink)
+            let furtherestStreamedEpisode: Int?
             
             if let record = context.furtherestEpisodeRecord {
                 let durationDescription = Date()
                     .timeIntervalSince(record.enqueueDate)
                     .durationDescription
+                furtherestStreamedEpisode = record.episodeNumber
                 accessorySubtitleLabel.text = "Ep. \(record.episodeNumber) streamed \(durationDescription)"
                     .uppercased()
-                
-                if let watcher = UserNotificationManager.default.retrive(for: animeLink) {
-                    let totalEpisodes = watcher.episodeNames.count
-                    self.updateStatusLabel.text = "Ep. \(record.episodeNumber) / \(totalEpisodes)"
-                } else {
-                    self.updateStatusLabel.text = "Ep. \(record.episodeNumber)"
-                }
+            } else {
+                furtherestStreamedEpisode = nil
+                accessorySubtitleLabel.text = "No records found".uppercased()
+            }
+            
+            if let watcher = UserNotificationManager.default.retrive(for: animeLink) {
+                let totalEpisodes = watcher.episodeNames.count
+                self.updateStatusLabel.text = "Ep. \(furtherestStreamedEpisode?.description ?? "0") / \(totalEpisodes)"
+            } else {
+                self.updateStatusLabel.text = "Ep. \(furtherestStreamedEpisode?.description ?? "0")"
             }
             
             // May want to re-design this in the near future

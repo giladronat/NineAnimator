@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ protocol VideoProviderParser {
     var aliases: [String] { get }
     
     /// Obtain the playback media for the episode target
-    func parse(episode: Episode, with session: SessionManager, forPurpose purpose: Purpose, onCompletion handler: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask
+    func parse(episode: Episode, with session: Session, forPurpose purpose: Purpose, onCompletion handler: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask
     
     /// Check if the result from this parser is recommended for the given purpose
     func isParserRecommended(forPurpose purpose: Purpose) -> Bool
@@ -39,7 +39,7 @@ protocol VideoProviderParser {
 // MARK: - Definitions & Helpers
 extension VideoProviderParser {
     var defaultUserAgent: String {
-        return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"
     }
     
     /// Check if the content type infers an aggregated asset
@@ -50,7 +50,7 @@ extension VideoProviderParser {
     
     /// Obtain the shared instance of this VideoProviderParser
     static var registeredInstance: Self? {
-        return VideoProviderRegistry.default.provider(Self.self)
+        VideoProviderRegistry.default.provider(Self.self)
     }
 }
 

@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -79,14 +79,15 @@ class MinFilledFlowLayoutHelper: NSObject, UICollectionViewDelegateFlowLayout {
     
     /// Call from `viewWillTransition`
     func viewWillTransition(coordinator: UIViewControllerTransitionCoordinator, in collectionView: UICollectionView) {
-        coordinator.animate(alongsideTransition: {
-            _ in
-            collectionView.performBatchUpdates({
-                collectionView.collectionViewLayout.invalidateLayout()
-                collectionView.setNeedsLayout()
-            }, completion: nil)
-            collectionView.layoutIfNeeded()
-        }, completion: nil)
+        collectionView.collectionViewLayout.invalidateLayout()
+//        coordinator.animate(alongsideTransition: {
+//            _ in
+//            collectionView.performBatchUpdates({
+//                collectionView.collectionViewLayout.invalidateLayout()
+//                collectionView.setNeedsLayout()
+//            }, completion: nil)
+//            collectionView.layoutIfNeeded()
+//        }, completion: nil)
     }
     
     /// Call from `viewWillAppear`
@@ -266,7 +267,7 @@ class MinFilledFlowLayoutHelper: NSObject, UICollectionViewDelegateFlowLayout {
     
     /// Calculate the number of cells per line assuming the remaining cells are enough to fill the entire space
     private func ordinalCellsPerLine(minimal: CGFloat, totalLength: CGFloat, interitemSpace: CGFloat) -> Int {
-        return unitParameter(
+        unitParameter(
             minimal: minimal,
             available: .max,
             totalLength: totalLength,
@@ -276,7 +277,7 @@ class MinFilledFlowLayoutHelper: NSObject, UICollectionViewDelegateFlowLayout {
     
     /// Minimal Size
     private func minimalSize(for section: Int) -> CGSize {
-        return minimalSizes[min(section, minimalSizes.count - 1)]
+        minimalSizes[min(section, minimalSizes.count - 1)]
     }
     
     private func shouldFillLine(_ collectionView: UICollectionView, for section: Int) -> Bool {
@@ -288,7 +289,7 @@ class MinFilledFlowLayoutHelper: NSObject, UICollectionViewDelegateFlowLayout {
     }
     
     private func shouldAlignLastLine(_ collectionView: UICollectionView, for section: Int) -> Bool {
-        return (collectionView.delegate as? MinFilledLayoutDelegate)?.minFilledLayout?(
+        (collectionView.delegate as? MinFilledLayoutDelegate)?.minFilledLayout?(
             collectionView,
             shouldAlignLastLineItemsInSection: section
         ) ?? false

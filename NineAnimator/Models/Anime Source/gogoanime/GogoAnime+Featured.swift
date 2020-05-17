@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ extension NASourceGogoAnime {
         try! NSRegularExpression(pattern: "\\/(.+)-episode-\\d+$", options: .caseInsensitive)
     
     func featured() -> NineAnimatorPromise<FeaturedContainer> {
-        return NineAnimatorPromise<[AnimeLink]>.queue(listOfPromises: [
+        NineAnimatorPromise<[AnimeLink]>.queue(listOfPromises: [
             popularAnimeUpdates, latestAnimeUpdates
         ]) .then { results in BasicFeaturedContainer(featured: results[0], latest: results[1]) }
     }
@@ -78,7 +78,7 @@ extension NASourceGogoAnime {
     }
     
     fileprivate var popularAnimeUpdates: NineAnimatorPromise<[AnimeLink]> {
-        return request(ajaxUrlString: ajaxEndpoint.appendingPathComponent("/ajax/page-recent-release-ongoing.html"))
+        request(ajaxUrlString: ajaxEndpoint.appendingPathComponent("/ajax/page-recent-release-ongoing.html"))
             .then {
                 content -> [AnimeLink] in
                 Log.info("Loading GogoAnime popular releases page")
@@ -116,7 +116,7 @@ extension NASourceGogoAnime {
     
     /// Implementation for the new featured page
     fileprivate func newFeatured() -> NineAnimatorPromise<FeaturedContainer> {
-        return request(browsePath: "/").then { content -> FeaturedContainer in
+        request(browsePath: "/").then { content -> FeaturedContainer in
             Log.info("[NASourceGogoAnime] Loading FeaturedContainer")
             
             // Parse html contents

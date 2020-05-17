@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -33,12 +33,6 @@ class NineAnimatorUser {
     
     /// A list of server identifiers that has been silenced from presenting warnings regarding unrecommended use
     var _silencedUnrecommendedServerPurposes = [Anime.ServerIdentifier: Set<VideoProviderParser.Purpose>]()
-    
-    /// Remove all anime viewing history
-    func clearRecents() {
-        recentAnimes = []
-        _freezer.removeObject(forKey: Keys.recentEpisode)
-    }
     
     /// Remove all default entries
     func clearAll() {

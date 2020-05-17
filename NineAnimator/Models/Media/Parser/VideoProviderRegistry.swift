@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -41,6 +41,11 @@ class VideoProviderRegistry {
         defaultProvider.register(NovaParser(), forServer: "Nova")
         defaultProvider.register(VeryStream(), forServer: "VeryStream")
         defaultProvider.register(HydraXParser(), forServer: "HydraX")
+        defaultProvider.register(ProxyDataParser(), forServer: "ProxyData")
+        defaultProvider.register(GoUnlimitedParser(), forServer: "GoUnlimited")
+        defaultProvider.register(MixdropParser(), forServer: "Mixdrop")
+        defaultProvider.register(CloudNineParser(), forServer: "Cloud9")
+        defaultProvider.register(StreamTapeParser(), forServer: "Streamtape")
         
         // Private parsers are registered from their own source instances
         return defaultProvider
@@ -53,7 +58,7 @@ class VideoProviderRegistry {
     }
     
     func provider(for server: String) -> VideoProviderParser? {
-        return (providers.first {
+        (providers.first {
             // Compare server name then compare aliases
             $0.server.lowercased() == server.lowercased() || $0.provider.aliases.contains {
                 $0.lowercased() == server.lowercased()
@@ -62,6 +67,6 @@ class VideoProviderRegistry {
     }
     
     func provider<Provider: VideoProviderParser>(_ type: Provider.Type) -> Provider? {
-        return providers.first { $0.provider is Provider }?.provider as? Provider
+        providers.first { $0.provider is Provider }?.provider as? Provider
     }
 }

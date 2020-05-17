@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ import SwiftSoup
 
 extension NASourceFourAnime {
     func episode(from link: EpisodeLink, with anime: Anime) -> NineAnimatorPromise<Episode> {
-        return NineAnimatorPromise.firstly {
+        NineAnimatorPromise.firstly {
             try URL(string: link.identifier).tryUnwrap()
         } .thenPromise {
             episodePageUrl in self.request(browseUrl: episodePageUrl)
@@ -30,7 +30,53 @@ extension NASourceFourAnime {
             episodePageContent in
             let bowl = try SwiftSoup.parse(episodePageContent)
             let videoElement = try bowl.select("video")
-            let videoSource = try URL(string: videoElement.attr("src")).tryUnwrap()
+            let videoSource: URL
+            
+            // If a valid url was found from the page's video tag
+            if !videoElement.isEmpty(),
+                let videoUrl = URL(string: try videoElement.attr("src")) {
+                // Video element was found, using the presented one
+                videoSource = videoUrl
+                Log.info("[NASourceFourAnime] Resource found from page source.")
+            } else {
+                // If no video element is present, try decoding the video asset url
+                // from the PACKER script
+                let decodedScript = try PackerDecoder().decode(episodePageContent)
+                
+                // Two variants found from 4anime's site
+                let sourceMatchingExpr = try NSRegularExpression(
+                    pattern: "src=\\\\*\"([^\"\\\\]+)",
+                    options: []
+                )
+                let jwPlayerSetupMatchingExpr = try NSRegularExpression(
+                    pattern: "file:\\s*\"([^\"]+)",
+                    options: []
+                )
+                
+                if let jwPlayerUrlString = jwPlayerSetupMatchingExpr
+                        .firstMatch(in: decodedScript)?
+                        .firstMatchingGroup,
+                    let jwPlayerUrl = URL(
+                        string: jwPlayerUrlString,
+                        relativeTo: link.parent.link
+                    ) {
+                    // 1. JWPlayer setup script
+                    videoSource = jwPlayerUrl
+                    Log.info("[NASourceFourAnime] Resource found from packed scripts (jwplayer.setup).")
+                } else if let sourceUrlString = sourceMatchingExpr
+                        .firstMatch(in: decodedScript)?
+                        .firstMatchingGroup,
+                    let sourceUrl = URL(
+                        string: sourceUrlString,
+                        relativeTo: link.parent.link
+                    ) {
+                    // 2. Video tag src attribute
+                    videoSource = sourceUrl
+                    Log.info("[NASourceFourAnime] Resource found from packed scripts (video tag).")
+                } else {
+                    throw NineAnimatorError.providerError("Unable to resolve playback url from provider response")
+                }
+            }
             
             return Episode(
                 link,

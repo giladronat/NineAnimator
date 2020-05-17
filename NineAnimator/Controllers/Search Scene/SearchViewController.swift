@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -29,21 +29,12 @@ class SearchViewController: UITableViewController, UISearchResultsUpdating, UISe
         return searchController
     }()
     
-    var searchLinksPool: [AnimeLink]? {
-        didSet {
-            DispatchQueue.main.async { [weak self] in
-                self?.tableView.reloadSections([0], with: .fade)
-            }
-        }
-    }
+    var source: Source { NineAnimator.default.user.source }
     
-    var filteredAnimeLinks = [AnimeLink]()
-    
-    var requestTask: NineAnimatorAsyncTask?
-    
-    var requestingSource: Source?
-    
-    var source: Source { return NineAnimator.default.user.source }
+    /// List of items which the quick search results are listed from
+    private var quickSearchPool = [Item]()
+    private var filteredItems = [Item]()
+    private var searchingKeywords = ""
 
     @IBOutlet private weak var selectSiteBarButton: UIBarButtonItem!
     
@@ -54,71 +45,49 @@ class SearchViewController: UITableViewController, UISearchResultsUpdating, UISe
         updateSearchPool()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        updateSearchResults()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Make sure we get the navigation bar when clicked on search result
         definesPresentationContext = true
         
-        if #available(iOS 11.0, *) {
-            // For iOS 11 and later, place the search bar in the navigation bar.
-            navigationItem.searchController = searchController
-            
-            // Make the search bar always visible.
-            navigationItem.hidesSearchBarWhenScrolling = false
-        } else {
-            // For iOS 10 and earlier, place the search controller's search bar in the table view's header.
-            tableView.tableHeaderView = searchController.searchBar
-        }
+        // For iOS 11 and later, place the search bar in the navigation bar.
+        navigationItem.searchController = searchController
+        
+        // Make the search bar always visible.
+        navigationItem.hidesSearchBarWhenScrolling = false
         
         // Hide table cell separators at empty state
         tableView.tableFooterView = UIView()
         
+        // Themes
         tableView.makeThemable()
         searchController.searchBar.makeThemable()
     }
     
     private func updateSearchPool() {
-        if requestingSource?.name != source.name {
-            resetSearchPool()
-            requestingSource = source
-            requestTask = source.featured {
-                [weak self] page, error in
-                guard let self = self else { return }
-                defer { self.requestTask = nil }
-                
-                // If errored, set requestingSource to nil so
-                // we'll retry next time
-                guard let page = page else {
-                    self.requestingSource = nil
-                    return Log.error(error)
-                }
-                
-                let additionalContent = page.featured + page.latest
-                
-                // Store the requested contents
-                if let originalContent = self.searchLinksPool {
-                    self.searchLinksPool = originalContent + additionalContent
-                } else { self.searchLinksPool = additionalContent }
-                
-                // Remove duplicated links
-                self.processSearchPoolDuplicates()
-                
-                // Update the search results
-                self.updateSearchResults()
-            }
+        // Search history
+        let searchHistoryItems: [Item] = NineAnimator.default.user.searchHistory.map {
+            history in .init(keywords: history, ofType: .history)
         }
-    }
-    
-    /// Removes duplicated `AnimeLink` in the search pool
-    private func processSearchPoolDuplicates() {
-        if let list = searchLinksPool {
-            searchLinksPool = Set(list).map { $0 }
+        
+        // Links from recents
+        var recentAnimeList = NineAnimator.default.user.recentAnimes
+        
+        if recentAnimeList.count > 50 { // Limit to the 50 most recent items
+            recentAnimeList = Array(recentAnimeList[0..<50])
         }
-    }
-    
-    /// Reset the search pool back to the original values
-    private func resetSearchPool() {
-        searchLinksPool = NineAnimator.default.user.recentAnimes
+        
+        let recentAnimeItems: [Item] = Set(recentAnimeList).map {
+            recent in .init(.anime(recent), ofType: .recents)
+        } .sorted { $0.keywords < $1.keywords }
+        
+        // Concatenate results to form the items pool
+        quickSearchPool = searchHistoryItems + recentAnimeItems
     }
 }
 
@@ -129,15 +98,9 @@ extension SearchViewController {
         
         // If the segue is pointing towards search results container, show that
         if let resultsViewController = segue.destination as? ContentListViewController,
-            let query = (sender as? UISearchBar)?.text {
-            let contentProvider = NineAnimator.default.user.source.search(keyword: query)
+            !searchingKeywords.isEmpty {
+            let contentProvider = NineAnimator.default.user.source.search(keyword: searchingKeywords)
             resultsViewController.setPresenting(contentProvider: contentProvider)
-        }
-        
-        // Open anime directly
-        if let animeViewController = segue.destination as? AnimeViewController,
-           let cell = sender as? SimpleAnimeTableViewCell {
-            animeViewController.setPresenting(anime: cell.animeLink!)
         }
     }
 }
@@ -150,22 +113,86 @@ extension SearchViewController {
     
     func updateSearchResults(for searchController: UISearchController) {
         DispatchQueue.main.async {
-            guard let all = self.searchLinksPool else { return }
+            let pool = self.quickSearchPool
             
-            if let text = self.searchController.searchBar.text {
-                self.filteredAnimeLinks = all.filter {
-                    $0.title.localizedCaseInsensitiveContains(text)
-                        || $0.link.absoluteString.localizedCaseInsensitiveContains(text)
+            if let text = self.searchController.searchBar.text, !text.isEmpty {
+                self.filteredItems = pool.filter {
+                    item in
+                    // General matching for all: compare name and type
+                    var result = item.link?.name
+                        .localizedCaseInsensitiveContains(text) == true
+                    result = result || item.keywords
+                        .localizedCaseInsensitiveContains(text)
+                    result = result || item.type.rawValue
+                        .localizedCaseInsensitiveContains(text)
+                    
+                    // Specialized matchings for each type of links
+                    switch item.link {
+                    case let .anime(animeLink):
+                        result = result || animeLink.link.absoluteString
+                            .localizedCaseInsensitiveContains(text)
+                        result = result || animeLink.source.name
+                            .localizedCaseInsensitiveContains(text)
+                    case .episode:
+                        break // Not doing anything about EpisodeLink rn
+                    case let .listingReference(reference):
+                        result = result || reference.parentService.name
+                            .localizedCaseInsensitiveContains(text)
+                    case .none: break
+                    }
+                    
+                    return result
                 }
-            } else { self.filteredAnimeLinks = all }
+            } else { self.filteredItems = Array(pool) }
             
             self.tableView.reloadSections([0], with: .fade)
         }
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let searchKeywords = searchBar.text else { return }
+        
         searchController.dismiss(animated: true) { [weak self] in
-            self?.performSegue(withIdentifier: "search.result.show", sender: searchBar)
+            guard let self = self else { return }
+            self.performSearch(keywords: searchKeywords)
+        }
+    }
+    
+    /// Perform the search with keywords
+    func performSearch(keywords: String) {
+        searchingKeywords = keywords.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard !searchingKeywords.isEmpty else {
+            return Log.info("[SearchViewController] Empty query detected. Not performing the search.")
+        }
+        
+        NineAnimator.default.user.enqueueSearchHistory(keywords)
+        self.updateSearchPool()
+        self.updateSearchResults()
+        self.performSegue(withIdentifier: "search.result.show", sender: self)
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // Deselect rows
+        tableView.deselectSelectedRows(animated: true)
+        
+        if let cell = tableView.cellForRow(at: indexPath) as? SimpleAnimeTableViewCell,
+            let item = cell.item {
+            if let link = item.link {
+                // A little special treatment for AnimeLinks
+                if case let .anime(animeLink) = link {
+                    // Open the anime link directly if the current source is the link's source
+                    if animeLink.source.name == source.name {
+                        RootViewController.shared?.open(immedietly: link, in: self)
+                    } else {
+                        performSearch(keywords: item.keywords)
+                    }
+                } else {
+                    RootViewController.shared?.open(immedietly: link, in: self)
+                }
+            } else { // For keywords, just search directly
+                performSearch(keywords: item.keywords)
+            }
         }
     }
 }
@@ -173,18 +200,25 @@ extension SearchViewController {
 // MARK: - Table view data source
 extension SearchViewController {
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        1
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filteredAnimeLinks.count
+        filteredItems.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "anime.container.simple", for: indexPath) as! SimpleAnimeTableViewCell
-        cell.animeLink = filteredAnimeLinks[indexPath.item]
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: "anime.container.simple",
+            for: indexPath
+        ) as! SimpleAnimeTableViewCell
+        cell.setPresenting(filteredItems[indexPath.item])
         cell.makeThemable()
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        cell.makeThemable()
     }
 }
 
@@ -218,5 +252,52 @@ extension SearchViewController {
         
         alertView.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         present(alertView, animated: true)
+    }
+}
+
+// MARK: - Defs & Helpers
+extension SearchViewController {
+    /// Definitions of the type of items
+    struct ItemType: Hashable {
+        static let recents = ItemType(icon: #imageLiteral(resourceName: "Playlist Icon"), rawValue: "Recents")
+        static let history = ItemType(icon: #imageLiteral(resourceName: "Clock Icon"), rawValue: "History")
+        
+        /// Icon of this type presented to the user
+        var icon: UIImage
+        
+        /// An identifying value of this type
+        var rawValue: String
+        
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(rawValue)
+        }
+    }
+    
+    /// Representing an item in the quick search results
+    struct Item: Hashable {
+        /// The link that this item is referenced to
+        var link: AnyLink?
+        
+        /// Keywords of the item
+        var keywords: String
+        
+        /// Type of the item
+        var type: ItemType
+        
+        init(_ link: AnyLink, ofType type: ItemType) {
+            self.link = link
+            self.type = type
+            self.keywords = link.name
+        }
+        
+        init(keywords: String, ofType type: ItemType) {
+            self.keywords = keywords
+            self.type = type
+        }
+        
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(link)
+            hasher.combine(type)
+        }
     }
 }

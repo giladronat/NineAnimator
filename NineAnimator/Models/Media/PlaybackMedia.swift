@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ protocol PlaybackMedia {
 // A shortcut for setting and retriving playback progress
 extension PlaybackMedia {
     var progress: Double {
-        get { return link.playbackProgress }
+        get { link.playbackProgress }
         set {
             let trackingContext = NineAnimator.default.trackingContext(for: link.parent)
             trackingContext.update(progress: newValue, forEpisodeLink: link)

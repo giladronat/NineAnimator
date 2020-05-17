@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ extension Simkl {
     }
     
     private func requestUserCollections() -> NineAnimatorPromise<[String: Collection]> {
-        return self.apiRequest(
+        self.apiRequest(
             "/sync/all-items/anime",
             query: [ "extended": "full" ],
             method: .post,
@@ -120,10 +120,10 @@ extension Simkl {
         // MARK: Standard interfaces for ListingAnimeCollection
         
         weak var delegate: ContentProviderDelegate?
-        var parentService: ListingService { return simkl }
-        var totalPages: Int? { return 1 }
-        var availablePages: Int { return 1 }
-        var moreAvailable: Bool { return false }
+        var parentService: ListingService { simkl }
+        var totalPages: Int? { 1 }
+        var availablePages: Int { 1 }
+        var moreAvailable: Bool { false }
         
         init(_ key: String, title: String, state: ListingAnimeTrackingState?, parent: Simkl, references: [ListingAnimeReference]) {
             self.key = key
@@ -134,7 +134,7 @@ extension Simkl {
         }
         
         func links(on page: Int) -> [AnyLink] {
-            return page == 0 ? references.map { .listingReference($0) } : []
+            page == 0 ? references.map { .listingReference($0) } : []
         }
         
         func more() { }

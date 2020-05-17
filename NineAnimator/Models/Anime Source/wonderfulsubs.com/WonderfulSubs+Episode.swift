@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ extension NASourceWonderfulSubs {
     }
     
     func episode(from link: EpisodeLink, with anime: Anime) -> NineAnimatorPromise<Episode> {
-        return request(
+        request(
             ajaxPathDictionary: "/api/media/stream",
             query: [ "code": link.identifier ],
             headers: [ "Referer": link.parent.link.absoluteString ]

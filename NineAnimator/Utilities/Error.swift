@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,33 +21,33 @@ import Foundation
 
 /// A generic error class thrown within NineAniamtor
 class NineAnimatorError: NSError {
-    class var urlError: URLError { return URLError() }
-    class var decodeError: DecodeError { return DecodeError() }
-    class var lastItemInQueueError: LastItemInQueueError { return LastItemInQueueError() }
-    class var unknownError: UnknownError { return UnknownError() }
+    class var urlError: URLError { URLError() }
+    class var decodeError: DecodeError { DecodeError() }
+    class var lastItemInQueueError: LastItemInQueueError { LastItemInQueueError() }
+    class var unknownError: UnknownError { UnknownError() }
     
     class func decodeError(_ info: String? = nil) -> DecodeError {
-        return DecodeError(info)
+        DecodeError(info)
     }
     
     class func responseError(_ failiureReason: String) -> ResponseError {
-        return ResponseError(failiureReason)
+        ResponseError(failiureReason)
     }
     
     class func providerError(_ failiureReason: String) -> ProviderError {
-        return ProviderError(failiureReason)
+        ProviderError(failiureReason)
     }
     
     class func searchError(_ failiureReason: String) -> SearchError {
-        return SearchError(failiureReason)
+        SearchError(failiureReason)
     }
     
     class func authenticationRequiredError(_ failiureReason: String, _ authenticationUrl: URL? = nil) -> AuthenticationRequiredError {
-        return AuthenticationRequiredError(failiureReason, authenticationUrl: authenticationUrl)
+        AuthenticationRequiredError(failiureReason, authenticationUrl: authenticationUrl)
     }
     
     class func contentUnavailableError(_ failiureReason: String) -> ContentUnavailableError {
-        return ContentUnavailableError(failiureReason)
+        ContentUnavailableError(failiureReason)
     }
     
     var sourceOfError: Any?
@@ -72,11 +72,11 @@ class NineAnimatorError: NSError {
     
     // Right now, using message as localized description
     override var localizedDescription: String {
-        return userInfo["message"] as? String ?? super.localizedDescription
+        userInfo["message"] as? String ?? super.localizedDescription
     }
     
     override var localizedFailureReason: String? {
-        return userInfo["failiureReason"] as? String
+        userInfo["failiureReason"] as? String
     }
     
     override var description: String {
@@ -194,7 +194,7 @@ extension NineAnimatorError {
         
         /// The url at which an authentication can be attempted
         var authenticationUrl: URL? {
-            return userInfo["authenticationUrl"] as? URL
+            userInfo["authenticationUrl"] as? URL
         }
         
         required init?(coder aDecoder: NSCoder) {
@@ -252,7 +252,7 @@ extension NineAnimatorError {
     class CloudflareAuthenticationChallenge: AuthenticationRequiredError {
         /// The resolved authentication response
         var authenticationResponse: [String: String]? {
-            return userInfo["cloudflare_answer"] as? [String: String]
+            userInfo["cloudflare_answer"] as? [String: String]
         }
         
         init(authenticationUrl: URL?, responseParameters: [String: String]?) {
@@ -263,7 +263,7 @@ extension NineAnimatorError {
             }
             
             super.init(
-                "this website asks NineAnimator to verify the identity of the user",
+                "This website requests NineAnimator to verify your identity",
                 authenticationUrl: authenticationUrl,
                 userInfo: userInfo
             )
@@ -278,6 +278,45 @@ extension NineAnimatorError {
     class ContentUnavailableError: NineAnimatorError {
         init(_ reason: String, userInfo: [String: Any]? = nil) {
             super.init(8, message: "This content is no longer available", failiureReason: reason, userInfo: userInfo)
+        }
+        
+        required init?(coder aDecoder: NSCoder) {
+            super.init(coder: aDecoder)
+        }
+    }
+    
+    /// Representing that an episode is not available on the specified server. Optionally
+    /// providing a list of alternative `EpisodeLink`.
+    class EpisodeServerNotAvailableError: ContentUnavailableError {
+        /// A list of alternative episodes that are available for streaming
+        var alternativeEpisodes: [EpisodeLink]? {
+            userInfo["alternative_episodes"] as? [EpisodeLink]
+        }
+        
+        /// An updated server map that includes the human readable name for the alternative episodes
+        var updatedServerMap: [Anime.ServerIdentifier: String]? {
+            userInfo["alternative_server_map"] as? [Anime.ServerIdentifier: String]
+        }
+        
+        init(unavailableEpisode: EpisodeLink,
+             alternativeEpisodes: [EpisodeLink]? = nil,
+             updatedServerMap: [Anime.ServerIdentifier: String]? = nil,
+             userInfo: [String: Any]? = nil) {
+            var updatingUserInfo = userInfo ?? [:]
+            let unavailableServerName = updatedServerMap?[unavailableEpisode.server]
+            
+            if let alternativeEpisodes = alternativeEpisodes {
+                updatingUserInfo["alternative_episodes"] = alternativeEpisodes
+            }
+            
+            if let updatedServerMap = updatedServerMap {
+                updatingUserInfo["alternative_server_map"] = updatedServerMap
+            }
+            
+            super.init(
+                "This episode is not available on \(unavailableServerName ?? "the selected server").",
+                userInfo: updatingUserInfo
+            )
         }
         
         required init?(coder aDecoder: NSCoder) {

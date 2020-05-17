@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ import SwiftSoup
 
 extension NASourceFourAnime {
     func featured() -> NineAnimatorPromise<FeaturedContainer> {
-        return request(browseUrl: endpointURL).then {
+        request(browseUrl: endpointURL).then {
             responseContent in
             let endpointURL = self.endpointURL
             let bowl = try SwiftSoup.parse(responseContent)

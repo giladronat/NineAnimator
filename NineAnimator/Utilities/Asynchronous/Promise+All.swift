@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -78,7 +78,7 @@ extension NineAnimatorPromise {
             queue: DispatchQueue = .global(),
             listOfTasks: [() throws -> GroupedResultType?]
         ) -> NineAnimatorPromise<[GroupedResultType]> {
-        return all(queue: queue, listOfPromises: listOfTasks.map { NineAnimatorPromise<GroupedResultType>.firstly($0) })
+        all(queue: queue, listOfPromises: listOfTasks.map { NineAnimatorPromise<GroupedResultType>.firstly($0) })
     }
     
     /// Alias
@@ -86,7 +86,7 @@ extension NineAnimatorPromise {
             queue: DispatchQueue = .global(),
             _ tasks: (() throws -> GroupedResultType?)...
         ) -> NineAnimatorPromise<[GroupedResultType]> {
-        return all(queue: queue, listOfTasks: tasks)
+        all(queue: queue, listOfTasks: tasks)
     }
     
     /// Alias
@@ -94,6 +94,6 @@ extension NineAnimatorPromise {
             queue: DispatchQueue = .global(),
             promises: NineAnimatorPromise<GroupedResultType>...
         ) -> NineAnimatorPromise<[GroupedResultType]> {
-        return all(queue: queue, listOfPromises: promises)
+        all(queue: queue, listOfPromises: promises)
     }
 }

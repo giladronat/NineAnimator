@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -147,7 +147,7 @@ class FrequencyChartView: UIView, Themable {
     
     private struct HistogramBlock {
         var range: ClosedRange<Double> {
-            return upperBound...lowerBound
+            upperBound...lowerBound
         }
         
         var value: Double
@@ -167,7 +167,7 @@ class FrequencyChartView: UIView, Themable {
         
         // Calculate area under the closed range
         subscript (_ range: ClosedRange<Double>) -> Double {
-            return (range.upperBound - range.lowerBound) / (upperBound - lowerBound) * value
+            (range.upperBound - range.lowerBound) / (upperBound - lowerBound) * value
         }
         
         init(_ x: Double, height: Double) {

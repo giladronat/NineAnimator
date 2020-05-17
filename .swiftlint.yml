@@ -1,5 +1,6 @@
 excluded: # paths to ignore during linting. Takes precedence over `included`.
   - Carthage
+  - fastlane
 disabled_rules: # rule identifiers to exclude from running
   - closure_parameter_position
   - force_cast
@@ -12,6 +13,7 @@ disabled_rules: # rule identifiers to exclude from running
   - closure_end_indentation
   - cyclomatic_complexity
   - nesting
+  - valid_ibinspectable
 opt_in_rules: # some rules are only opt-in
   - anyobject_protocol
   - closure_spacing
@@ -50,7 +52,6 @@ opt_in_rules: # some rules are only opt-in
   - unneeded_parentheses_in_closure_argument
   - untyped_error_in_catch
   - unused_import
-  - unused_private_declaration
   - valid_ibinspectable
   - vertical_parameter_alignment_on_call
   - vertical_whitespace_closing_braces

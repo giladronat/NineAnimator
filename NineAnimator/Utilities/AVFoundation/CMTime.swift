@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,8 +20,7 @@
 import AVKit
 
 extension CMTime {
-    // TODO: Ask Markus if this is fine
-//    var seconds: Float { return Float(CMTimeGetSeconds(self)) }
+    var seconds: Float { Float(CMTimeGetSeconds(self)) }
     
     init(seconds: Double) {
         self.init(seconds: Double(seconds), preferredTimescale: CMTimeScale(NSEC_PER_SEC))

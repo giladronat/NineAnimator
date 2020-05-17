@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import Foundation
 
 class TiwiKiwiParser: VideoProviderParser {
     var aliases: [String] {
-        return [ "TiwiKiwi", "Tiwi.Kiwi", "Tiwi Kiwi" ]
+        [ "TiwiKiwi", "Tiwi.Kiwi", "Tiwi Kiwi" ]
     }
     
     static let jwPlayerOptionRegex = try! NSRegularExpression(pattern: "'([^']+)'\\.split", options: .caseInsensitive)
@@ -31,10 +31,10 @@ class TiwiKiwiParser: VideoProviderParser {
     static let flowPlayerBaseURLRegex = try! NSRegularExpression(pattern: "BaseURL>([^<]+)", options: .caseInsensitive)
     
     func parse(episode: Episode,
-               with session: SessionManager,
+               with session: Session,
                forPurpose _: Purpose,
                onCompletion handler: @escaping NineAnimatorCallback<PlaybackMedia>) -> NineAnimatorAsyncTask {
-        let headers = [
+        let headers: HTTPHeaders = [
             "User-Agent": defaultUserAgent,
             "Origin": episode.target.absoluteString
         ]
@@ -129,6 +129,6 @@ class TiwiKiwiParser: VideoProviderParser {
     }
     
     func isParserRecommended(forPurpose purpose: Purpose) -> Bool {
-        return true
+        true
     }
 }

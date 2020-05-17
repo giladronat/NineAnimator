@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -29,22 +29,26 @@ import AppKit
 class NASourceNineAnime: BaseSource, Source {
     let name: String = "9anime.ru"
     
-    var aliases: [String] { return [] }
+    var aliases: [String] { [] }
     
-    override var endpoint: String { return "https://\(_currentHost)" }
+    override var endpoint: String { "https://\(_currentHost)" }
     
 #if canImport(UIKit)
-    var siteLogo: UIImage { return #imageLiteral(resourceName: "9anime Site Icon") }
+    var siteLogo: UIImage { #imageLiteral(resourceName: "9anime Site Icon") }
 #elseif canImport(AppKit)
-    var siteLogo: NSImage { return #imageLiteral(resourceName: "9anime Site Icon") }
+    var siteLogo: NSImage { #imageLiteral(resourceName: "9anime Site Icon") }
 #endif
     
+    var preferredAnimeNameVariant: KeyPath<ListingAnimeName, String> {
+        \.romaji
+    }
+    
     var siteDescription: String {
-        return "9anime is a popular free anime streaming website and one of the best supported anime sources in NineAnimator."
+        "9anime is a popular free anime streaming website and one of the best supported anime sources in NineAnimator."
     }
     
     override var isEnabled: Bool {
-        return true
+        true
     }
     
     lazy var _currentHost: String = possibleHosts.first!
@@ -52,20 +56,10 @@ class NASourceNineAnime: BaseSource, Source {
     
     override init(with parent: NineAnimator) {
         super.init(with: parent)
-        _internalUAIdentity = "Mozilla/5.0 (iPad; CPU iPhone OS 12_1_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1"
+        _internalUAIdentity = "Mozilla/5.0 (iPad; CPU iPhone OS 13_1_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.1 Mobile/15E148 Safari/604.1"
         addMiddleware(NASourceNineAnime._verificationDetectionMiddleware)
-        
-        // Process Redirections - Enforce HTTPS
-        self.taskWillPerformHTTPRedirection = {
-            _, _, _, request -> URLRequest? in
-            var newRequest = request
-            if let url = request.url,
-                var urlBuilder = URLComponents(url: url, resolvingAgainstBaseURL: false) {
-                urlBuilder.scheme = "https"
-                newRequest.url = urlBuilder.url ?? url
-            }
-            return newRequest
-        }
+        addMiddleware(NASourceNineAnime._ipBlockDetectionMiddleware)
+        addMiddleware(NASourceNineAnime._contentNotFoundMiddleware)
     }
     
     override func canHandle(url: URL) -> Bool {
@@ -141,7 +135,7 @@ class NASourceNineAnime: BaseSource, Source {
         with headers: [String: String] = [:],
         completion handler: @escaping NineAnimatorCallback<String>
         ) -> NineAnimatorAsyncTask? {
-        return signedRequest(
+        signedRequest(
             browse: endpointURL.appendingPathComponent(path),
             parameters: parameters,
             with: headers,
@@ -155,7 +149,7 @@ class NASourceNineAnime: BaseSource, Source {
             with headers: [String: String] = [:],
             completion handler: @escaping NineAnimatorCallback<String>
         ) -> NineAnimatorAsyncTask? {
-        return request(browse: signRequestURL(url, withParameters: parameters), headers: headers, completion: handler)
+        request(browse: signRequestURL(url, withParameters: parameters), headers: headers, completion: handler)
     }
     
     func signedRequest(
@@ -179,10 +173,16 @@ class NASourceNineAnime: BaseSource, Source {
             with headers: [String: String] = [:],
             completion handler: @escaping NineAnimatorCallback<NSDictionary>
         ) -> NineAnimatorAsyncTask? {
+        // Additional verification headers
+        let modifiedRequestHeaders = headers.merging([
+            "Age": "0",
+            "Accept": "application/json, text/javascript, */*; q=0.01"
+        ]) { override, _ in override }
+        
         // Forward the call
         return request(
             ajax: signRequestURL(url, withParameters: parameters),
-            headers: headers,
+            headers: modifiedRequestHeaders,
             completion: handler
         )
     }

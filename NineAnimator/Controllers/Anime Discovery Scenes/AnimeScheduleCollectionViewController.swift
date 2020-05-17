@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -109,11 +109,11 @@ class AnimeScheduleCollectionViewController: MinFilledCollectionViewController, 
     // MARK: - Data source
 
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return loadedScheduledDays.count
+        loadedScheduledDays.count
     }
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return loadedScheduledDays[section].collection.count
+        loadedScheduledDays[section].collection.count
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -145,7 +145,7 @@ class AnimeScheduleCollectionViewController: MinFilledCollectionViewController, 
 extension AnimeScheduleCollectionViewController {
     func loadCalendarItems(on page: Int) {
         guard let source = calendarSource, source.availablePages > page else {
-            return Log.error("[Weekly Schedule] Trying to load page %@ of the schedule while it doesn't exists", page)
+            return Log.error("[Weekly Schedule] Trying to load page %@ of the schedule while it doesn't exist", page)
         }
         
         collectionView.performBatchUpdates({
@@ -240,7 +240,7 @@ extension AnimeScheduleCollectionViewController {
         }
         
         subscript(_ item: Int) -> IndexPath {
-            return IndexPath(item: item, section: section)
+            IndexPath(item: item, section: section)
         }
     }
 }

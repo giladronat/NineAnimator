@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -31,17 +31,23 @@ import UIKit
 /// - Return true on RecommendationSource.shouldReload(recommendation:). The source will
 ///   be updated as soon as the To Watch scene is being (re-)presented.
 class DiscoverySceneViewController: UITableViewController {
+    // Outlets
+    @IBOutlet private weak var selectSourceButton: UIBarButtonItem!
+    
     private var recommendationList = [(RecommendationSource, Recommendation?, Error?)]()
     private var recommendationLoadingTasks = [ObjectIdentifier: NineAnimatorAsyncTask]()
     private var dirtySources = Set<ObjectIdentifier>()
     private var shouldReloadDirtySourceImmedietly = false
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return Theme.current.preferredStatusBarStyle
+        Theme.current.preferredStatusBarStyle
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Load recommendations
+        reloadRecommendationList(shouldInformTableView: false)
         
         // Add recommendation list item
         NotificationCenter.default.addObserver(
@@ -53,8 +59,6 @@ class DiscoverySceneViewController: UITableViewController {
         
         // Remove the seperator lines
         tableView.tableFooterView = UIView()
-        
-        reloadRecommendationList()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -62,6 +66,11 @@ class DiscoverySceneViewController: UITableViewController {
         
         // Load dirty source as soon as the notification is received
         shouldReloadDirtySourceImmedietly = true
+        
+        // Reload dirty and errored sources when the view appears
+        markDirtySources()
+        reloadDirtySources()
+        reloadErroredSources()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -73,22 +82,19 @@ class DiscoverySceneViewController: UITableViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        // Reload dirty and errored sources when the view appears
-        markDirtySources()
-        reloadDirtySources()
-        reloadErroredSources()
         tableView.makeThemable()
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        coordinator.animate(alongsideTransition: {
-            [tableView] _ in
-            guard let tableView = tableView else { return }
-            tableView.performBatchUpdates({
-                tableView.setNeedsLayout()
+        if isBeingPresented {
+            coordinator.animate(alongsideTransition: {
+                [tableView] _ in
+                guard let tableView = tableView else { return }
+                tableView.performBatchUpdates({
+                    tableView.setNeedsLayout()
+                }, completion: nil)
             }, completion: nil)
-        }, completion: nil)
+        }
     }
     
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
@@ -135,7 +141,7 @@ extension DiscoverySceneViewController {
 // MARK: - Table view data source
 extension DiscoverySceneViewController {
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return Section.numberOfSections
+        Section.numberOfSections
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection _section: Int) -> Int {
@@ -276,14 +282,17 @@ fileprivate extension DiscoverySceneViewController {
     }
     
     /// Reload the entire recommendation list
-    func reloadRecommendationList() {
+    func reloadRecommendationList(shouldInformTableView: Bool = true) {
         // Abort all previous tasks
         recommendationLoadingTasks = [:]
         recommendationList = NineAnimator
             .default
             .sortedRecommendationSources()
             .map { ($0, nil, nil) }
-        tableView.reloadSections(Section.indexSet(.recommendations), with: .fade)
+        
+        if shouldInformTableView {
+            tableView.reloadSections(Section.indexSet(.recommendations), with: .fade)
+        }
         
         for (index, (source, _, _)) in recommendationList.enumerated() {
             let identifier = ObjectIdentifier(source)
@@ -293,7 +302,7 @@ fileprivate extension DiscoverySceneViewController {
     }
     
     private func createTask(for source: RecommendationSource, withItemIndex index: Int) -> NineAnimatorAsyncTask {
-        return source
+        source
             .generateRecommendations()
             .dispatch(on: .main)
             .error { [weak self] in self?.onRecommendationLoadError(index, source: source, error: $0) }

@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ extension Kitsu {
     }
     
     func libraryEntry(with animeIdentifier: String) -> NineAnimatorPromise<LibraryEntry> {
-        return currentUser().thenPromise {
+        currentUser().thenPromise {
             [unowned self] user in
             self.apiRequest("/library-entries", query: [
                 "filter[animeId]": animeIdentifier,
@@ -48,7 +48,7 @@ extension Kitsu {
         } .then {
             response in
             guard let entry = response.first else {
-                throw NineAnimatorError.responseError("The library entry of this anime does not exists")
+                throw NineAnimatorError.responseError("The library entry of this anime does not exist")
             }
             return try LibraryEntry(from: entry)
         }

@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -258,7 +258,7 @@ extension Theme {
         }
         
         static func == (_ lhs: Theme.ThemableContainer, _ rhs: Theme.ThemableContainer) -> Bool {
-            return lhs.hashValue == rhs.hashValue
+            lhs.hashValue == rhs.hashValue
         }
     }
 }
@@ -266,6 +266,6 @@ extension Theme {
 // MARK: - Theme: Equatable
 extension Theme: Equatable {
     static func == (_ lhs: Theme, _ rhs: Theme) -> Bool {
-        return lhs.name == rhs.name
+        lhs.name == rhs.name
     }
 }

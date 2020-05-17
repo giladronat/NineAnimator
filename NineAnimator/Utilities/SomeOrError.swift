@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,9 +19,9 @@
 
 import Foundation
 
-func some<T>(_ optionalValue: T?, or error: NineAnimatorError) throws -> T {
+func some<T>(_ optionalValue: T?, or error: @autoclosure () -> NineAnimatorError) throws -> T {
     guard let value = optionalValue else {
-        throw error
+        throw error()
     }
     return value
 }

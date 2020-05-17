@@ -1,7 +1,7 @@
 //
 //  This file is part of the NineAnimator project.
 //
-//  Copyright © 2018-2019 Marcus Zhou. All rights reserved.
+//  Copyright © 2018-2020 Marcus Zhou. All rights reserved.
 //
 //  NineAnimator is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ import SwiftSoup
 
 extension NASourceAnimeUltima {
     func featured() -> NineAnimatorPromise<FeaturedContainer> {
-        return request(browsePath: "/")
+        request(browsePath: "/")
             .then {
                 result -> FeaturedContainer? in
                 // Parse and select the sections
@@ -48,7 +48,7 @@ extension NASourceAnimeUltima {
     }
     
     fileprivate func retrieveFeaturedLinks(from featuredAnimeSectionContainer: SwiftSoup.Element) throws -> [AnimeLink] {
-        return try featuredAnimeSectionContainer
+        try featuredAnimeSectionContainer
             .select("div.anime-box")
             .map {
                 animeContainer -> AnimeLink in
